@@ -1,0 +1,35 @@
+{
+  "citations": [],
+  "created_utc": "2026-08-04T03:57:37.784240+00:00",
+  "environment": {},
+  "git_commit": null,
+  "hostname": "91232ce0b5d5",
+  "inputs": [
+    {
+      "bytes": 7848,
+      "path": "/mnt/data/ipcc-wg1-scientific-plotting-skill/outputs/quickstart_plotted_data.nc",
+      "sha256": "e7ce46fed2dbb034dae8c960aaa48358485cd63343d613f99bb7aace464a6607"
+    }
+  ],
+  "packages": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "xarray": "2026.4.0"
+  },
+  "parameters": {
+    "center": "median",
+    "interval": [
+      0.17,
+      0.83
+    ],
+    "minimum_valid_count": 5,
+    "sign_agreement": 0.8
+  },
+  "platform": "Linux-6.12.13-x86_64-with-glibc2.41",
+  "python": "3.13.5 (main, May  5 2026, 21:05:52) [GCC 14.2.0]",
+  "random_seed": 20260804,
+  "schema": "ipcc-sciplot-provenance/1.0",
+  "working_directory": "/mnt/data/ipcc-wg1-scientific-plotting-skill"
+}

@@ -1,0 +1,22 @@
+figure_id: "figure_01"
+question: "How does the target variable change relative to the baseline?"
+estimand: "Model-equal median change, with 17-83% range"
+plot_type: "map"
+variable: "tas"
+unit: "K"
+baseline: "1850-1900"
+center: "median"
+lower_quantile: 0.17
+upper_quantile: 0.83
+sign_agreement: 0.80
+min_valid_count: 5
+colormap: "RdBu_r"
+output_stem: "outputs/figure_01"
+
+# Project-specific fields are preserved in recipe.extras.
+period: "2081-2100"
+scenario: "SSP2-4.5"
+ensemble_policy: "one realization per model; equal model weight"
+projection: "Robinson"
+longitude_convention: "-180..180"
+random_seed: 20260804

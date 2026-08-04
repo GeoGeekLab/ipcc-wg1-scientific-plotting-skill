@@ -1,0 +1,30 @@
+name: ipcc-sciplot
+channels:
+  - conda-forge
+channel_priority: strict
+dependencies:
+  - python>=3.11
+  - numpy>=1.26
+  - pandas>=2.1
+  - matplotlib>=3.8
+  - xarray>=2024.6
+  - scipy>=1.11
+  - pyyaml>=6
+  - netcdf4
+  - h5netcdf
+  - dask
+  - cartopy
+  - regionmask
+  - cf_xarray
+  - pint-xarray
+  - flox
+  - cmocean
+  - xclim
+  - xesmf
+  - zarr
+  - pytest
+  - pytest-mpl
+  - ruff
+  - pip
+  - pip:
+      - pyam-iamc>=2.2
