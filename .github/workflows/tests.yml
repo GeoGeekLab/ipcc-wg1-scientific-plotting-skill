@@ -30,3 +30,13 @@ jobs:
           r = load_ipcc_native_recipe("templates/ipcc_native_recipe.yaml")
           print(r.figure_id, r.assessment["archetype"])
           PY
+      - name: Package skill
+        if: matrix.python-version == '3.12'
+        run: git archive --format=zip --output=ipcc-native-plot-skill-v0.2.0.zip HEAD
+      - name: Upload skill package
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipcc-native-plot-skill-v0.2.0
+          path: ipcc-native-plot-skill-v0.2.0.zip
+          if-no-files-found: error
