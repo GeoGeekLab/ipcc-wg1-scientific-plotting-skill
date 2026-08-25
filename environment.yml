@@ -1,4 +1,4 @@
-name: ipcc-sciplot
+name: ipcc-native-plot
 channels:
   - conda-forge
 channel_priority: strict
@@ -10,6 +10,7 @@ dependencies:
   - xarray>=2024.6
   - scipy>=1.11
   - pyyaml>=6
+  - cftime
   - netcdf4
   - h5netcdf
   - dask
@@ -19,7 +20,9 @@ dependencies:
   - pint-xarray
   - flox
   - cmocean
+  - cmcrameri
   - xclim
+  - xskillscore
   - xesmf
   - zarr
   - pytest
