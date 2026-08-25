@@ -1,0 +1,21 @@
+{
+  "name": "ipcc-native-plot",
+  "version": "0.2.0",
+  "description": "Assessment-grade climate visualization and reproducible scientific plotting skill",
+  "owner": {
+    "name": "GeoGeekLab"
+  },
+  "plugins": [
+    {
+      "name": "ipcc-native-plot",
+      "version": "0.2.0",
+      "source": "./",
+      "description": "IPCC-native climate-assessment visualization with explicit scientific contracts, uncertainty semantics, scenarios/GWL/regions, cartography and FAIR delivery.",
+      "author": {
+        "name": "GeoGeekLab"
+      },
+      "keywords": ["ipcc", "climate", "science", "figure", "cmip6", "xarray", "cartopy", "assessment"],
+      "category": "academic"
+    }
+  ]
+}
