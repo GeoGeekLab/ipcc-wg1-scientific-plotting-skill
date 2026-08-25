@@ -51,7 +51,7 @@ def synthetic_ensemble(seed: int = 20260825) -> xr.DataArray:
     # Demonstrate cell-varying model availability without manufacturing a scientific result.
     values[:8, :4, :10] = np.nan
 
-    da = xr.DataArray(
+    return xr.DataArray(
         values,
         dims=("model", "lat", "lon"),
         coords={"model": models, "lat": lat, "lon": lon},
@@ -62,7 +62,6 @@ def synthetic_ensemble(seed: int = 20260825) -> xr.DataArray:
             "warning": "Synthetic example only; not a climate projection.",
         },
     )
-    return da
 
 
 def main() -> None:
@@ -87,7 +86,8 @@ def main() -> None:
         agreement_threshold=float(recipe.robustness.get("sign_agreement_threshold", 0.80)),
     )
 
-    plotted = xr.merge([summary, classes], compat="override")
+    base_summary = summary.drop_vars(["high_agreement", "low_agreement", "insufficient_data"])
+    plotted = xr.merge([base_summary, classes])
     plotted.attrs.update(
         {
             "assessment_intent": recipe.assessment["intent"],
