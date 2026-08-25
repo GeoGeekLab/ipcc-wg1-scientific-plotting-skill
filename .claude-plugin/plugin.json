@@ -1,0 +1,21 @@
+{
+  "name": "ipcc-native-plot",
+  "description": "IPCC-native climate-assessment visualization skill with explicit estimands, ensemble and uncertainty semantics, scenario/GWL/region consistency, FAIR plotted-data delivery and reproducible QA.",
+  "version": "0.2.0",
+  "author": {
+    "name": "GeoGeekLab"
+  },
+  "homepage": "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill",
+  "repository": "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill",
+  "keywords": [
+    "ipcc",
+    "climate",
+    "scientific-visualization",
+    "cmip6",
+    "xarray",
+    "cartopy",
+    "uncertainty",
+    "assessment",
+    "reproducibility"
+  ]
+}
