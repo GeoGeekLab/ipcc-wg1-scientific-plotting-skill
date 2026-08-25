@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator, Mapping
+from typing import Any, Iterator, Mapping, Sequence
 
 import matplotlib as mpl
 import matplotlib.colors as mcolors
@@ -14,7 +14,11 @@ _WIDTHS_MM = {"single": 89.0, "double": 183.0}
 
 
 def figure_width_inches(width: str | float = "single") -> float:
-    """Return figure width in inches from an IPCC-like publication width."""
+    """Return figure width in inches from a journal-like width or millimetres.
+
+    `single`/`double` are retained for backward compatibility with the original
+    toolkit. They are not asserted to be official IPCC report dimensions.
+    """
     if isinstance(width, str):
         if width not in _WIDTHS_MM:
             raise ValueError(f"width must be one of {sorted(_WIDTHS_MM)} or millimetres")
@@ -33,40 +37,100 @@ def publication_context(
     font_scale: float = 1.0,
     base_font_pt: float = 8.0,
 ) -> Iterator[None]:
-    """Temporary, conservative Matplotlib settings for publication figures."""
+    """Temporary conservative Matplotlib settings for publication figures."""
     if font_scale <= 0:
         raise ValueError("font_scale must be positive")
     w = figure_width_inches(width)
     base = base_font_pt * font_scale
-    params = {
-        "figure.figsize": (w, w * 0.62),
-        "figure.dpi": 120,
-        "savefig.dpi": 300,
-        "savefig.bbox": "tight",
-        "savefig.pad_inches": 0.02,
-        "font.size": base,
-        "axes.titlesize": base * 1.05,
-        "axes.labelsize": base,
-        "xtick.labelsize": base * 0.9,
-        "ytick.labelsize": base * 0.9,
-        "legend.fontsize": base * 0.85,
-        "axes.linewidth": 0.7,
-        "lines.linewidth": 1.4,
-        "lines.markersize": 4.0,
-        "xtick.major.width": 0.7,
-        "ytick.major.width": 0.7,
-        "xtick.minor.width": 0.5,
-        "ytick.minor.width": 0.5,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "legend.frameon": False,
-        "pdf.fonttype": 42,
-        "ps.fonttype": 42,
-        "svg.fonttype": "none",
-        "axes.unicode_minus": True,
-    }
+    params = _base_rcparams(base)
+    params.update({"figure.figsize": (w, w * 0.62)})
     with mpl.rc_context(params):
         yield
+
+
+@contextmanager
+def assessment_context(
+    *,
+    width_mm: float = 180.0,
+    height_mm: float | None = None,
+    aspect: float = 0.62,
+    base_font_pt: float = 8.0,
+    font_scale: float = 1.0,
+) -> Iterator[None]:
+    """Temporary context for report/assessment graphics with explicit dimensions.
+
+    Unlike `publication_context`, callers provide the target report size directly.
+    This avoids treating journal dimensions as native IPCC requirements.
+    """
+    if width_mm <= 0:
+        raise ValueError("width_mm must be positive")
+    if height_mm is not None and height_mm <= 0:
+        raise ValueError("height_mm must be positive")
+    if aspect <= 0 or font_scale <= 0 or base_font_pt <= 0:
+        raise ValueError("aspect, font_scale and base_font_pt must be positive")
+
+    width_in = width_mm / _MM_PER_INCH
+    height_in = (height_mm / _MM_PER_INCH) if height_mm is not None else width_in * aspect
+    params = _base_rcparams(base_font_pt * font_scale)
+    params.update({"figure.figsize": (width_in, height_in)})
+    with mpl.rc_context(params):
+        yield
+
+
+def make_norm(
+    kind: str,
+    *,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    vcenter: float | None = None,
+    levels: Sequence[float] | None = None,
+    clip: bool = False,
+) -> mcolors.Normalize:
+    """Build a normalization from declarative recipe semantics."""
+    kind = kind.lower().replace("_", "-")
+    if kind == "linear":
+        return mcolors.Normalize(vmin=vmin, vmax=vmax, clip=clip)
+    if kind in {"two-slope", "twoslope", "diverging"}:
+        if vmin is None or vcenter is None or vmax is None:
+            raise ValueError("two-slope normalization requires vmin, vcenter and vmax")
+        if not vmin < vcenter < vmax:
+            raise ValueError("require vmin < vcenter < vmax")
+        return mcolors.TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax)
+    if kind == "boundary":
+        if levels is None or len(levels) < 2:
+            raise ValueError("boundary normalization requires at least two levels")
+        boundaries = np.asarray(levels, dtype=float)
+        if not np.all(np.diff(boundaries) > 0):
+            raise ValueError("boundary levels must be strictly increasing")
+        return mcolors.BoundaryNorm(boundaries, ncolors=256, clip=clip)
+    if kind == "log":
+        if vmin is not None and vmin <= 0:
+            raise ValueError("log normalization requires vmin > 0")
+        return mcolors.LogNorm(vmin=vmin, vmax=vmax, clip=clip)
+    raise ValueError("kind must be linear, two-slope, boundary, or log")
+
+
+def add_panel_label(
+    ax: Any,
+    label: str,
+    *,
+    x: float = 0.0,
+    y: float = 1.02,
+    weight: str = "bold",
+    fontsize: float | None = None,
+) -> Any:
+    """Add a consistent panel label in axes coordinates."""
+    return ax.text(
+        x,
+        y,
+        label,
+        transform=ax.transAxes,
+        ha="left",
+        va="bottom",
+        fontweight=weight,
+        fontsize=fontsize,
+        clip_on=False,
+    )
 
 
 def register_rgb_colormap(
@@ -115,7 +179,7 @@ def save_figure(
     dpi: int = 300,
     close: bool = False,
 ) -> list[Path]:
-    """Save vector PDF and raster preview with deterministic metadata."""
+    """Save vector/raster figure outputs with deterministic metadata."""
     stem = Path(stem)
     stem.parent.mkdir(parents=True, exist_ok=True)
     clean_metadata = {str(k): str(v) for k, v in (metadata or {}).items()}
@@ -126,10 +190,9 @@ def save_figure(
         kwargs: dict[str, Any] = {"bbox_inches": "tight", "pad_inches": 0.02}
         if fmt in {"png", "jpg", "jpeg", "tif", "tiff"}:
             kwargs["dpi"] = dpi
-            kwargs["metadata"] = clean_metadata
+            if fmt == "png":
+                kwargs["metadata"] = clean_metadata
         elif fmt == "pdf":
-            # PDF backend supports a restricted metadata vocabulary. Put detailed
-            # provenance in the JSON sidecar instead of forcing arbitrary keys.
             pdf_meta = {
                 key: value
                 for key, value in clean_metadata.items()
@@ -141,3 +204,33 @@ def save_figure(
     if close:
         plt.close(fig)
     return outputs
+
+
+def _base_rcparams(base: float) -> dict[str, Any]:
+    return {
+        "figure.dpi": 120,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+        "font.family": "sans-serif",
+        "font.size": base,
+        "axes.titlesize": base * 1.05,
+        "axes.labelsize": base,
+        "xtick.labelsize": base * 0.9,
+        "ytick.labelsize": base * 0.9,
+        "legend.fontsize": base * 0.85,
+        "axes.linewidth": 0.7,
+        "lines.linewidth": 1.4,
+        "lines.markersize": 4.0,
+        "xtick.major.width": 0.7,
+        "ytick.major.width": 0.7,
+        "xtick.minor.width": 0.5,
+        "ytick.minor.width": 0.5,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "legend.frameon": False,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "svg.fonttype": "none",
+        "axes.unicode_minus": True,
+    }
