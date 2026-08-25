@@ -1,0 +1,125 @@
+schema_version: "1.0"
+figure_id: "figure_01"
+
+assessment:
+  intent: "State in one sentence what the reader should conclude."
+  audience: "technical-summary"   # chapter-author | technical-summary | policymaker | public-assessment
+  evidence_role: "headline"       # headline | primary-evidence | mechanism | regional-detail | robustness | context
+  conclusion_status: "provisional" # provisional | supported | assessed
+  archetype: "assessment-map"     # see references/ipcc-archetypes.md
+
+science:
+  question: "How does the target climate quantity change relative to the reference?"
+  estimand: "Model-equal median change relative to the declared baseline."
+  variable: "tas"
+  unit: "K"
+  transformation: "absolute_change" # climatology | anomaly | absolute_change | percent_change | ratio | exceedance | custom
+  reference_value: 0.0
+
+sources:
+  datasets:
+    - id: "cmip6-example"
+      kind: "climate-model"        # climate-model | observation | reanalysis | remote-sensing | derived
+      version: null
+      citation: null
+      stable_id: null
+  model_dimension: "model"
+  realization_dimension: "member"
+
+ temporal:
+  baseline: "1995-2014"
+  target: "2081-2100"
+  season: "ANN"
+  calendar_policy: "preserve-source-calendar"
+  smoothing: null
+  warming_level:
+    enabled: false
+    target_degC: null
+    reference_period: "1850-1900"
+    crossing_method: null
+    window_years: null
+    scenario_pooling: null
+
+spatial:
+  frame: "global"                  # global | ar6-region | custom-region | grid | sites
+  domain: "all"                    # all | land | ocean | ice | custom
+  region_set: null                 # e.g. ar6.land
+  regions: []
+  area_weighting: "cell-area-preferred"
+  source_grid: null
+  target_grid: null
+  regridding:
+    enabled: false
+    method: null
+    weights_file: null
+  longitude_convention: "-180..180"
+
+ensemble:
+  sampling_unit: "model"
+  realization_policy: "aggregate-within-model-first"
+  model_weighting: "equal"
+  center: "median"
+  lower_quantile: 0.17
+  upper_quantile: 0.83
+  min_valid_count: 5
+  independence_notes: "Do not treat realizations as independent models."
+
+robustness:
+  enabled: true
+  method: "sign-agreement"
+  sign_agreement_threshold: 0.80
+  zero_tolerance: 0.0
+  insufficient_rule: "n_valid < 5"
+  low_agreement_encoding: "hatch"
+  insufficient_encoding: "neutral-mask"
+  significance:
+    enabled: false
+    method: null
+    alpha: null
+    multiplicity: null
+    encoding: "stipple"
+
+scenario:
+  experiments: ["historical", "SSP2-4.5"]
+  order: ["historical", "SSP2-4.5"]
+  probability_interpretation: false
+  color_source: "authorized-local-or-declared-palette"
+
+visual:
+  primary_encoding: "color"
+  colormap: "RdBu_r"
+  colormap_source: "matplotlib"    # ipcc-local | matplotlib | cmocean | cmcrameri | custom
+  normalization:
+    type: "two-slope"              # linear | boundary | two-slope | log | custom
+    vmin: -6.0
+    vcenter: 0.0
+    vmax: 6.0
+    levels: null
+  projection: "Robinson"
+  data_crs: "PlateCarree"
+  missing_color: "0.85"
+  panel_label_style: "(a)"
+  direct_labels: true
+  caption_decoding_required: true
+
+caption:
+  message: "State the assessment result before technical decoding."
+  uncertainty_sentence: "Shading/interval definition goes here."
+  robustness_sentence: "Hatching and insufficient-data rule go here."
+  source_sentence: "Datasets and model sampling unit go here."
+
+outputs:
+  stem: "outputs/figure_01"
+  formats: ["pdf", "svg", "png"]
+  preview_dpi: 300
+  plotted_data: "outputs/figure_01_plotted_data.nc"
+  provenance: "outputs/figure_01_provenance.json"
+  qa_notes: "outputs/figure_01_qa.md"
+  save_recipe_copy: true
+
+provenance:
+  hash_inputs: true
+  capture_environment: true
+  capture_git: true
+  random_seed: 20260825
+  notes: []
