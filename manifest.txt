@@ -1,3 +1,5 @@
+.claude-plugin/marketplace.json
+.claude-plugin/plugin.json
 .github/workflows/tests.yml
 README.md
 SKILL.md
@@ -30,6 +32,7 @@ scripts/ipcc_sciplot/scenarios.py
 scripts/ipcc_sciplot/style.py
 scripts/ipcc_sciplot/uncertainty.py
 scripts/ipcc_sciplot/validation.py
+skills/ipcc-native-plot/SKILL.md
 templates/figure_recipe.yaml
 templates/ipcc_native_recipe.yaml
 tests/test_native_recipe.py
