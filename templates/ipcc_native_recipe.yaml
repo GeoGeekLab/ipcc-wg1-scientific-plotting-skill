@@ -26,7 +26,7 @@ sources:
   model_dimension: "model"
   realization_dimension: "member"
 
- temporal:
+temporal:
   baseline: "1995-2014"
   target: "2081-2100"
   season: "ANN"
