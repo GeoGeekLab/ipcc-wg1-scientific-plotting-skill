@@ -5,7 +5,7 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 
-from ipcc_sciplot import audit_figure, save_figure
+from ipcc_sciplot import audit_figure
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
@@ -30,19 +30,26 @@ def finalize(
         raise RuntimeError("\n".join(issues))
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output = save_figure(
-        fig,
-        OUTPUT_DIR / stem,
-        metadata={
-            "Title": stem,
-            "Subject": "Reference reproduction from pinned official IPCC AR6 WGI source data",
-            "Creator": "ipcc-wg1-scientific-plotting-skill",
-            **(metadata or {}),
-        },
-        formats=("png",),
+    output = OUTPUT_DIR / f"{stem}.png"
+    clean_metadata = {
+        "Title": stem,
+        "Subject": (
+            "Reference reproduction from pinned official IPCC AR6 WGI source data"
+        ),
+        "Creator": "ipcc-wg1-scientific-plotting-skill",
+        **(metadata or {}),
+    }
+
+    # Do not use bbox_inches="tight" here. These files are physical-size
+    # regression references: 90/180 mm canvas dimensions must survive export.
+    fig.savefig(
+        output,
         dpi=350,
-        close=True,
-    )[0]
+        bbox_inches=None,
+        pad_inches=0,
+        metadata={str(key): str(value) for key, value in clean_metadata.items()},
+    )
+    plt.close(fig)
     return output
 
 
