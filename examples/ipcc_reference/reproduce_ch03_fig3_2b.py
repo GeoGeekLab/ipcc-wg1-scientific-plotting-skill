@@ -55,6 +55,7 @@ def plot_points(ax, expts, source, marker, *, mean=False, header=18) -> None:
 def main():
     with publication_context(width="single", height_mm=120, strict_font=False):
         fig, ax = plt.subplots()
+        fig.subplots_adjust(left=0.23, right=0.96, bottom=0.12, top=0.90)
 
         ax.set_title(
             "b) Global temperature change over\nland and ocean for a range of climates",
