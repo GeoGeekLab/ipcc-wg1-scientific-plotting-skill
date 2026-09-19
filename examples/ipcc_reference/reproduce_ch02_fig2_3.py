@@ -19,12 +19,17 @@ DARK_BLUE = "#003466"
 
 
 def table(path: str, **kwargs) -> pd.DataFrame:
-    return pd.read_csv(
+    frame = pd.read_csv(
         raw_url(CH2_REPO, CH2_SHA, path),
         sep=r"\s+",
         engine="python",
         **kwargs,
     )
+    frame.columns = [
+        str(column).strip().strip('"')
+        for column in frame.columns
+    ]
+    return frame
 
 
 def errorbar_abs(ax, x, y, low, high, **kwargs) -> None:
