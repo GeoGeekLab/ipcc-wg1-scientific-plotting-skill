@@ -43,9 +43,12 @@ class FigureRecipe:
         quantiles = (self.lower_quantile, self.upper_quantile)
         if (quantiles[0] is None) != (quantiles[1] is None):
             raise ValueError("lower_quantile and upper_quantile must be set together")
-        if quantiles[0] is not None and quantiles[1] is not None:
-            if not 0 <= quantiles[0] < quantiles[1] <= 1:
-                raise ValueError("invalid quantile interval")
+        if (
+            quantiles[0] is not None
+            and quantiles[1] is not None
+            and not 0 <= quantiles[0] < quantiles[1] <= 1
+        ):
+            raise ValueError("invalid quantile interval")
 
         if self.sign_agreement is not None and not 0.5 <= self.sign_agreement <= 1:
             raise ValueError("sign_agreement must be in [0.5, 1]")

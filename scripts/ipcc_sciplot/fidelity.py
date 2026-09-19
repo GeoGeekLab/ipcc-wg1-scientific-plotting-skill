@@ -33,7 +33,11 @@ def audit_figure(
 
     if strict_dimensions:
         width_mm, height_mm = fig.get_size_inches() * 25.4
-        if not any(abs(width_mm - target) <= dimension_tolerance_mm for target in _ALLOWED_WIDTHS_MM):
+        width_matches = any(
+            abs(width_mm - target) <= dimension_tolerance_mm
+            for target in _ALLOWED_WIDTHS_MM
+        )
+        if not width_matches:
             issues.append(
                 f"figure width is {width_mm:.1f} mm; strict IPCC delivery expects 90 or 180 mm"
             )
