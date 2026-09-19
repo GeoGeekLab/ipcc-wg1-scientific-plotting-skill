@@ -1,0 +1,50 @@
+name: IPCC source-data reproductions
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/ipcc_reference/**"
+      - "scripts/ipcc_sciplot/**"
+      - ".github/workflows/reference-reproductions.yml"
+  pull_request:
+    paths:
+      - "examples/ipcc_reference/**"
+      - "scripts/ipcc_sciplot/**"
+      - ".github/workflows/reference-reproductions.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: python -m pip install -e ".[qa]" cartopy
+
+      - name: Lint
+        run: ruff check examples/ipcc_reference scripts/ipcc_sciplot
+
+      - name: Generate reference reproductions
+        run: python examples/ipcc_reference/generate_all.py
+
+      - name: Verify committed reference gallery
+        run: git diff --exit-code -- examples/ipcc_reference/outputs
+
+      - name: List outputs
+        run: ls -lh examples/ipcc_reference/outputs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipcc-reference-reproductions
+          path: examples/ipcc_reference/outputs/
+          if-no-files-found: error

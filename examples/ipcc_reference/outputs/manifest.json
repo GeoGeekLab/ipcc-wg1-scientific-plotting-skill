@@ -1,0 +1,44 @@
+{
+  "font_fidelity": "CI uses the repository font fallback when Arial is unavailable. Geometry, source data, colours and figure-specific visual grammar are still audited.",
+  "outputs": [
+    {
+      "path": "outputs/ch03_fig3_2b_scatter.png",
+      "sha256": "2be39af9b3fc640e303f55715e9ce278989a4299cf5ed46f8c0f7f7b7093b0f4"
+    },
+    {
+      "path": "outputs/ch02_fig2_3_co2_proxy.png",
+      "sha256": "3a364dda3b3e4f1b2933ee6a322101daa9b30a17b229e43db549ecea8eab43e4"
+    },
+    {
+      "path": "outputs/ch10_fig10_20b_stations.png",
+      "sha256": "01589a73fc574ebe8e23261b01ced81276ec7aacb56a33d82c3c7ea3bc15fb09"
+    },
+    {
+      "path": "outputs/ch06_fig6_18_ch4_emissions.png",
+      "sha256": "9403dd0c33c377c8dcb6ab1a6e1b8ce115af70bd4b856c1b98b4ca46132c9025"
+    }
+  ],
+  "schema": "ipcc-reference-reproductions/1.0",
+  "sources": [
+    {
+      "commit": "ee22b6221c6535f81a33c1b033a4183621df0b23",
+      "figure": "AR6 WGI Figure 3.2b",
+      "repo": "IPCC-WG1/Chapter-3_Fig02b"
+    },
+    {
+      "commit": "5078755d5bf97653ae498f204bc55aeaf13b1671",
+      "figure": "AR6 WGI Figure 2.3",
+      "repo": "IPCC-WG1/Chapter-2_Fig03"
+    },
+    {
+      "commit": "91845e70e46bb5581d5612ac34256b44106bfb3d",
+      "figure": "AR6 WGI Figure 10.20b",
+      "repo": "ipcc-wgi/ESMValTool-AR6-OriginalCode-FinalFigures"
+    },
+    {
+      "commit": "09d9b43fe935fc81d828147f91b717396a84fca3",
+      "figure": "AR6 WGI Figure 6.18 source",
+      "repo": "IPCC-WG1/Chapter-6_Fig18"
+    }
+  ]
+}

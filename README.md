@@ -1,114 +1,280 @@
-# IPCC AR6 WGI Scientific Plotting Skill
+<div align="center">
 
-High-fidelity scientific plotting distilled from the **IPCC AR6 Working Group I** visual language.
+# ipcc-wg1-scientific-plotting-skill
 
-This project is based on WGI visual-style guidance, official AR6 colormaps, chapter plotting code, TSU figure-review evidence, and Atlas uncertainty guidance.
+**IPCC visual grammar, distilled into code.**
+
+`evidence → tokens → archetypes → render → audit → reference`
+
+[![CI](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/ci.yml)
+[![Reference reproductions](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/reference-reproductions.yml/badge.svg)](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/reference-reproductions.yml)
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
+[![AR6 WGI](https://img.shields.io/badge/IPCC-AR6%20WGI-111111?style=flat-square)](references/SOURCES.md)
+[![Fidelity](https://img.shields.io/badge/fidelity-strict%20%7C%20adapted-2ea44f?style=flat-square)](references/fidelity_checklist.md)
+
+High-fidelity scientific plotting reconstructed from the visual language of **IPCC AR6 Working Group I**.
+
+</div>
 
 > [!IMPORTANT]
 > Independent project. Not an official IPCC product and does not imply IPCC endorsement.
 
-## What it preserves
+## Why this exists
 
-- 9 cm / 18 cm IPCC print geometry and 25 cm maximum height
-- Arial-first WGI typography, 9/11 pt sizing and 0.5 pt axis grammar
-- 350 ppi print-raster delivery
-- AR6 report-era and June-2022 SSP colour profiles
-- RCP and generic WGI line colours
-- Official temperature, precipitation, cryosphere, chemistry, sea-level and wind colormaps
-- Scenario time-series and ensemble-band grammar
-- Map context, colour-bar and multi-panel conventions
-- Separate encodings for model agreement, insufficient data and statistical significance
-- A strict fidelity gate that refuses silent non-IPCC fallbacks
+A lot of “IPCC-style” plotting stops at a diverging palette, a sans-serif font, and some hatching.
 
-## Fidelity modes
+This repository treats AR6 WGI as a **visual system**, not a theme.
 
-**Strict** means IPCC-faithful: correct temporal profile, Arial, IPCC delivery geometry, semantic colours, official palette assets and explicit map projection.
+- **evidence over vibes** — rules trace back to WGI guides, TSU review comments, official colormaps, chapter code, or Atlas guidance;
+- **semantics over decoration** — SSP/RCP colours, uncertainty textures, missing data, and significance have distinct meanings;
+- **fail closed in strict mode** — no silent fallback to `viridis`, `RdBu`, cmocean, or a random font;
+- **method ≠ style** — median, 17–83%, 80% agreement, FDR, weighting, and projection are analysis choices unless the reference figure says otherwise;
+- **reference before abstraction** — figure-specific geometry wins over a generic helper when reproducing a published AR6 panel.
 
-**Adapted** means IPCC-inspired: substitutions are allowed, but the output must not be described as an exact WGI-style reproduction.
+The goal is not to make plots that look vaguely IPCC-ish.
 
-See `references/fidelity_checklist.md`.
+The goal is to make the fidelity claim **inspectable**.
 
-## Install
+## Fidelity model
 
-    python -m venv .venv
-    source .venv/bin/activate
-    python -m pip install -e ".[qa]"
+| Mode | Contract |
+| --- | --- |
+| **strict / IPCC-faithful** | Correct profile, Arial, IPCC delivery geometry, semantic scenario colours, official WGI colormap assets, explicit map projection, separated uncertainty semantics, fidelity audit. |
+| **adapted / IPCC-inspired** | Substitutions are allowed, but the result must be labelled as adapted rather than exact. |
 
-For climate/map workflows:
+Two style profiles are explicit:
 
-    python -m pip install -e ".[climate,qa]"
+```text
+ar6-report       → final-report-era AR6 semantics
+wgi-guide-2022   → June-2022 WGI guide update
+```
 
-## Official colormaps
+They are not silently mixed.
 
-Strict map rendering uses an authorized local checkout of the official WGI colormap repository rather than redistributing its RGB assets here.
+## Execution model
 
-    git clone https://github.com/IPCC-WG1/colormaps.git
-    export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
+```text
+SOURCE → PROFILE → FIGURE CONTRACT → RENDER → AUDIT → REFERENCE
+```
 
-    from ipcc_sciplot import load_ipcc_colormap
-    cmap = load_ipcc_colormap("temp_div")
+| Stage | Question |
+| --- | --- |
+| **Source** | Which WGI evidence or published figure defines the rule? |
+| **Profile** | Are we reproducing final-report AR6 or using the 2022 guide? |
+| **Figure contract** | What quantity, geometry, uncertainty method, palette, projection, and output size are required? |
+| **Render** | Which archetype and semantic tokens apply? |
+| **Audit** | What can be machine-checked, and what still needs visual comparison? |
+| **Reference** | Can the output be regenerated from pinned source data and verified by SHA256? |
 
-There is intentionally **no** automatic `RdBu`, `viridis` or cmocean fallback in strict mode.
+## What is encoded
+
+```text
+delivery
+  ├── 90 / 180 mm print widths
+  ├── ≤ 250 mm height
+  ├── 9 / 11 pt WGI typography
+  ├── 0.5 pt axis grammar
+  └── 350 ppi raster master
+
+semantics
+  ├── SSP / RCP colours
+  ├── WGI generic line colours
+  ├── variable-specific official colormaps
+  └── report-era vs 2022 profiles
+
+uncertainty
+  ├── model agreement
+  ├── insufficient data
+  └── statistical significance
+
+qa
+  ├── text + unit conventions
+  ├── semantic colour audit
+  ├── physical-size audit
+  ├── official-colormap audit
+  └── source-data regression gallery
+```
+
+## Reference gallery
+
+These are generated from **pinned official IPCC AR6 WGI source repositories**, not synthetic demo data.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<strong>Chapter 3 — Figure 3.2b</strong><br>
+Scatter + fitted relationship.<br><br>
+<img src="examples/ipcc_reference/outputs/ch03_fig3_2b_scatter.png" alt="Chapter 3 Figure 3.2b reproduction">
+</td>
+<td width="50%" valign="top">
+<strong>Chapter 10 — Figure 10.20b</strong><br>
+Mediterranean station map.<br><br>
+<img src="examples/ipcc_reference/outputs/ch10_fig10_20b_stations.png" alt="Chapter 10 Figure 10.20b reproduction">
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<strong>Chapter 2 — Figure 2.3</strong><br>
+Paleo CO₂ proxies + uncertainty.<br><br>
+<img src="examples/ipcc_reference/outputs/ch02_fig2_3_co2_proxy.png" alt="Chapter 2 Figure 2.3 reproduction">
+</td>
+<td width="50%" valign="top">
+<strong>Chapter 6 — Figure 6.18 source</strong><br>
+Historical + scenario CH₄ emissions.<br><br>
+<img src="examples/ipcc_reference/outputs/ch06_fig6_18_ch4_emissions.png" alt="Chapter 6 Figure 6.18 source reproduction">
+</td>
+</tr>
+</table>
+
+Source commits, output dimensions, and SHA256 checksums live in [the reference gallery](examples/ipcc_reference/README.md) and [its manifest](examples/ipcc_reference/outputs/manifest.json).
 
 ## Quick start
 
-    python examples/quickstart.py
+Requires Python 3.11+.
 
-The example uses semantic SSP colours, WGI text conventions and the print-delivery context.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[qa]"
+```
 
-    from ipcc_sciplot import axis_label, publication_context, scenario_style
+For map/climate workflows:
 
-    with publication_context(width="double", strict_font=False):
-        style = scenario_style("SSP2-4.5", profile="ar6-report")
-        ax.plot(year, value, color=style.color)
-        ax.set_ylabel(axis_label("Temperature change", "°C"))
+```bash
+python -m pip install -e ".[climate,qa]"
+```
 
-Use `strict_font=True` when the output will be described as IPCC-faithful.
+Strict maps use the official WGI colormap repository directly:
 
-## Evidence, not vibes
+```bash
+git clone https://github.com/IPCC-WG1/colormaps.git
+export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
+```
 
-The distillation is auditable rather than aesthetic guesswork.
+```python
+from ipcc_sciplot import (
+    audit_figure,
+    axis_label,
+    load_ipcc_colormap,
+    publication_context,
+    scenario_style,
+)
 
-- `references/SOURCES.md` — source hierarchy
-- `references/evidence_matrix.md` — rule-by-rule scope/confidence
-- `references/ipcc_visual_grammar.md` — shared visual grammar
-- `references/figure_archetypes.md` — figure-family rules
-- `references/fidelity_checklist.md` — strict gate
+with publication_context(width="double", strict_font=True):
+    style = scenario_style("SSP2-4.5", profile="ar6-report")
+    cmap = load_ipcc_colormap("temp_div")
 
-A key rule: analysis choices such as median vs mean, 17–83% ranges, 80% sign agreement or equal-model weighting are **not** promoted into visual-style tokens.
+    ax.plot(year, value, color=style.color)
+    ax.set_ylabel(axis_label("Temperature change", "°C"))
 
-## Project structure
+issues = audit_figure(
+    fig,
+    profile="ar6-report",
+    strict_font=True,
+    strict_dimensions=True,
+)
+if issues:
+    raise RuntimeError("\n".join(issues))
+```
 
-    scripts/ipcc_sciplot/
-      tokens.py          WGI semantic colours and design tokens
-      colormaps.py       strict loader for official WGI colour assets
-      style.py           delivery geometry, typography, labels and export
-      archetypes.py      recurring figure-family helpers
-      maps.py            geographic context and uncertainty layers
-      fidelity.py        machine-checkable fidelity audit
-      uncertainty.py     statistical helpers (not style defaults)
-      provenance.py      reproducibility metadata
+Strict mode intentionally has **no generic palette fallback**.
 
-    references/
-      SOURCES.md
-      evidence_matrix.md
-      ipcc_visual_grammar.md
-      figure_archetypes.md
-      fidelity_checklist.md
-      statistical_rules.md
+## Repository map
 
-## Validation
+```text
+ipcc-wg1-scientific-plotting-skill/
+├── SKILL.md                         # skill contract + routing
+├── scripts/ipcc_sciplot/
+│   ├── tokens.py                    # semantic WGI colours + design tokens
+│   ├── colormaps.py                 # official WGI asset loader
+│   ├── style.py                     # delivery geometry + typography
+│   ├── archetypes.py                # recurring figure families
+│   ├── maps.py                      # map context + uncertainty layers
+│   ├── fidelity.py                  # machine-checkable fidelity audit
+│   ├── uncertainty.py               # statistical helpers, not style defaults
+│   └── provenance.py                # reproducibility metadata
+├── references/
+│   ├── SOURCES.md                   # source hierarchy
+│   ├── evidence_matrix.md           # rule → evidence → scope → confidence
+│   ├── ipcc_visual_grammar.md        # canonical visual grammar
+│   ├── figure_archetypes.md          # figure-family rules
+│   ├── fidelity_checklist.md         # strict gate
+│   └── statistical_rules.md          # method/style separation
+├── examples/
+│   ├── quickstart.py
+│   └── ipcc_reference/              # pinned source-data regressions
+├── templates/
+│   └── figure_recipe.yaml
+└── tests/
+```
 
-    pytest -q
-    python examples/quickstart.py
-    python scripts/check_figure.py outputs/quickstart.pdf --metadata outputs/quickstart.provenance.json
+## Verification
 
-CI runs Ruff, tests and the end-to-end example on Python 3.11 and 3.12.
+Run the local contract:
 
-A figure may be called **IPCC AR6 WGI-faithful** only when the applicable fidelity checks pass.
+```bash
+ruff check .
+pytest -q
+python examples/quickstart.py
+python scripts/check_figure.py   outputs/quickstart.pdf   --metadata outputs/quickstart.provenance.json
+```
 
-## Scope
+Rebuild the pinned IPCC reference gallery:
 
-The goal is not one frozen Matplotlib theme. AR6 WGI contains multiple figure families and chapter-specific implementations.
+```bash
+python -m pip install cartopy
+python examples/ipcc_reference/generate_all.py
+git diff --exit-code -- examples/ipcc_reference/outputs
+```
 
-The project distils the shared visual grammar, preserves documented semantic tokens, makes time/profile differences explicit, and refuses to turn method-specific choices into fake report-wide defaults.
+CI covers Python 3.11 and 3.12. The reference workflow regenerates the four official-source cases and fails if the committed gallery drifts.
+
+## Evidence model
+
+The source hierarchy is deliberately explicit:
+
+```text
+published reference figure
+        ↓
+WGI visual guidance + TSU review evidence
+        ↓
+official IPCC-WG1 colour assets
+        ↓
+chapter / final-figure implementation code
+        ↓
+Atlas uncertainty guidance
+        ↓
+general scientific-visualisation practice
+```
+
+Start with:
+
+- [source corpus](references/SOURCES.md)
+- [evidence matrix](references/evidence_matrix.md)
+- [visual grammar](references/ipcc_visual_grammar.md)
+- [figure archetypes](references/figure_archetypes.md)
+- [fidelity checklist](references/fidelity_checklist.md)
+
+## The boundary
+
+This repository does **not** claim that one Matplotlib theme can represent all of AR6 WGI.
+
+It also does not turn scientific-method choices into fake visual defaults.
+
+```text
+17–83% range       ≠ IPCC style
+80% agreement      ≠ IPCC style
+median             ≠ IPCC style
+equal-model weight ≠ IPCC style
+Robinson           ≠ universal IPCC projection
+```
+
+Those choices belong to the analysis or the published reference figure.
+
+---
+
+<div align="center">
+
+**Source it. Encode it. Render it. Prove it.**
+
+</div>
