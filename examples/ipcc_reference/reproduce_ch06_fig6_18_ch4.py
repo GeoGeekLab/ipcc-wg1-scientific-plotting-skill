@@ -130,9 +130,9 @@ def main():
 
         ax.set_xlim(1850, 2100)
         ax.set_ylim(bottom=0)
-        ax.set_title("CH₄", loc="left", pad=4)
+        ax.set_title(r"CH$_4$", loc="left", pad=4)
         ax.set_xlabel("Year")
-        ax.set_ylabel("CH₄ emissions (Mt CH₄ yr⁻¹)")
+        ax.set_ylabel(r"CH$_4$ emissions (Tg (CH$_4$) yr$^{-1}$)")
 
         handles, labels = ax.get_legend_handles_labels()
         unique = {}
