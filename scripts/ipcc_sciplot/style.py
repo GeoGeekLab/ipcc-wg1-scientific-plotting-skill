@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from .tokens import (
     DEFAULT_AXIS_WIDTH_PT,
-    DEFAULT_LINEWIDTH_PT,
+    DEFAULT_DATA_LINEWIDTH_PT,
     DEFAULT_TICK_WIDTH_PT,
     FONT_FALLBACKS,
     FONT_PRIMARY,
@@ -22,7 +22,10 @@ from .tokens import (
 )
 
 _MM_PER_INCH = 25.4
-_WIDTHS_MM = {"single": 89.0, "double": 183.0}
+_WIDTHS_MM = {"single": 90.0, "double": 180.0}
+_DEFAULT_FONTS_PT = {"single": 9.0, "double": 11.0}
+_MAX_HEIGHT_MM = 250.0
+_PRINT_RASTER_DPI = 350
 _BRACKET_UNIT_RE = re.compile(r"\[[^\]]+\]")
 
 
@@ -38,6 +41,22 @@ def figure_width_inches(width: str | float = "single") -> float:
     return width_mm / _MM_PER_INCH
 
 
+def figure_size_inches(
+    width: str | float = "single",
+    *,
+    height_mm: float | None = None,
+    aspect: float = 0.62,
+) -> tuple[float, float]:
+    width_in = figure_width_inches(width)
+    if height_mm is None:
+        height_in = width_in * aspect
+    else:
+        if not 0 < height_mm <= _MAX_HEIGHT_MM:
+            raise ValueError("height_mm must be in (0, 250] for IPCC figure delivery")
+        height_in = height_mm / _MM_PER_INCH
+    return width_in, height_in
+
+
 def require_arial() -> str:
     """Return the resolved Arial path or fail."""
     try:
@@ -49,26 +68,38 @@ def require_arial() -> str:
         ) from exc
 
 
+def _default_font_size(width: str | float) -> float:
+    if isinstance(width, str):
+        return _DEFAULT_FONTS_PT[width]
+    return 9.0
+
+
 @contextmanager
 def publication_context(
     *,
     width: str | float = "single",
+    height_mm: float | None = None,
     font_scale: float = 1.0,
-    base_font_pt: float = 8.0,
+    base_font_pt: float | None = None,
     strict_font: bool = False,
 ) -> Iterator[None]:
-    """Apply AR6-WGI-oriented Matplotlib defaults."""
+    """Apply AR6-WGI-oriented print-figure defaults.
+
+    The WGI guide specifies 9 cm / 18 cm widths, a maximum 25 cm height,
+    9 pt text on smaller figures and 11 pt on larger figures, with 0.5 pt axes.
+    Figure-specific line weights and geometry should still follow the reference
+    figure when performing exact reproduction.
+    """
     if font_scale <= 0:
         raise ValueError("font_scale must be positive")
     if strict_font:
         require_arial()
 
-    w = figure_width_inches(width)
-    base = base_font_pt * font_scale
+    base = (base_font_pt or _default_font_size(width)) * font_scale
     params = {
-        "figure.figsize": (w, w * 0.62),
+        "figure.figsize": figure_size_inches(width, height_mm=height_mm),
         "figure.dpi": 120,
-        "savefig.dpi": 300,
+        "savefig.dpi": _PRINT_RASTER_DPI,
         "savefig.bbox": "tight",
         "savefig.pad_inches": 0.02,
         "font.family": "sans-serif",
@@ -77,11 +108,11 @@ def publication_context(
         "axes.titlesize": base,
         "axes.titleweight": "normal",
         "axes.labelsize": base,
-        "xtick.labelsize": base * 0.9,
-        "ytick.labelsize": base * 0.9,
-        "legend.fontsize": base * 0.9,
+        "xtick.labelsize": base,
+        "ytick.labelsize": base,
+        "legend.fontsize": base,
         "axes.linewidth": DEFAULT_AXIS_WIDTH_PT,
-        "lines.linewidth": DEFAULT_LINEWIDTH_PT,
+        "lines.linewidth": DEFAULT_DATA_LINEWIDTH_PT,
         "lines.markersize": 4.0,
         "xtick.major.width": DEFAULT_TICK_WIDTH_PT,
         "ytick.major.width": DEFAULT_TICK_WIDTH_PT,
@@ -168,7 +199,7 @@ def save_figure(
     *,
     metadata: Mapping[str, Any] | None = None,
     formats: Sequence[str] = ("pdf", "png"),
-    dpi: int = 300,
+    dpi: int = _PRINT_RASTER_DPI,
     close: bool = False,
 ) -> list[Path]:
     stem = Path(stem)

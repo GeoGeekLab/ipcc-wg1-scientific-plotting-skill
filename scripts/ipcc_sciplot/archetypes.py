@@ -6,7 +6,7 @@ from typing import Any
 import matplotlib as mpl
 
 from .style import axis_label, ipcc_legend
-from .tokens import GENERIC_LINE_COLORS, scenario_style
+from .tokens import DEFAULT_DATA_LINEWIDTH_PT, GENERIC_LINE_COLORS, scenario_style
 
 
 def plot_scenario_timeseries(
@@ -15,7 +15,7 @@ def plot_scenario_timeseries(
     series: Mapping[str, Sequence[float]],
     *,
     profile: str = "ar6-report",
-    linewidth: float = 1.6,
+    linewidth: float = DEFAULT_DATA_LINEWIDTH_PT,
     legend: bool = True,
     legend_loc: str = "best",
 ) -> dict[str, mpl.lines.Line2D]:
@@ -42,7 +42,7 @@ def plot_generic_lines(
     x: Sequence[float],
     series: Mapping[str, Sequence[float]],
     *,
-    linewidth: float = 1.4,
+    linewidth: float = DEFAULT_DATA_LINEWIDTH_PT,
 ) -> dict[str, mpl.lines.Line2D]:
     """Plot non-semantic series using the WGI generic line-colour order."""
     if len(series) > 24:

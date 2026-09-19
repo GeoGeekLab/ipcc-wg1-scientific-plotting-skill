@@ -7,6 +7,8 @@ from .recipe import FigureRecipe, load_recipe
 from .style import (
     audit_text_conventions,
     axis_label,
+    figure_size_inches,
+    figure_width_inches,
     ipcc_legend,
     panel_label,
     publication_context,
@@ -36,6 +38,8 @@ __all__ = [
     "build_provenance",
     "ensemble_summary",
     "fdr_bh_mask",
+    "figure_size_inches",
+    "figure_width_inches",
     "ipcc_legend",
     "load_ipcc_colormap",
     "load_recipe",

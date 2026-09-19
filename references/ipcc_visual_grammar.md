@@ -4,20 +4,39 @@ This document defines what this project means by **IPCC AR6 WGI style**.
 
 It separates high-confidence report-wide rules from figure-family conventions
 and chapter-specific details. A figure should not be called "IPCC-faithful"
-merely because it uses a blue-red palette or a small sans-serif font.
+merely because it uses a blue-red palette or a sans-serif font.
 
-## 1. Typography
+## 1. Delivery geometry and typography
 
-### Hard rules
+### Physical size
+
+For IPCC print delivery:
+
+- single-column width: **9 cm**;
+- double-column width: **18 cm**;
+- maximum figure height: **25 cm**;
+- design and inspect the figure at its final physical size.
+
+The helper's automatic aspect ratio is only a convenience. Exact reproduction
+must match the reference figure's geometry.
+
+### Text and axes
 
 - Use **Arial** for strict fidelity.
-- If Arial is unavailable, an adapted render may use a metrically similar
-  sans-serif substitute, but the substitution must be disclosed.
+- Smaller figures use about **9 pt** text; larger figures about **11 pt**.
+- Keep axes black at **0.5 pt**.
+- Avoid decorative bold/italic/underline text unless the reference figure
+  clearly requires emphasis.
 - Put units in **parentheses**, e.g. `Temperature change (°C)`, not
   `Temperature change [K]`.
-- Prefer °C rather than K when the scientific quantity is a temperature change
-  intended for general WGI communication and no domain reason requires K.
+- Prefer °C rather than K when communicating temperature change to the general
+  WGI readership unless the scientific context requires K.
 - Spell out unfamiliar acronyms on first use where space permits.
+
+### Raster delivery
+
+- print raster output: **350 ppi**;
+- web derivatives may use lower resolution, but they are not the print master.
 
 ### Titles and panel labels
 
@@ -35,13 +54,17 @@ If a line represents an SSP or RCP, use the matching scenario token. Never
 assign scenarios from Matplotlib's default cycle.
 
 The project keeps report-era and June-2022 profiles separate because the SSP
-palette was updated.
+palette changed.
 
 ### Generic line colours
 
 For non-semantic multi-series line charts, use the WGI generic colour order.
 When more than six series are required, reuse colour with a secondary linestyle
 encoding rather than introducing arbitrary new colours.
+
+Line width is **not** a universal IPCC constant beyond the delivery minimum.
+Match the reference/archetype; the package's 1 pt data line is a convenience
+default, not a fidelity claim.
 
 ### Continuous fields
 
@@ -80,8 +103,8 @@ Prefer direct annotation when it reduces eye travel and remains uncluttered.
 When a separate legend or colour bar is needed:
 
 - place it close to the encoded data;
-- avoid consuming large margins when it can sit in available whitespace;
-- use a restrained black bounding box when following the guide's legend grammar;
+- use available white space before consuming an extra margin;
+- use a restrained black **0.5 pt** bounding box;
 - order items by scientific/semantic meaning, not plotting-call order;
 - explain every colour or texture that appears outside the main colour scale.
 
@@ -105,7 +128,7 @@ reference figure being reproduced.
 Recurring WGI traits include:
 
 - subdued geographic context;
-- grey land/context when land is not the plotted variable;
+- grey land/context when land is not the plotted variable in relevant archetypes;
 - thin coastlines/boundaries;
 - strong data layer, weak base map;
 - explicit colour-bar units;
@@ -121,9 +144,9 @@ Do not collapse distinct statistical concepts into a single hatch/stipple layer.
 
 ### Ensemble agreement
 
-Low sign agreement may be shown with hatching when that is the declared
-method. The threshold is part of the scientific method and must appear in the
-caption or metadata.
+Low sign agreement may be shown with hatching when that is the declared method.
+The threshold belongs to the scientific method and must appear in the caption or
+metadata. **80% is not a universal IPCC style default.**
 
 ### Insufficient data
 
@@ -146,14 +169,14 @@ areas.
 - Shading is subordinate to the central estimate.
 - Keep the centre line readable over the interval.
 - Label the interval explicitly: e.g. 5–95%, 17–83%, 95% CI.
+- No one interval is globally prescribed by the visual style.
 - Do not call different uncertainty quantities generically "error".
 - Scenario-specific uncertainty bands should retain scenario semantics rather
   than using unrelated colours.
 
 ## 9. Multi-panel composition
 
-- Arrange panels according to scientific logic (variable × period, scenario ×
-  region, etc.), not merely loop order.
+- Arrange panels according to scientific logic, not merely loop order.
 - Use shared axes/colour bars only when quantities and scales are genuinely common.
 - Maintain readable panel size; do not shrink maps until labels or spatial
   structure are no longer legible.
@@ -171,7 +194,8 @@ Before rendering, state:
 - uncertainty definition;
 - semantic colour mapping;
 - target figure family;
-- final physical size.
+- final physical size;
+- style profile.
 
 The visual grammar follows those decisions.
 
@@ -183,10 +207,12 @@ themselves, evidence of WGI visual fidelity:
 - xarray/Dask/Zarr;
 - provenance JSON;
 - FAIR metadata;
-- 300-dpi export;
 - FDR correction;
 - model-equal weighting;
-- using a perceptually uniform colormap;
+- a 17–83% range;
+- an 80% agreement threshold;
+- using a perceptually uniform generic colormap;
 - removing top/right spines.
 
-Keep workflow reproducibility as a separate layer from the visual style.
+Keep workflow reproducibility and scientific methodology separate from the
+visual style.
