@@ -112,30 +112,21 @@ def main():
             if subset.empty:
                 continue
             color = scenario_style(scenario, profile="ar6-report").color
+            first = True
             for _, row in subset.iterrows():
                 x, y = row_xy(row, years)
-                if len(x):
-                    ax.plot(
-                        x,
-                        y,
-                        color=color,
-                        linewidth=0.55,
-                        alpha=0.28,
-                        label="_nolegend_",
-                    )
-
-            values = subset[years].apply(pd.to_numeric, errors="coerce")
-            median = values.median(axis=0, skipna=True).to_numpy(dtype=float)
-            x = np.asarray([int(year) for year in years], dtype=float)
-            keep = np.isfinite(median)
-            ax.plot(
-                x[keep],
-                median[keep],
-                color=color,
-                linewidth=1.35,
-                label=scenario,
-                zorder=5,
-            )
+                if not len(x):
+                    continue
+                ax.plot(
+                    x,
+                    y,
+                    color=color,
+                    linewidth=1.0,
+                    alpha=0.78,
+                    label=scenario if first else "_nolegend_",
+                    zorder=5,
+                )
+                first = False
 
         ax.set_xlim(1850, 2100)
         ax.set_ylim(bottom=0)
