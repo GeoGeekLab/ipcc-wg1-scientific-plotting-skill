@@ -42,13 +42,25 @@ def finalize(
 
     # Do not use bbox_inches="tight" here. These files are physical-size
     # regression references: 90/180 mm canvas dimensions must survive export.
+    dpi = 350
+    expected = tuple(round(value * dpi) for value in fig.get_size_inches())
     fig.savefig(
         output,
-        dpi=350,
-        bbox_inches=None,
+        dpi=dpi,
+        bbox_inches=fig.bbox_inches,
         pad_inches=0,
         metadata={str(key): str(value) for key, value in clean_metadata.items()},
     )
+
+    from PIL import Image
+
+    with Image.open(output) as image:
+        actual = image.size
+    if any(abs(a - e) > 1 for a, e in zip(actual, expected, strict=True)):
+        raise RuntimeError(
+            f"physical-size regression: expected about {expected} px, got {actual} px"
+        )
+
     plt.close(fig)
     return output
 
