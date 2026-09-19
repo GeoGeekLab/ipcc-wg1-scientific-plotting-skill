@@ -5,6 +5,8 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+from .tokens import COAST_GREY, LAND_GREY, MISSING_DATA
+
 
 def cosine_latitude_weights(lat: xr.DataArray) -> xr.DataArray:
     """Approximate area weights for a regular latitude-longitude grid."""
@@ -30,6 +32,60 @@ def weighted_spatial_mean(
     return data.weighted(cell_area).mean((lat_name, lon_name), skipna=True)
 
 
+def add_map_context(
+    ax: Any,
+    *,
+    land: bool = True,
+    coastlines: bool = True,
+    borders: bool = False,
+    linewidth: float = 0.4,
+    zorder: int = 10,
+) -> None:
+    """Add restrained geographic context to a Cartopy GeoAxes."""
+    try:
+        import cartopy.feature as cfeature
+    except ImportError as exc:
+        raise ImportError("Cartopy is required for map context") from exc
+
+    if land:
+        ax.add_feature(cfeature.LAND, facecolor=LAND_GREY, edgecolor="none", zorder=zorder)
+    if coastlines:
+        ax.coastlines(color=COAST_GREY, linewidth=linewidth, zorder=zorder + 1)
+    if borders:
+        ax.add_feature(
+            cfeature.BORDERS,
+            edgecolor=COAST_GREY,
+            facecolor="none",
+            linewidth=linewidth,
+            zorder=zorder + 1,
+        )
+
+
+def _overlay_mask(
+    ax: Any,
+    lon: np.ndarray,
+    lat: np.ndarray,
+    mask: np.ndarray,
+    *,
+    transform: Any = None,
+    colors: str = "none",
+    hatches: list[str] | None = None,
+    zorder: int = 5,
+) -> Any:
+    mask = np.asarray(mask, dtype=bool)
+    field = np.where(mask, 1.0, np.nan)
+    kwargs: dict[str, Any] = {
+        "levels": [0.5, 1.5],
+        "colors": colors,
+        "zorder": zorder,
+    }
+    if hatches is not None:
+        kwargs["hatches"] = hatches
+    if transform is not None:
+        kwargs["transform"] = transform
+    return ax.contourf(lon, lat, field, **kwargs)
+
+
 def add_low_agreement_hatching(
     ax: Any,
     lon: np.ndarray,
@@ -40,14 +96,85 @@ def add_low_agreement_hatching(
     hatch: str = "////",
     zorder: int = 5,
 ) -> Any:
-    """Overlay transparent hatching where mask is true.
+    """Hatch low sign-agreement areas.
 
-    Works with ordinary Matplotlib axes and Cartopy GeoAxes. Pass an explicit
-    Cartopy transform for geographic coordinates.
+    This layer denotes ensemble agreement only. It must not be reused for
+    statistical significance or missing data.
     """
+    return _overlay_mask(
+        ax,
+        lon,
+        lat,
+        mask,
+        transform=transform,
+        colors="none",
+        hatches=[hatch],
+        zorder=zorder,
+    )
+
+
+def add_insufficient_data_mask(
+    ax: Any,
+    lon: np.ndarray,
+    lat: np.ndarray,
+    mask: np.ndarray,
+    *,
+    transform: Any = None,
+    color: str = MISSING_DATA,
+    zorder: int = 6,
+) -> Any:
+    """Cover cells with insufficient valid samples using a dedicated mask."""
+    return _overlay_mask(
+        ax,
+        lon,
+        lat,
+        mask,
+        transform=transform,
+        colors=color,
+        zorder=zorder,
+    )
+
+
+def add_significance_stippling(
+    ax: Any,
+    lon: np.ndarray,
+    lat: np.ndarray,
+    mask: np.ndarray,
+    *,
+    transform: Any = None,
+    stride: int = 2,
+    size: float = 2.0,
+    color: str = "black",
+    zorder: int = 7,
+) -> Any:
+    """Stipple cells that explicitly encode a statistical-significance mask."""
+    if stride < 1:
+        raise ValueError("stride must be >= 1")
+    lon = np.asarray(lon)
+    lat = np.asarray(lat)
     mask = np.asarray(mask, dtype=bool)
-    field = np.where(mask, 1.0, np.nan)
-    kwargs = {"levels": [0.5, 1.5], "colors": "none", "hatches": [hatch], "zorder": zorder}
+
+    if lon.ndim == 1 and lat.ndim == 1:
+        xx, yy = np.meshgrid(lon, lat)
+    elif lon.shape == lat.shape:
+        xx, yy = lon, lat
+    else:
+        raise ValueError("lon/lat must be 1-D coordinates or matching 2-D arrays")
+    if mask.shape != xx.shape:
+        raise ValueError("mask shape does not match coordinate grid")
+
+    pick = mask.copy()
+    thinning = np.zeros_like(pick, dtype=bool)
+    thinning[::stride, ::stride] = True
+    pick &= thinning
+
+    kwargs: dict[str, Any] = {
+        "s": size,
+        "c": color,
+        "marker": ".",
+        "linewidths": 0,
+        "zorder": zorder,
+    }
     if transform is not None:
         kwargs["transform"] = transform
-    return ax.contourf(lon, lat, field, **kwargs)
+    return ax.scatter(xx[pick], yy[pick], **kwargs)

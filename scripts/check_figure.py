@@ -7,7 +7,9 @@ from pathlib import Path
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Static preflight for a scientific figure artifact.")
+    parser = argparse.ArgumentParser(
+        description="Static preflight for a scientific figure artifact."
+    )
     parser.add_argument("figure", type=Path)
     parser.add_argument("--metadata", type=Path)
     parser.add_argument("--min-bytes", type=int, default=5_000)

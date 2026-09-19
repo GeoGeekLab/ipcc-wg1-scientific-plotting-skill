@@ -23,7 +23,7 @@ def ensemble_summary(
     """Summarize an ensemble and classify sign agreement.
 
     Zero values count as valid observations but support neither sign. A positive
-    `zero_tolerance` treats values in [-tol, tol] as zero.
+    zero_tolerance treats values in [-tol, tol] as zero.
     """
     if dim not in data.dims:
         raise ValueError(f"dimension {dim!r} not found in {data.dims}")
@@ -41,7 +41,8 @@ def ensemble_summary(
     delta = data - reference
     positive = (delta > zero_tolerance).sum(dim=dim)
     negative = (delta < -zero_tolerance).sum(dim=dim)
-    agreement = xr.where(n_valid > 0, xr.apply_ufunc(np.maximum, positive, negative) / n_valid, np.nan)
+    dominant_sign = xr.apply_ufunc(np.maximum, positive, negative)
+    agreement = xr.where(n_valid > 0, dominant_sign / n_valid, np.nan)
 
     if center == "median":
         center_da = data.median(dim=dim, skipna=True)

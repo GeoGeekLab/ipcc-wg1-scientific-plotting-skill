@@ -1,128 +1,110 @@
-# IPCC-WG1 Scientific Plotting Skill
+# IPCC AR6 WGI Scientific Plotting Skill
 
-A compact, reproducible toolkit for publication-quality climate-science figures, distilled from public IPCC AR6 Working Group I workflows.
+High-fidelity scientific plotting distilled from the **IPCC AR6 Working Group I** visual language.
+
+This project is based on the WGI Visual Style Guide, official AR6 colormaps, chapter plotting code, TSU figure-review evidence, and Atlas uncertainty guidance.
 
 > [!IMPORTANT]
-> This is an independent project. It is not an official IPCC product and does not imply IPCC endorsement.
+> Independent project. Not an official IPCC product and does not imply IPCC endorsement.
 
-## Features
+## What it preserves
 
-* Model-equal ensemble summaries with configurable quantile intervals
-* Grid-cell sample counts and sign-agreement diagnostics
-* Benjamini–Hochberg false-discovery-rate control
-* Publication-sized Matplotlib contexts and PDF/PNG export
-* Area-aware spatial aggregation and low-agreement hatching
-* YAML-based figure recipes
-* Input hashing, environment capture, and figure provenance
-* Tests and an end-to-end synthetic example
+- Arial-first WGI typography and unit conventions
+- AR6 report-era and June-2022 SSP colour profiles
+- RCP and generic WGI line colours
+- Official temperature, precipitation, cryosphere, chemistry, sea-level and wind colormaps
+- Scenario time-series and ensemble-band grammar
+- Map context, colour-bar and multi-panel conventions
+- Separate encodings for model agreement, insufficient data and statistical significance
+- A strict fidelity gate that refuses silent non-IPCC fallbacks
 
-## Installation
+## Fidelity modes
 
-Python 3.11 or later is required.
+**Strict** means IPCC-faithful: correct profile, Arial, official palette assets, explicit map projection and semantic uncertainty encoding.
 
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-python -m pip install -e ".[qa]"
-```
+**Adapted** means IPCC-inspired: substitutions are allowed, but the output must not be described as an exact WGI-style reproduction.
 
-Install the optional climate-analysis stack:
+See references/fidelity_checklist.md.
 
-```bash
-python -m pip install -e ".[climate,qa,workflow]"
-```
+## Install
+
+    python -m venv .venv
+    source .venv/bin/activate
+    python -m pip install -e ".[qa]"
+
+For climate/map workflows:
+
+    python -m pip install -e ".[climate,qa]"
+
+## Official colormaps
+
+Strict map rendering uses an authorized local checkout of the official WGI colormap repository rather than redistributing its RGB assets here.
+
+    git clone https://github.com/IPCC-WG1/colormaps.git
+    export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
+
+    from ipcc_sciplot import load_ipcc_colormap
+    cmap = load_ipcc_colormap("temp_div")
+
+There is intentionally **no** automatic RdBu, viridis or cmocean fallback in strict mode.
 
 ## Quick start
 
-Run the included workflow:
+    python examples/quickstart.py
 
-```bash
-python examples/quickstart.py
-```
+The example uses semantic SSP colours and WGI text conventions.
 
-It creates:
+    from ipcc_sciplot import axis_label, publication_context, scenario_style
 
-* `outputs/quickstart.pdf`
-* `outputs/quickstart.png`
-* `outputs/quickstart_plotted_data.nc`
-* `outputs/quickstart.provenance.json`
+    with publication_context(width="double", strict_font=False):
+        style = scenario_style("SSP2-4.5", profile="ar6-report")
+        ax.plot(year, value, color=style.color)
+        ax.set_ylabel(axis_label("Temperature change", "°C"))
 
-![Synthetic ensemble example](outputs/quickstart.png)
+Use strict_font=True when the output will be described as IPCC-faithful.
 
-Minimal API example:
+## Evidence, not vibes
 
-```python
-import xarray as xr
+The distillation uses this source hierarchy:
 
-from ipcc_sciplot import ensemble_summary, publication_context, save_figure
+1. WGI Visual Style Guide
+2. WGI TSU figure-review comments
+3. official IPCC-WG1/colormaps
+4. AR6 chapter/final-figure plotting code
+5. Atlas uncertainty guidance
+6. general scientific-visualisation practice only where WGI evidence is silent
 
-ensemble = xr.open_dataarray("ensemble.nc")
-
-summary = ensemble_summary(
-    ensemble,
-    dim="model",
-    lower_q=0.17,
-    upper_q=0.83,
-    sign_agreement=0.80,
-    min_count=5,
-)
-
-with publication_context(width="double"):
-    # Build the figure from summary["center"], summary["lower"],
-    # summary["upper"], summary["sign_agreement"], and summary["n_valid"].
-    ...
-```
-
-## Workflow
-
-```text
-Scientific question
-→ Figure contract
-→ Data validation
-→ Explicit statistical transformation
-→ Compact plotted-data artifact
-→ Declarative visual encoding
-→ PDF/PNG export
-→ Provenance, tests, and citations
-```
-
-A starter configuration is available at [`templates/figure_recipe.yaml`](templates/figure_recipe.yaml).
+See references/SOURCES.md and references/ipcc_visual_grammar.md.
 
 ## Project structure
 
-```text
-examples/                End-to-end example
-outputs/                 Reference outputs
-references/              Statistical and visual-encoding guidance
-scripts/ipcc_sciplot/    Reusable Python package
-scripts/check_figure.py  Static artifact preflight
-templates/               Figure-recipe templates
-tests/                   Unit tests
-SKILL.md                  Full methodology and operating instructions
-```
+    scripts/ipcc_sciplot/
+      tokens.py          WGI semantic colours and design tokens
+      colormaps.py       strict loader for official WGI colour assets
+      style.py           typography, labels, panels, legends and export
+      archetypes.py      recurring figure-family helpers
+      maps.py            geographic context and uncertainty layers
+      uncertainty.py     ensemble/statistical summaries
+      provenance.py      reproducibility metadata
+
+    references/
+      SOURCES.md
+      ipcc_visual_grammar.md
+      figure_archetypes.md
+      fidelity_checklist.md
+      statistical_rules.md
+
+    templates/
+      figure_recipe.yaml
 
 ## Validation
 
-```bash
-pytest
+    pytest -q
 
-python scripts/check_figure.py \
-  outputs/quickstart.pdf \
-  --metadata outputs/quickstart.provenance.json
-```
-
-## Design principles
-
-1. Define the scientific estimand before choosing the visual form.
-2. Keep data transformation separate from visual encoding.
-3. Report uncertainty, model agreement, and valid sample count explicitly.
-4. Export plotted data alongside each final figure.
-5. Record inputs, parameters, software versions, and Git state.
-
-Detailed statistical rules and visual conventions are documented in [`references/`](references/). The source distillation and upstream references are listed in [`references/ipcc_wg1_distillation.md`](references/ipcc_wg1_distillation.md) and [`references/SOURCES.md`](references/SOURCES.md).
+A figure may be called **IPCC AR6 WGI-faithful** only when the applicable checks in references/fidelity_checklist.md pass.
 
 ## Scope
 
-The toolkit is intended for climate-model evaluation, multi-model ensemble analysis, regional assessments, extremes analysis, and reproducible report or journal figures.
+The goal is not to reproduce one frozen Matplotlib theme. AR6 WGI contains multiple figure families and chapter-specific implementations.
 
-Project-specific scientific choices—including ensemble construction, weighting, baselines, significance tests, agreement thresholds, projections, and colour scales—remain the responsibility of the analyst.
+The project distils the shared visual grammar, preserves documented semantic tokens, and keeps figure-level exceptions explicit.
