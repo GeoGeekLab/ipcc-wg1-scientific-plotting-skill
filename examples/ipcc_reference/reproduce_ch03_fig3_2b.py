@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-from ipcc_sciplot import publication_context
-
 from common import clean_axes, finalize
 from sources import CH3_REPO, CH3_SHA, raw_url
+
+from ipcc_sciplot import publication_context
 
 COLORS = {
     "LGM": "blue",
@@ -80,24 +79,56 @@ def main():
 
         x, y = load_xy("fig3.2b_observation_instrumental.csv", 18)
         ax.scatter(
-            x, y, marker="D", s=60, color="black", facecolors="none",
-            linewidths=1, label="Instrumental", zorder=4,
+            x,
+            y,
+            marker="D",
+            s=60,
+            color="black",
+            facecolors="none",
+            linewidths=1,
+            label="Instrumental",
+            zorder=4,
         )
 
         x, y = load_xy("fig3.2b_observation_reconstruction.csv", 18)
         ax.errorbar(
-            x, y, xerr=0.01, yerr=0.01, marker="*", color="lightsalmon",
-            ecolor="black", ms=6, linestyle="none", label="Reconstruction", zorder=4,
+            x,
+            y,
+            xerr=0.01,
+            yerr=0.01,
+            marker="*",
+            color="lightsalmon",
+            ecolor="black",
+            ms=6,
+            linestyle="none",
+            label="Reconstruction",
+            zorder=4,
         )
 
         xx = np.arange(-11, 20, 0.5)
         yy = -0.019470 * xx**2 + 1.580454 * xx
         ax.plot(xx, yy, color="black", linewidth=1, label="Fit to data", zorder=1)
 
-        ax.scatter([], [], marker="o", s=30, edgecolors="black", facecolors="none", label="CMIP6 models")
+        ax.scatter(
+            [],
+            [],
+            marker="o",
+            s=30,
+            edgecolors="black",
+            facecolors="none",
+            label="CMIP6 models",
+        )
         ax.scatter([], [], marker="x", s=30, color="black", label="CMIP5 models")
         ax.scatter([], [], marker="+", s=30, color="black", label="non-CMIP models")
-        ax.scatter([], [], marker="s", s=75, edgecolors="black", facecolors="none", label="CMIP6 mean")
+        ax.scatter(
+            [],
+            [],
+            marker="s",
+            s=75,
+            edgecolors="black",
+            facecolors="none",
+            label="CMIP6 mean",
+        )
 
         legend = ax.legend(
             loc="upper left",
@@ -113,7 +144,10 @@ def main():
             fig,
             "ch03_fig3_2b_scatter",
             metadata={
-                "Subject": "Reproduction of AR6 WGI Chapter 3 Figure 3.2b from pinned official CSV source data",
+                "Subject": (
+                    "Reproduction of AR6 WGI Chapter 3 Figure 3.2b "
+                    "from pinned official CSV source data"
+                ),
             },
         )
 

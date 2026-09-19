@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-from ipcc_sciplot import publication_context, scenario_style
-
 from common import clean_axes, finalize
 from sources import CH6_REPO, CH6_SHA, raw_url
+
+from ipcc_sciplot import publication_context, scenario_style
 
 DATA_FILE = "ar6-wg1-ch6-emissions-global-data.csv"
 CORE_SSPS = ["SSP1-1.9", "SSP1-2.6", "SSP2-4.5", "SSP3-7.0", "SSP5-8.5"]
@@ -27,14 +26,17 @@ def canonical_ssp(scenario: str) -> str | None:
 
 def row_xy(row: pd.Series, years: list[str]) -> tuple[np.ndarray, np.ndarray]:
     vals = pd.to_numeric(row[years], errors="coerce").to_numpy(dtype=float)
-    x = np.asarray([int(y) for y in years], dtype=float)
+    x = np.asarray([int(year) for year in years], dtype=float)
     keep = np.isfinite(vals)
     return x[keep], vals[keep]
 
 
-def envelope(rows: pd.DataFrame, years: list[str]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def envelope(
+    rows: pd.DataFrame,
+    years: list[str],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     values = rows[years].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
-    x = np.asarray([int(y) for y in years], dtype=float)
+    x = np.asarray([int(year) for year in years], dtype=float)
     with np.errstate(all="ignore"):
         lo = np.nanmin(values, axis=0)
         hi = np.nanmax(values, axis=0)
@@ -44,7 +46,7 @@ def envelope(rows: pd.DataFrame, years: list[str]) -> tuple[np.ndarray, np.ndarr
 
 def main():
     df = pd.read_csv(raw_url(CH6_REPO, CH6_SHA, DATA_FILE))
-    years = [c for c in df.columns if str(c).isdigit()]
+    years = [column for column in df.columns if str(column).isdigit()]
     data = df[
         (df["Region"] == "World")
         & (df["Variable"] == "Emissions|CH4")
@@ -81,12 +83,28 @@ def main():
         rcps = data[data["Scenario"].astype(str).str.startswith("RCP")]
         if not rcps.empty:
             x, lo, hi = envelope(rcps, years)
-            ax.fill_between(x, lo, hi, color="black", alpha=0.10, linewidth=0, label="RCP range")
+            ax.fill_between(
+                x,
+                lo,
+                hi,
+                color="black",
+                alpha=0.10,
+                linewidth=0,
+                label="RCP range",
+            )
 
         ev5a = data[data["Model"] == "Ev5a"]
         if not ev5a.empty:
             x, lo, hi = envelope(ev5a, years)
-            ax.fill_between(x, lo, hi, color="purple", alpha=0.12, linewidth=0, label="ECLIPSE Ev5a range")
+            ax.fill_between(
+                x,
+                lo,
+                hi,
+                color="purple",
+                alpha=0.12,
+                linewidth=0,
+                label="ECLIPSE Ev5a range",
+            )
 
         data["canonical"] = data["Scenario"].map(canonical_ssp)
         for scenario in CORE_SSPS:
@@ -97,11 +115,18 @@ def main():
             for _, row in subset.iterrows():
                 x, y = row_xy(row, years)
                 if len(x):
-                    ax.plot(x, y, color=color, linewidth=0.55, alpha=0.28, label="_nolegend_")
+                    ax.plot(
+                        x,
+                        y,
+                        color=color,
+                        linewidth=0.55,
+                        alpha=0.28,
+                        label="_nolegend_",
+                    )
 
             values = subset[years].apply(pd.to_numeric, errors="coerce")
             median = values.median(axis=0, skipna=True).to_numpy(dtype=float)
-            x = np.asarray([int(y) for y in years], dtype=float)
+            x = np.asarray([int(year) for year in years], dtype=float)
             keep = np.isfinite(median)
             ax.plot(
                 x[keep],
@@ -120,7 +145,7 @@ def main():
 
         handles, labels = ax.get_legend_handles_labels()
         unique = {}
-        for handle, label in zip(handles, labels):
+        for handle, label in zip(handles, labels, strict=True):
             if label and label != "_nolegend_" and label not in unique:
                 unique[label] = handle
         legend = ax.legend(

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-from ipcc_sciplot import publication_context
-
 from common import clean_axes, finalize
 from sources import CH2_REPO, CH2_SHA, raw_url
+
+from ipcc_sciplot import publication_context
 
 BLUE = "#5492CD"
 BLUE_FILL = "#5492CD"
@@ -39,14 +38,18 @@ def errorbar_abs(ax, x, y, low, high, **kwargs) -> None:
 
 
 def fill_study(ax, pp: pd.DataFrame, study: str) -> None:
-    d = pp[pp["Study"] == study].sort_values("Age")
-    if d.empty:
+    data = pp[pp["Study"] == study].sort_values("Age")
+    if data.empty:
         return
     ax.fill_between(
-        d["Age"], d["CO2do"], d["CO2up"],
-        color=BLUE_FILL, alpha=0.32, linewidth=0,
+        data["Age"],
+        data["CO2do"],
+        data["CO2up"],
+        color=BLUE_FILL,
+        alpha=0.32,
+        linewidth=0,
     )
-    ax.plot(d["Age"], d["CO2"], color=BLUE, linewidth=0.8)
+    ax.plot(data["Age"], data["CO2"], color=BLUE, linewidth=0.8)
 
 
 def main():
@@ -56,7 +59,16 @@ def main():
     pp = table("Plio_Pleisto_Final.txt", comment="#")
     stoll = table("Stoll.txt")
     wit = table("wit.txt")
-    wit.columns = ["Ma", "Ma_L", "Ma_U", "pCO2", "pCO2_L1", "pCO2_U1", "pCO2_L2", "pCO2_U2"]
+    wit.columns = [
+        "Ma",
+        "Ma_L",
+        "Ma_U",
+        "pCO2",
+        "pCO2_L1",
+        "pCO2_U1",
+        "pCO2_L2",
+        "pCO2_U2",
+    ]
     alk = table("Alkenone compilation.txt")
     phan = table("PhanCO2F_feb2021.txt", comment="#")
     smooth = table("PhanCO2sm.exp.txt")
@@ -64,7 +76,6 @@ def main():
     with publication_context(width="single", height_mm=240, strict_font=False):
         fig, axes = plt.subplots(3, 1, gridspec_kw={"hspace": 0.34})
 
-        # (a) Phanerozoic-scale reconstruction
         ax = axes[0]
         clean_axes(ax)
         ax.set_xlim(450, 0)
@@ -75,21 +86,78 @@ def main():
         ax.set_ylabel("CO₂ (ppm)")
         ax.text(0.01, 0.92, "(a)", transform=ax.transAxes)
 
-        ax.scatter(alk["Age"], alk["pCO2"], s=8, facecolor=LIGHT_GREY, edgecolor=GREY, linewidth=0.4)
-        ax.scatter(sos["Age"], sos["CO2.50"] * 1e6, s=10, facecolor="none", edgecolor=BLUE, linewidth=0.6)
-        ax.scatter(eleni["age"], eleni["CO2"], s=10, facecolor="none", edgecolor=BLUE, linewidth=0.6)
-        ax.scatter(phan.loc[phan["method"] == "Stomata", "Age"], phan.loc[phan["method"] == "Stomata", "CO2"], s=9, marker="s", color="#B2B2B2", alpha=0.8)
-        ax.scatter(phan.loc[phan["method"] == "psols", "Age"], phan.loc[phan["method"] == "psols", "CO2"], s=10, marker="x", color=DARK_BLUE, alpha=0.65)
-        ax.scatter(wit["Ma"], wit["pCO2"], s=10, facecolor="none", edgecolor=ORANGE, linewidth=0.6)
+        ax.scatter(
+            alk["Age"],
+            alk["pCO2"],
+            s=8,
+            facecolor=LIGHT_GREY,
+            edgecolor=GREY,
+            linewidth=0.4,
+        )
+        ax.scatter(
+            sos["Age"],
+            sos["CO2.50"] * 1e6,
+            s=10,
+            facecolor="none",
+            edgecolor=BLUE,
+            linewidth=0.6,
+        )
+        ax.scatter(
+            eleni["age"],
+            eleni["CO2"],
+            s=10,
+            facecolor="none",
+            edgecolor=BLUE,
+            linewidth=0.6,
+        )
+        stomata = phan["method"] == "Stomata"
+        ax.scatter(
+            phan.loc[stomata, "Age"],
+            phan.loc[stomata, "CO2"],
+            s=9,
+            marker="s",
+            color="#B2B2B2",
+            alpha=0.8,
+        )
+        psols = phan["method"] == "psols"
+        ax.scatter(
+            phan.loc[psols, "Age"],
+            phan.loc[psols, "CO2"],
+            s=10,
+            marker="x",
+            color=DARK_BLUE,
+            alpha=0.65,
+        )
+        ax.scatter(
+            wit["Ma"],
+            wit["pCO2"],
+            s=10,
+            facecolor="none",
+            edgecolor=ORANGE,
+            linewidth=0.6,
+        )
 
-        s = smooth.sort_values("age")
-        ax.fill_between(s["age"], s["lw95"], s["up95"], color=GREEN_FILL, alpha=0.45, linewidth=0)
-        ax.fill_between(s["age"], s["lw68"], s["up68"], color=GREEN_FILL, alpha=0.9, linewidth=0)
-        ax.plot(s["age"], s["pmaxCO2"], color=GREEN, linewidth=1.2)
+        smooth = smooth.sort_values("age")
+        ax.fill_between(
+            smooth["age"],
+            smooth["lw95"],
+            smooth["up95"],
+            color=GREEN_FILL,
+            alpha=0.45,
+            linewidth=0,
+        )
+        ax.fill_between(
+            smooth["age"],
+            smooth["lw68"],
+            smooth["up68"],
+            color=GREEN_FILL,
+            alpha=0.9,
+            linewidth=0,
+        )
+        ax.plot(smooth["age"], smooth["pmaxCO2"], color=GREEN, linewidth=1.2)
         ax.text(300, 2500, "δ¹³C–paleosols", color=DARK_BLUE, fontsize=7.5)
         ax.text(130, 350, "stomata", color="#7F7F7F", fontsize=7.5)
 
-        # (b) Cenozoic proxy detail
         ax = axes[1]
         clean_axes(ax)
         ax.set_xlim(58, 0)
@@ -100,36 +168,94 @@ def main():
         ax.set_ylabel("CO₂ (ppm)")
         ax.text(0.01, 0.92, "(b)", transform=ax.transAxes)
 
-        xerr = np.vstack([
-            np.abs(wit["Ma"] - wit["Ma_U"]),
-            np.abs(wit["Ma_L"] - wit["Ma"]),
-        ])
-        yerr = np.vstack([
-            wit["pCO2"] - wit["pCO2_L1"],
-            wit["pCO2_U1"] - wit["pCO2"],
-        ])
-        ax.errorbar(wit["Ma"], wit["pCO2"], xerr=xerr, yerr=yerr, fmt="o", ms=2.5, color=ORANGE, ecolor="#DFC27D", elinewidth=0.5, capsize=0)
+        xerr = np.vstack(
+            [
+                np.abs(wit["Ma"] - wit["Ma_U"]),
+                np.abs(wit["Ma_L"] - wit["Ma"]),
+            ]
+        )
+        yerr = np.vstack(
+            [
+                wit["pCO2"] - wit["pCO2_L1"],
+                wit["pCO2_U1"] - wit["pCO2"],
+            ]
+        )
+        ax.errorbar(
+            wit["Ma"],
+            wit["pCO2"],
+            xerr=xerr,
+            yerr=yerr,
+            fmt="o",
+            ms=2.5,
+            color=ORANGE,
+            ecolor="#DFC27D",
+            elinewidth=0.5,
+            capsize=0,
+        )
 
-        s2 = sos.sort_values("Age")
-        ax.fill_between(s2["Age"], s2["CO2.2.5"] * 1e6, s2["CO2.97.5"] * 1e6, color=BLUE_FILL, alpha=0.32, linewidth=0)
-        ax.plot(s2["Age"], s2["CO2.50"] * 1e6, color=BLUE, linewidth=0.8)
-        ax.scatter(s2["Age"], s2["CO2.50"] * 1e6, s=7, color=BLUE)
+        sos_sorted = sos.sort_values("Age")
+        ax.fill_between(
+            sos_sorted["Age"],
+            sos_sorted["CO2.2.5"] * 1e6,
+            sos_sorted["CO2.97.5"] * 1e6,
+            color=BLUE_FILL,
+            alpha=0.32,
+            linewidth=0,
+        )
+        ax.plot(
+            sos_sorted["Age"],
+            sos_sorted["CO2.50"] * 1e6,
+            color=BLUE,
+            linewidth=0.8,
+        )
+        ax.scatter(
+            sos_sorted["Age"],
+            sos_sorted["CO2.50"] * 1e6,
+            s=7,
+            color=BLUE,
+        )
 
-        e = eleni.sort_values("age")
-        ax.fill_between(e["age"], e["CO2"] - e["CO2do"], e["CO2"] + e["CO2up"], color=BLUE_FILL, alpha=0.32, linewidth=0)
-        ax.plot(e["age"], e["CO2"], color=BLUE, linewidth=0.8)
-        ax.scatter(e["age"], e["CO2"], s=7, color=BLUE)
+        eleni_sorted = eleni.sort_values("age")
+        ax.fill_between(
+            eleni_sorted["age"],
+            eleni_sorted["CO2"] - eleni_sorted["CO2do"],
+            eleni_sorted["CO2"] + eleni_sorted["CO2up"],
+            color=BLUE_FILL,
+            alpha=0.32,
+            linewidth=0,
+        )
+        ax.plot(
+            eleni_sorted["age"],
+            eleni_sorted["CO2"],
+            color=BLUE,
+            linewidth=0.8,
+        )
+        ax.scatter(
+            eleni_sorted["age"],
+            eleni_sorted["CO2"],
+            s=7,
+            color=BLUE,
+        )
 
         errorbar_abs(
-            ax, alk["Age"], alk["pCO2"], alk["pCO2_min"], alk["pCO2_max"],
-            fmt="o", ms=2.5, mfc=LIGHT_GREY, mec=GREY, mew=0.4,
-            ecolor=LIGHT_GREY, elinewidth=0.5, capsize=0,
+            ax,
+            alk["Age"],
+            alk["pCO2"],
+            alk["pCO2_min"],
+            alk["pCO2_max"],
+            fmt="o",
+            ms=2.5,
+            mfc=LIGHT_GREY,
+            mec=GREY,
+            mew=0.4,
+            ecolor=LIGHT_GREY,
+            elinewidth=0.5,
+            capsize=0,
         )
         ax.text(40, 400, "δ¹³C–alkenone", color=GREY, fontsize=7.5)
         ax.text(30, 2000, "δ¹¹B–foraminifera", color=BLUE, fontsize=7.5)
         ax.text(20, 1000, "δ¹³C–phytane", color=ORANGE, fontsize=7.5)
 
-        # (c) Quaternary detail
         ax = axes[2]
         clean_axes(ax)
         ax.set_xlim(3500, 0)
@@ -157,31 +283,53 @@ def main():
             capsize=0,
         )
 
-        for study in ["Dyez2018", "Chalk2017.LP", "Chalk2017.MPT", "DelaVega2020"]:
+        for study in [
+            "Dyez2018",
+            "Chalk2017.LP",
+            "Chalk2017.MPT",
+            "DelaVega2020",
+        ]:
             fill_study(ax, pp, study)
 
-        for study, marker in [("Hoenisch2009", "o"), ("Raitzsch2018", "s"), ("Bartoli2011", "s")]:
-            d = pp[pp["Study"] == study]
-            if d.empty:
+        studies = [
+            ("Hoenisch2009", "o"),
+            ("Raitzsch2018", "s"),
+            ("Bartoli2011", "s"),
+        ]
+        for study, marker in studies:
+            data = pp[pp["Study"] == study]
+            if data.empty:
                 continue
             errorbar_abs(
-                ax, d["Age"], d["CO2"], d["CO2do"], d["CO2up"],
-                fmt=marker, ms=2.5, color=BLUE, ecolor=BLUE,
-                alpha=0.55, elinewidth=0.45, capsize=0,
+                ax,
+                data["Age"],
+                data["CO2"],
+                data["CO2do"],
+                data["CO2up"],
+                fmt=marker,
+                ms=2.5,
+                color=BLUE,
+                ecolor=BLUE,
+                alpha=0.55,
+                elinewidth=0.45,
+                capsize=0,
             )
 
         ax.text(700, 300, "Ant. ice core", color="black", fontsize=7.5)
         ax.text(1500, 400, "δ¹¹B–foraminifera", color=BLUE, fontsize=7.5)
         ax.text(2500, 170, "δ¹³C–alkenones", color=GREY, fontsize=7.5)
 
-        for ax in axes:
-            ax.tick_params(labelsize=7.5)
+        for axis in axes:
+            axis.tick_params(labelsize=7.5)
 
         return finalize(
             fig,
             "ch02_fig2_3_co2_proxy",
             metadata={
-                "Subject": "Python reproduction of AR6 WGI Chapter 2 Figure 2.3 from pinned official proxy source data",
+                "Subject": (
+                    "Python reproduction of AR6 WGI Chapter 2 Figure 2.3 "
+                    "from pinned official proxy source data"
+                ),
             },
         )
 
