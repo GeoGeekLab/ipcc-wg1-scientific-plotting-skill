@@ -1,19 +1,23 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-
 from ipcc_sciplot.archetypes import plot_scenario_timeseries
 from ipcc_sciplot.fidelity import audit_figure
 from ipcc_sciplot.provenance import build_provenance, write_provenance
-from ipcc_sciplot.style import axis_label, ipcc_legend, panel_label, publication_context, save_figure
+from ipcc_sciplot.style import (
+    axis_label,
+    ipcc_legend,
+    panel_label,
+    publication_context,
+    save_figure,
+)
 from ipcc_sciplot.tokens import scenario_style
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:

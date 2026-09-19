@@ -6,10 +6,12 @@ import os
 import platform
 import subprocess
 import sys
-from datetime import datetime, timezone
+from collections.abc import Iterable, Mapping
+from contextlib import suppress
+from datetime import UTC, datetime
 from importlib import metadata
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 
 def sha256_file(path: str | Path, *, chunk_size: int = 1024 * 1024) -> str:
@@ -33,10 +35,8 @@ def _git_commit(cwd: Path) -> str | None:
 def _package_versions(names: Iterable[str]) -> dict[str, str]:
     versions: dict[str, str] = {}
     for name in names:
-        try:
+        with suppress(metadata.PackageNotFoundError):
             versions[name] = metadata.version(name)
-        except metadata.PackageNotFoundError:
-            pass
     return versions
 
 
@@ -61,7 +61,7 @@ def build_provenance(
 
     return {
         "schema": "ipcc-sciplot-provenance/1.0",
-        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "created_utc": datetime.now(UTC).isoformat(),
         "git_commit": _git_commit(root),
         "python": sys.version,
         "platform": platform.platform(),
@@ -99,5 +99,6 @@ def build_provenance(
 def write_provenance(record: Mapping[str, Any], path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(record, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
+    payload = json.dumps(record, indent=2, sort_keys=True, default=str) + "\n"
+    path.write_text(payload, encoding="utf-8")
     return path

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import re
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator, Mapping, Sequence
-import re
+from typing import Any
 
 import matplotlib as mpl
 import matplotlib.font_manager as fm
@@ -38,11 +39,7 @@ def figure_width_inches(width: str | float = "single") -> float:
 
 
 def require_arial() -> str:
-    """Return the resolved Arial path or fail.
-
-    Faithful mode must not claim Arial merely because it was listed as the first
-    fallback family in Matplotlib.
-    """
+    """Return the resolved Arial path or fail."""
     try:
         return fm.findfont(FONT_PRIMARY, fallback_to_default=False)
     except ValueError as exc:
@@ -60,11 +57,7 @@ def publication_context(
     base_font_pt: float = 8.0,
     strict_font: bool = False,
 ) -> Iterator[None]:
-    """Apply AR6-WGI-oriented Matplotlib defaults.
-
-    This context supplies global tokens only. Figure-family-specific layout,
-    projection, colour scale and uncertainty semantics belong to archetypes.
-    """
+    """Apply AR6-WGI-oriented Matplotlib defaults."""
     if font_scale <= 0:
         raise ValueError("font_scale must be positive")
     if strict_font:
