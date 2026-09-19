@@ -14,7 +14,7 @@ on:
       - ".github/workflows/reference-reproductions.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   reproduce:
@@ -35,6 +35,18 @@ jobs:
         run: python examples/ipcc_reference/generate_all.py
       - name: List outputs
         run: ls -lh examples/ipcc_reference/outputs
+      - name: Commit validated gallery
+        if: github.event_name == 'push' && github.ref_name == 'examples/ipcc-source-reproductions'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             examples/ipcc_reference/outputs/ch02_fig2_3_co2_proxy.png             examples/ipcc_reference/outputs/ch03_fig3_2b_scatter.png             examples/ipcc_reference/outputs/ch06_fig6_18_ch4_emissions.png             examples/ipcc_reference/outputs/ch10_fig10_20b_stations.png             examples/ipcc_reference/outputs/manifest.json
+          if git diff --cached --quiet; then
+            echo "Reference gallery is already current."
+          else
+            git commit -m "examples: refresh IPCC reference gallery [skip ci]"
+            git push
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: ipcc-reference-reproductions
