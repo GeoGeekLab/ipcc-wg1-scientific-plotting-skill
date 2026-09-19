@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ipcc-wg1-scientific-plotting-skill"
-version = "0.1.0"
-description = "A reproducible scientific plotting skill distilled from IPCC AR6 WGI practices"
+version = "0.2.0"
+description = "High-fidelity plotting helpers distilled from IPCC AR6 WGI visual practice"
 requires-python = ">=3.11"
 dependencies = [
   "numpy>=1.26",
@@ -24,7 +24,6 @@ climate = [
   "cf-xarray>=0.9",
   "pint-xarray>=0.4",
   "flox>=0.9",
-  "cmocean>=4.0",
   "xclim>=0.50",
   "xesmf>=0.8",
   "zarr>=2.18",

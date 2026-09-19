@@ -15,13 +15,17 @@ class FigureRecipe:
     plot_type: str
     variable: str
     unit: str
+    style_profile: str = "ar6-report"
+    fidelity: str = "strict"
+    archetype: str | None = None
     baseline: str | None = None
     center: str = "median"
     lower_quantile: float = 0.17
     upper_quantile: float = 0.83
     sign_agreement: float = 0.80
     min_valid_count: int = 5
-    colormap: str = "RdBu_r"
+    colormap: str | None = None
+    projection: str | None = None
     output_stem: str = "outputs/figure"
     extras: Mapping[str, Any] = field(default_factory=dict)
 
@@ -30,12 +34,25 @@ class FigureRecipe:
             raise ValueError("figure_id is required")
         if not self.question.strip() or not self.estimand.strip():
             raise ValueError("question and estimand are required")
+        if self.style_profile not in {"ar6-report", "wgi-guide-2022"}:
+            raise ValueError("unsupported style_profile")
+        if self.fidelity not in {"strict", "adapted"}:
+            raise ValueError("fidelity must be 'strict' or 'adapted'")
         if not 0 <= self.lower_quantile < self.upper_quantile <= 1:
             raise ValueError("invalid quantile interval")
         if not 0.5 <= self.sign_agreement <= 1:
             raise ValueError("sign_agreement must be in [0.5, 1]")
         if self.min_valid_count < 1:
             raise ValueError("min_valid_count must be >= 1")
+        if self.plot_type == "map" and self.fidelity == "strict":
+            if not self.colormap:
+                raise ValueError("strict map recipes require an official IPCC colormap name")
+            if not self.projection:
+                raise ValueError("strict map recipes require an explicit projection")
+
+    @property
+    def is_strict(self) -> bool:
+        return self.fidelity == "strict"
 
 
 def load_recipe(path: str | Path) -> FigureRecipe:
@@ -49,6 +66,9 @@ def load_recipe(path: str | Path) -> FigureRecipe:
         "plot_type",
         "variable",
         "unit",
+        "style_profile",
+        "fidelity",
+        "archetype",
         "baseline",
         "center",
         "lower_quantile",
@@ -56,6 +76,7 @@ def load_recipe(path: str | Path) -> FigureRecipe:
         "sign_agreement",
         "min_valid_count",
         "colormap",
+        "projection",
         "output_stem",
     }
     args = {k: payload[k] for k in known if k in payload}

@@ -1,199 +1,269 @@
 ---
 name: ipcc-wg1-scientific-plotting
-description: 面向气候、地球系统与一般科研数据的可复现绘图工作流。将 IPCC AR6 WGI 的 FAIR、数据溯源、配置驱动样式、集合不确定性与地图稳健性表达方法，升级为现代 Python/xarray 科研绘图规范。
+description: 高保真蒸馏 IPCC AR6 Working Group I 的科学图形语言。基于 WGI Visual Style Guide、官方 colormaps、AR6 章节绘图代码、TSU 审图意见与 Atlas 不确定性框架，生成或审查 IPCC-faithful / IPCC-inspired 科研图。
 ---
 
-# IPCC-WG1 Scientific Plotting Skill
+# IPCC AR6 WGI Scientific Plotting Skill
 
-本 Skill 的目标不是“画得像 IPCC”，而是生成**统计含义明确、视觉编码可解释、数据与代码可追溯、可重复运行、可审计**的科研图。
+本 Skill 的首要目标是保真复现 IPCC AR6 WGI 的 visual grammar，而不是把一般“出版级科研绘图”包装成 IPCC 风格。
 
-## 触发条件
+科研统计、FAIR、provenance 和现代 Python 工作流仍然重要，但属于第二层；视觉保真必须有独立证据和独立 QA。
 
-当任务涉及下列任一内容时使用本 Skill：
+## 何时触发
 
-- 气候模式、再分析、遥感、观测、情景、集合或区域统计；
-- NetCDF/Zarr/GRIB/CSV 数据的时间序列、地图、分布或多面板图；
-- 模型一致性、置信区间、显著性、稳健性或不确定性表达；
-- 期刊图、报告图、补充材料图及其可复现交付；
-- 用户要求“IPCC 风格”“科学绘图”“出版级”“可复现”。
+当用户要求以下任一任务时使用：
 
-## 核心原则
+- “IPCC 风格”“AR6 WGI 风格”“像 IPCC 报告图”；
+- 复刻某张 AR6 WGI figure；
+- 气候模式/情景/观测/再分析图，需要使用 IPCC scenario colours；
+- WGI 风格地图、时间序列、多面板、不确定性表达；
+- 审查科研图是否符合 IPCC visual style。
 
-1. **先定义科学问题与 estimand，再选图形。** 明确比较对象、基准期、空间/时间聚合、权重、统计量和不确定性来源。
-2. **分析与渲染分离。** 原始数据 -> 规范化中间数据 -> plotted-data -> figure。绘图函数不得偷偷改变科学结果。
-3. **单位、坐标、日历、缺测值显式化。** 不允许依赖文件名或变量名猜测单位；经纬度、时间日历和掩膜必须验证。
-4. **集合成员不自动等价于独立样本。** 默认按模型聚合；多个 realization 是否加权必须由研究设计说明。
-5. **不确定性与中心估计同时展示。** 优先效果量 + 区间；避免只标 p 值或只画均值。
-6. **颜色承担数值语义，纹理承担二级信息。** 连续场用感知均匀色图；零中心变化量用发散色图；类别色不编码顺序。
-7. **稳健性分类互斥且穷尽。** 不把未定义区域留给读者猜测；图注给出阈值、样本量与算法。
-8. **FAIR 交付。** 每张图输出 plotted-data、参数、软件环境、输入哈希、随机种子、版本和引用信息。
+## 1. 选择 fidelity mode
 
-## 标准工作流
+### Strict / IPCC-faithful
 
-### 1. 建立 figure contract
+用户明确要求 IPCC/AR6/WGI 风格时默认使用。
 
-在写代码前记录：
+必须满足：
 
-```yaml
-question: "区域年最大日降水在 2°C 全球变暖水平下如何变化？"
-estimand: "每个模式的 20 年均值相对 1850-1900 的百分比变化"
-unit: "%"
-baseline: "1850-1900"
-aggregation: "one realization per model; model-equal median"
-uncertainty: "17-83% model range"
-robustness: "valid models >= 5; sign agreement >= 0.80"
-output: "map + plotted NetCDF + provenance JSON"
-```
+- 选定 ar6-report 或 wgi-guide-2022 profile；
+- Arial 可用；
+- SSP/RCP 使用语义颜色；
+- 地图使用官方 WGI colormap asset；
+- 地图投影显式指定；
+- 单位使用圆括号；
+- uncertainty/agreement/significance/missing-data 语义分离；
+- 不允许静默 fallback 到 Matplotlib/cmocean palette；
+- 输出前执行 fidelity checklist。
 
-若上述字段不完整，先做合理假设并在图注和元数据中公开，不要隐式处理。
+关键项无法满足时，不能把结果称为 IPCC-faithful。
 
-### 2. 数据预检
+### Adapted / IPCC-inspired
 
-必须检查：
+只有在用户接受近似，或缺少必要资产/参考图时使用。允许字体、palette 或布局替代，但必须明确称为 IPCC-inspired/adapted。
 
-- 维度、坐标名、单调性、经度范围、日历类型；
-- `_FillValue`/NaN、无穷值、重复时间、重复模式；
-- 单位可转换性和正负号约定；
-- 网格、掩膜和面积权重；
-- 有效模型数是否随网格点变化；
-- 基准期与目标期是否有足够覆盖。
+## 2. 证据层级
 
-优先使用 `xarray` 数据模型；大数据使用 Dask/Zarr；CF 元数据使用 `cf_xarray`；单位使用 `pint-xarray`；重网格化使用 `xESMF` 并保存权重文件与方法。
+规则冲突时按以下优先级：
 
-### 3. 统计计算
+1. WGI Visual Style Guide（June 2022）；
+2. WGI TSU 审图意见中反复执行的规则；
+3. 官方 IPCC-WG1/colormaps；
+4. 最终 AR6 章节 figure code / helper；
+5. Atlas uncertainty guidance；
+6. 一般科研可视化最佳实践。
 
-- 时间平均前明确频率、季节边界和日历。
-- 全球/区域平均使用网格单元面积；规则经纬网可用 `cos(lat)` 作为近似，但应记录这一近似。
-- 集合中心默认中位数或模型等权均值；二者不能混用。
-- 区间必须标明分位数或置信水平，例如 17–83%、5–95%、95% CI。
-- 多重检验时使用 FDR 或场显著性；考虑时间/空间自相关对有效样本量的影响。
-- 稳健性遮罩必须基于实际有效样本数，而不是全局固定成员数。
+单个章节的偶然实现不能自动升级为 WGI 全局规范。详见 references/SOURCES.md。
 
-本 Skill 提供：
+## 3. 建立 figure contract
 
-```python
-from ipcc_sciplot.uncertainty import ensemble_summary, fdr_bh_mask
+绘图前必须明确：
 
-summary = ensemble_summary(
-    da,
-    dim="model",
-    center="median",
-    lower_q=0.17,
-    upper_q=0.83,
-    sign_agreement=0.80,
-    min_count=5,
-)
-```
+    figure_id: figure_01
+    question: What should the reader learn?
+    estimand: Exact scientific quantity/comparison
+    plot_type: map
+    archetype: global-change-map
+    style_profile: ar6-report
+    fidelity: strict
+    variable: tas
+    unit: °C
+    baseline: 1850-1900
+    period: 2081-2100
+    scenario: SSP2-4.5
+    colormap: temp_div
+    projection: Robinson
+    center_value: 0
+    uncertainty: 17-83% model range
+    robustness: sign agreement >= 0.80
+    min_valid_count: 5
 
-### 4. 选择视觉编码
+如果复刻具体 AR6 figure，还必须记录 chapter / figure number，并优先匹配该图的 projection、extent、panel geometry、levels、annotation 和 legend grammar。
 
-| 科学任务 | 首选图形 | 不确定性 | 禁忌 |
-|---|---|---|---|
-| 有序时间变化 | 线 + 区间带 | 分位带/CI | 每个成员同等粗线、双 y 轴 |
-| 类别或区域比较 | 点区间图/水平条形图 | whisker/区间 | 3D、面积编码 |
-| 连续空间场 | 等值填色/栅格地图 | 低一致性斜线、有效样本掩膜 | 彩虹色图、未经说明的插值 |
-| 分布比较 | ECDF/violin/box + raw points | bootstrap CI | 仅均值柱形图 |
-| 两变量关系 | 散点/hexbin + 模型 | 回归区间 | 暗示因果、过度平滑 |
-| 组成关系 | 堆叠或 small multiples | 情景范围 | 过多扇区饼图 |
+## 4. 硬视觉规则
 
-地图不确定性遵循以下默认语义：
+### Typography
 
-- **无覆盖纹理**：达到预先声明的高一致性条件；
-- **斜线**：低模型符号一致性；
-- **灰色/空白**：有效样本不足；
-- **点状纹理**：仅在确实表示统计显著性时使用。
+- Strict mode 使用 Arial。
+- 单位写成 Variable (unit)，不用 Variable [unit]。
+- 温度变化面向 WGI 一般读者时优先 °C；有科学理由时才用 K。
+- 陌生缩写首次出现尽量展开。
+- Panel label 用 (a), (b) 等，位置一致。
+- 短标题帮助第一眼理解 panel，不重复长 caption。
 
-不要用纹理遮挡最需要阅读的稳健信息；图例与图注必须解释纹理含义。
+示例：
 
-### 5. 样式与布局
+    from ipcc_sciplot import axis_label, panel_label, publication_context
 
-```python
-from ipcc_sciplot.style import publication_context, save_figure
+    with publication_context(width="double", strict_font=True):
+        ax.set_ylabel(axis_label("Temperature change", "°C"))
+        panel_label(ax, "a", title="Global mean")
 
-with publication_context(width="double", font_scale=1.0):
-    fig, ax = plt.subplots()
-    ...
-    save_figure(
-        fig,
-        "outputs/figure_01",
-        metadata={"title": "...", "units": "K", "baseline": "1850-1900"},
-    )
-```
+### Scenario colours
 
-默认要求：
+Scenario colour 是语义，不是 decoration。
 
-- 单栏宽约 89 mm，双栏宽约 183 mm；高度由信息密度决定；
-- 正文字号在最终尺寸下通常不小于 7 pt；
-- 轴标题写“变量名称 [单位]”或领域标准形式；
-- 子图标签 `(a)`, `(b)` 固定位置；共享轴不重复标签；
-- 图例按语义排序，不按代码执行顺序；
-- 线型、标记、颜色至少双重编码重要类别；
-- PDF/SVG 保存矢量对象，超密栅格层可 rasterize；同时输出 300 dpi PNG 预览。
+    from ipcc_sciplot import scenario_style
 
-### 6. 配置驱动
+    scenario_style("SSP2-4.5", profile="ar6-report")
+    scenario_style("SSP2-4.5", profile="wgi-guide-2022")
 
-把场景颜色、线型、阈值、基准期和输出规格放入 YAML，而不是散落在脚本中。参考 `templates/figure_recipe.yaml`。
+ar6-report 用于匹配 2021 final-report-era figure/code；wgi-guide-2022 使用更新后的 2022 WGI guide palette。禁止静默混合。
 
-```python
-from ipcc_sciplot.recipe import load_recipe
-recipe = load_recipe("templates/figure_recipe.yaml")
-```
+### Generic lines
 
-### 7. 质量检查
+非 scenario 多线图使用 WGI generic line colour order。超过 6 条后复用颜色并增加 linestyle 区分，不要不断引入新的亮色。
 
-运行：
+### Continuous / discrete fields
 
-```bash
-python scripts/check_figure.py outputs/figure_01.pdf \
-  --metadata outputs/figure_01.provenance.json
-pytest -q
-```
+Strict map 必须从官方 IPCC-WG1/colormaps 加载：
 
-至少验证：
+- temp_seq, temp_div
+- prec_seq, prec_div
+- cryo_seq, cryo_div
+- chem_seq, chem_div
+- slev_seq, slev_div
+- wind_seq, wind_div
+- misc_* 仅在没有物理量专用 family 时使用
 
-- 图像无裁切、重叠、不可见文字、错误透明度；
-- 色图与变量语义匹配，色条包含单位；
-- 图注中的阈值和代码一致；
-- plotted-data 可单独重画图；
-- 固定随机种子后结果一致；
-- 输入哈希与 Git commit 已记录；
-- 关键图进行 image-regression 测试，并允许合理的渲染器容差。
+设置：
 
-## 文件结构约定
+    export IPCC_WG1_COLORMAPS_DIR=/path/to/IPCC-WG1/colormaps
 
-```text
-project/
-  data/raw/                 # 不修改
-  data/interim/             # 可重建
-  data/processed/           # plotted-data
-  src/analysis.py           # 统计计算
-  src/figure_01.py          # 仅视觉映射
-  recipes/figure_01.yaml
-  outputs/figure_01.pdf
-  outputs/figure_01.png
-  outputs/figure_01.provenance.json
-  tests/test_analysis.py
-  tests/test_figure_01.py
-  CITATION.cff
-  environment.lock.yml
-```
+调用：
 
-## 必须拒绝或修正的做法
+    from ipcc_sciplot import load_ipcc_colormap
+    cmap = load_ipcc_colormap("temp_div")
 
-- 用 rainbow/jet 表示连续数值；
-- 截断坐标轴却不显式标记；
-- 把标准差、标准误、置信区间混称为“误差”；
-- 把多个模式成员当成独立重复以人为缩小不确定性；
-- 用插值后的高分辨率外观暗示真实空间分辨率；
-- 在地图上同时叠加过密 hatching、stippling、边界和标签；
-- 只交付 PNG，不交付数据、参数和环境；
-- 从旧 IPCC 脚本复制硬编码路径、版本或样式而不验证。
+缺少官方 asset 时 strict mode 必须失败，不能自动换成 RdBu_r / viridis / cmocean 后仍声称 IPCC fidelity。
 
-## 资源索引
+## 5. Figure archetypes
 
-- `references/ipcc_wg1_distillation.md`：从 IPCC-WG1 仓库抽象出的模式与升级策略。
-- `references/statistical_rules.md`：集合、不确定性、显著性与空间统计规则。
-- `references/visual_encoding.md`：颜色、地图、时间序列、多面板和可访问性。
-- `scripts/ipcc_sciplot/`：可复用 Python 模块。
-- `templates/figure_recipe.yaml`：声明式绘图配方。
-- `examples/quickstart.py`：合成数据完整示例。
+先选 figure family，再渲染。详见 references/figure_archetypes.md。
+
+核心 archetypes：
+
+- scenario time series；
+- ensemble centre + interval；
+- global/regional change map；
+- map matrix / small multiples；
+- non-scenario multi-series line comparison；
+- categorical/point comparison（只有 report-wide grammar，没有唯一 layout）。
+
+不要把所有图强行套成一套 “IPCC theme”。
+
+## 6. Maps
+
+没有一个全局默认的 “IPCC projection”。
+
+- 复刻具体图：匹配 reference figure 的 projection/central longitude/extent。
+- 新图：根据科学任务选择，并在 recipe 中显式记录。
+- geographic context 必须弱于 data layer。
+- land/context 常用克制的 grey；边界细。
+- colour bar 必须包含单位。
+- comparable panels 的 scale 不得悄悄变化。
+
+### Robustness layers
+
+必须分开：
+
+1. high/low ensemble sign agreement；
+2. insufficient valid models/samples；
+3. statistical significance。
+
+默认语义：
+
+- robust/high agreement：保持主数据层干净；
+- low agreement：可用 hatch；
+- insufficient data：独立 blank/neutral mask；
+- statistical significance：只有真正对应显著性检验时才用 stipple。
+
+禁止同一种 hatch 同时表示 disagreement、missing data 和 significance。
+
+## 7. Legends / colour bars / annotation
+
+- 能直接标注时优先 direct label。
+- 使用 legend 时按科学语义排序，不按代码调用顺序。
+- legend / colour bar 靠近数据。
+- colour bar 给出单位。
+- 图上出现但不属于 colour bar 的颜色、shading、hatch、stipple 必须解释。
+- 避免不必要 grid、frame 和视觉装饰。
+
+## 8. Uncertainty
+
+- 中心估计和 uncertainty 同时表达。
+- interval 必须具体命名：17–83%、5–95%、95% CI 等。
+- 不要把 SD、SE、CI、model range 统一叫 “error”。
+- model agreement threshold 是科学方法的一部分，不是样式参数。
+- 多 realization 不自动等价于独立模型。
+- texture 不得淹没最重要的 robust signal。
+
+统计细节见 references/statistical_rules.md。
+
+## 9. Multi-panel
+
+- 排列编码科学逻辑，不按 loop 顺序。
+- 同单位同尺度的可比较 panel 才共享 colour bar。
+- panel label/title 位置一致。
+- 不要为了塞进版面把地图缩到不可读。
+- uncertainty overlay 语义在所有 panel 中一致。
+
+## 10. Reproducibility layer
+
+视觉映射确定之后，再应用：
+
+- xarray / CF / unit validation；
+- model/member policy；
+- plotted-data；
+- provenance；
+- deterministic seed；
+- PDF/SVG + PNG；
+- tests。
+
+这些增强可审计性，但不能替代视觉 style distillation。
+
+## 11. Fidelity gate
+
+输出前按 references/fidelity_checklist.md 检查。
+
+至少运行：
+
+    warnings = audit_text_conventions(fig)
+    if warnings:
+        raise RuntimeError("\n".join(warnings))
+
+严格模式还要人工/视觉核对：
+
+- semantic colours；
+- official colormap；
+- font；
+- panel geometry；
+- projection/extent；
+- legend/colorbar；
+- uncertainty semantics；
+- 与 reference figure 的差异（如果有）。
+
+## 禁止
+
+- 把 IPCC-inspired 写成 IPCC-faithful；
+- strict mode 用默认 Matplotlib colour cycle 表示 SSP/RCP；
+- strict map fallback 到 RdBu_r / viridis / cmocean；
+- 所有地图默认 Robinson；
+- 单位使用 [ ]；
+- 只因为使用 hatch 就声称遵循 IPCC uncertainty method；
+- 把某个 chapter helper 的局部规则冒充全报告规范；
+- 用 FAIR/provenance/300 dpi 代替视觉保真；
+- 复制旧图的错误、硬编码路径或无依据的 scale。
+
+## Resource index
+
+- references/SOURCES.md — evidence hierarchy and primary source corpus
+- references/ipcc_visual_grammar.md — canonical distilled visual grammar
+- references/figure_archetypes.md — figure-family rules
+- references/fidelity_checklist.md — strict fidelity gate
+- references/statistical_rules.md — ensemble/statistical rules
+- scripts/ipcc_sciplot/tokens.py — semantic visual tokens
+- scripts/ipcc_sciplot/colormaps.py — official palette loader
+- scripts/ipcc_sciplot/archetypes.py — reusable figure-family helpers
+- templates/figure_recipe.yaml — strict figure contract template
