@@ -6,6 +6,9 @@ import matplotlib.colors as mcolors
 from .style import audit_text_conventions, require_arial
 from .tokens import scenario_style
 
+_ALLOWED_WIDTHS_MM = (90.0, 180.0)
+_MAX_HEIGHT_MM = 250.0
+
 
 def audit_figure(
     fig: mpl.figure.Figure,
@@ -13,6 +16,8 @@ def audit_figure(
     profile: str = "ar6-report",
     strict_font: bool = False,
     require_ipcc_colormap: bool = False,
+    strict_dimensions: bool = False,
+    dimension_tolerance_mm: float = 0.5,
 ) -> list[str]:
     """Audit machine-checkable parts of the AR6 WGI visual contract.
 
@@ -25,6 +30,21 @@ def audit_figure(
             require_arial()
         except RuntimeError as exc:
             issues.append(str(exc))
+
+    if strict_dimensions:
+        width_mm, height_mm = fig.get_size_inches() * 25.4
+        width_matches = any(
+            abs(width_mm - target) <= dimension_tolerance_mm
+            for target in _ALLOWED_WIDTHS_MM
+        )
+        if not width_matches:
+            issues.append(
+                f"figure width is {width_mm:.1f} mm; strict IPCC delivery expects 90 or 180 mm"
+            )
+        if height_mm > _MAX_HEIGHT_MM + dimension_tolerance_mm:
+            issues.append(
+                f"figure height is {height_mm:.1f} mm; strict IPCC delivery maximum is 250 mm"
+            )
 
     for ax in fig.axes:
         for line in ax.lines:

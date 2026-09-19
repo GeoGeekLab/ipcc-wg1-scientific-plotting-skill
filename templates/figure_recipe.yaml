@@ -1,6 +1,6 @@
 figure_id: "figure_01"
 question: "What should the reader learn from this figure?"
-estimand: "Model-equal median change with a declared uncertainty interval"
+estimand: "Define the exact scientific quantity/comparison"
 
 plot_type: "map"
 archetype: "global-change-map"
@@ -14,22 +14,24 @@ baseline: "1850-1900"
 period: "2081-2100"
 scenario: "SSP2-4.5"
 
-center: "median"
-lower_quantile: 0.17
-upper_quantile: 0.83
-sign_agreement: 0.80
-min_valid_count: 5
+# Scientific-method fields are deliberately not given IPCC-style defaults.
+# Fill them only when the analysis/reference figure defines them.
+# center: "median"
+# lower_quantile: 0.17
+# upper_quantile: 0.83
+# sign_agreement: 0.80
+# min_valid_count: 5
 
 colormap: "temp_div"
 projection: "Robinson"
 center_value: 0
 longitude_convention: "-180..180"
 
-ensemble_policy: "one realization per model; equal model weight"
+ensemble_policy: "define from target analysis"
 output_stem: "outputs/figure_01"
 random_seed: 20260919
 
-# For figure-level reproduction, add:
+# For figure-level reproduction:
 # reference_chapter: 4
 # reference_figure: "4.27"
 # reference_url: "https://www.ipcc.ch/report/ar6/wg1/figures/..."

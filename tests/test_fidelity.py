@@ -21,3 +21,18 @@ def test_scenario_colour_audit_detects_default_cycle():
         issues = audit_figure(fig, profile="ar6-report")
         plt.close(fig)
     assert any("expected" in issue for issue in issues)
+
+
+def test_strict_dimension_audit_passes_for_single_column():
+    with publication_context(width="single"):
+        fig, _ = plt.subplots()
+        issues = audit_figure(fig, strict_dimensions=True)
+        plt.close(fig)
+    assert issues == []
+
+
+def test_strict_dimension_audit_rejects_arbitrary_width():
+    fig, _ = plt.subplots(figsize=(4, 3))
+    issues = audit_figure(fig, strict_dimensions=True)
+    plt.close(fig)
+    assert any("figure width" in issue for issue in issues)

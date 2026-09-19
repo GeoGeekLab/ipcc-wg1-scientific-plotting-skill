@@ -14,7 +14,6 @@ def _hex(rgb: RGB) -> str:
 class ScenarioStyle:
     color: str
     linestyle: str = "-"
-    linewidth: float = 1.6
 
 
 GENERIC_LINE_RGB: Final[tuple[RGB, ...]] = (
@@ -64,13 +63,14 @@ COAST_GREY: Final[str] = "#999999"
 MISSING_DATA: Final[str] = "#FFFFFF"
 TEXT_COLOR: Final[str] = "#000000"
 
-PANEL_LABEL_WEIGHT: Final[str] = "bold"
+PANEL_LABEL_WEIGHT: Final[str] = "normal"
 LEGEND_EDGE_COLOR: Final[str] = "#000000"
 LEGEND_EDGE_WIDTH_PT: Final[float] = 0.5
 
-DEFAULT_LINEWIDTH_PT: Final[float] = 1.4
-DEFAULT_AXIS_WIDTH_PT: Final[float] = 0.7
-DEFAULT_TICK_WIDTH_PT: Final[float] = 0.7
+MIN_LINEWIDTH_PT: Final[float] = 0.5
+DEFAULT_DATA_LINEWIDTH_PT: Final[float] = 1.0
+DEFAULT_AXIS_WIDTH_PT: Final[float] = 0.5
+DEFAULT_TICK_WIDTH_PT: Final[float] = 0.5
 
 FONT_PRIMARY: Final[str] = "Arial"
 FONT_FALLBACKS: Final[tuple[str, ...]] = ("Arial", "Liberation Sans", "DejaVu Sans")

@@ -1,57 +1,55 @@
 # Distillation architecture
 
-Version 0.2 separates reproducible climate workflow practice from visual fidelity.
+Version 0.2 separates visual fidelity from scientific-method and reproducibility concerns.
 
-## Layer 1 — evidence
+## Layer 1 — source evidence
 
-Use the hierarchy in SOURCES.md:
+Use `SOURCES.md` and `evidence_matrix.md` to classify every rule by source, scope and confidence.
 
-Visual Style Guide → TSU review evidence → official colour assets → repeated chapter implementations → Atlas uncertainty guidance → general best practice.
+For exact AR6 reproduction, the published figure and contemporaneous AR6 guidance take precedence over later guide updates. For new figures using the June-2022 guide, select the `wgi-guide-2022` profile explicitly.
 
-## Layer 2 — design tokens
+## Layer 2 — delivery grammar
 
-Machine-readable tokens live in scripts/ipcc_sciplot/tokens.py:
+Machine-readable delivery tokens cover:
+
+- 90 mm / 180 mm figure widths;
+- 250 mm maximum height;
+- 9 pt / 11 pt text conventions;
+- 0.5 pt axes and legend/colour-bar boundaries;
+- 350 ppi print-raster output;
+- Arial-preferred sans serif typography;
+- units in parentheses.
+
+These rules are grounded in the AR6 WGI Visual Style Guide rather than generic journal defaults.
+
+## Layer 3 — semantic colour tokens
+
+`tokens.py` stores:
 
 - generic WGI line colours;
 - generic shading colours;
 - report-era SSP/RCP semantics;
 - June-2022 SSP semantics;
-- typography and line-weight tokens;
-- map context colours.
+- restrained map-context colours.
 
-Official continuous/discrete/categorical RGB tables remain upstream and are loaded by semantic filename through colormaps.py.
+Official continuous/discrete/categorical RGB tables remain upstream and are loaded by semantic filename through `colormaps.py`.
 
-## Layer 3 — visual grammar
+## Layer 4 — visual grammar
 
-ipcc_visual_grammar.md defines report-wide constraints:
+`ipcc_visual_grammar.md` defines the report-wide rules that can legitimately be called IPCC visual style.
 
-- Arial in strict mode;
-- units in parentheses;
-- scenario-semantic colour;
-- official variable-specific map palettes;
-- restrained axes/context;
-- colour-bar/legend rules;
-- separate uncertainty semantics.
+## Layer 5 — figure archetypes
 
-## Layer 4 — figure archetypes
+`figure_archetypes.md` captures recurring families rather than pretending one universal theme exists.
 
-figure_archetypes.md defines families rather than a single theme:
+## Layer 6 — scientific method
 
-- scenario time series;
-- ensemble centre + interval;
-- global/regional map;
-- map matrix;
-- generic multi-series line;
-- categorical/point comparison.
+`statistical_rules.md` intentionally separates analysis choices from visual style. Median vs mean, interval quantiles, sign-agreement thresholds, weighting, FDR and projection are not promoted into IPCC-wide defaults.
 
-## Layer 5 — render helpers
+## Layer 7 — fidelity QA
 
-Reusable helpers apply tokens but do not choose the scientific method silently.
+`fidelity.py` checks what can be automated. `fidelity_checklist.md` covers reference-specific geometry, projection, colour normalization, annotations and method choices that still require human comparison.
 
-## Layer 6 — fidelity QA
+## Layer 8 — reproducibility
 
-fidelity_checklist.md determines whether a render can be described as IPCC-faithful. Failing strict requirements downgrades the label to IPCC-inspired/adapted.
-
-## Layer 7 — reproducibility
-
-Plotted-data, provenance, environment capture and statistical tests remain important, but they no longer substitute for style fidelity.
+Plotted-data, provenance, environment capture and tests remain important, but they cannot substitute for visual fidelity.

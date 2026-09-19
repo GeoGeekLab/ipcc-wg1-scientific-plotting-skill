@@ -5,30 +5,49 @@ independent and is not an official IPCC product.
 
 ## Evidence hierarchy
 
-When sources disagree, use this order:
+There is no single timeless "IPCC theme". Rules must be interpreted against the
+target profile.
 
-1. **WGI Visual Style Guide (June 2022 update)** — normative visual guidance.
-2. **WGI TSU figure-review comments** — evidence of rules actually enforced during AR6.
-3. **Official AR6 WGI colormap repository** — canonical palette assets.
-4. **Final-figure / chapter plotting code** — implementation evidence and figure-family conventions.
-5. **Atlas uncertainty guidance** — uncertainty/robustness semantics.
-6. **General scientific-visualisation practice** — only when AR6 evidence is silent.
+### Reproducing a specific AR6 final figure
 
-Do not promote a single chapter's local implementation into a report-wide rule
-unless it is supported by a higher-level source or appears repeatedly across chapters.
+Use this order:
+
+1. **The published reference figure itself** — geometry, projection, panel order,
+   labels, levels and other figure-specific decisions.
+2. **Contemporaneous AR6 WGI visual guidance and TSU review evidence** — report-wide
+   conventions actually enforced during production.
+3. **Official AR6 WGI colour assets and final/chapter plotting code** — semantic
+   colour and implementation evidence.
+4. **Atlas uncertainty guidance** — uncertainty/robustness semantics where relevant.
+5. **General scientific-visualisation practice** — only where AR6 evidence is silent.
+
+### Creating a new figure with the updated WGI guide
+
+Use the **June 2022 WGI Visual Style Guide** as the normative visual profile,
+together with official WGI colour assets and the same uncertainty principles.
+
+Do not let the post-report 2022 SSP palette silently overwrite colours when the
+goal is to reproduce a 2021 final-report figure.
 
 ## Primary sources
 
-### Visual Style Guide
+### Visual Style Guides
 
+- IPCC Visual Style Guide for Authors, WGI TSU, 2018 / AR6 production baseline  
+  https://www.ipcc.ch/site/assets/uploads/2019/04/IPCC-visual-style-guide.pdf
 - IPCC WGI Visual Style Guide, updated June 2022  
   https://www.ipcc.ch/site/assets/uploads/2022/09/IPCC_AR6_WGI_VisualStyleGuide_2022.pdf
-- WGI resources page listing the guide  
+- WGI resources page listing the updated guide  
   https://www.ipcc.ch/working-group/wg1/
 
-The guide covers message-first design, chart choice, colours, typography and axes,
-legends/colour bars, sizing, labels/annotations, visual cues, uncertainty,
-captions, testing, metadata/code and file delivery.
+The AR6 production guide establishes the physical delivery grammar used by this
+project: 9 cm or 18 cm figure width, maximum 25 cm height, approximately 9 pt
+text on smaller figures and 11 pt on larger figures, black 0.5 pt axes,
+parenthesised units, Arial-preferred sans serif typography, restrained legends
+and colour bars, and 350 ppi raster delivery for print.
+
+The June-2022 update is retained as a separate style profile rather than being
+treated as retroactive evidence for every 2021 final-report figure.
 
 ### Official AR6 WGI colour assets
 
@@ -53,48 +72,53 @@ authorized local checkout through `IPCC_WG1_COLORMAPS_DIR`.
 - Chapter 2 Figure 31: https://github.com/IPCC-WG1/Chapter-2_Fig31
 - Atlas: https://github.com/IPCC-WG1/Atlas
 
-These are used to identify recurring implementation patterns, not to claim that
-every chapter used identical code.
+These are implementation evidence and figure-family examples. A local helper in
+one chapter is not automatically a report-wide rule.
 
 ### WGI TSU review evidence
 
-The First Order Draft review records contain repeated TSU requests that were
-taken into account during figure revision. Particularly useful examples:
+The First Order Draft review records are especially valuable because they show
+which visual conventions the TSU asked authors to change during AR6 production.
 
-- Chapter 4 review:
+- Chapter 2:
+  https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter02.pdf
+- Chapter 4:
   https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter04.pdf
-- Chapter 5 review:
+- Chapter 5:
   https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter05.pdf
-- Chapter 6 review:
+- Chapter 6:
   https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter06.pdf
-- Chapter 7 review:
+- Chapter 7:
   https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter07.pdf
-- Chapter 9 review:
+- Chapter 9:
   https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter09.pdf
+- Chapter 10:
+  https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_FOD_CommentsResponses_Chapter10.pdf
 
-Repeated enforced conventions include Arial, units in parentheses, use of
-prescribed RCP/temperature colours, short panel titles, reduced clutter,
-colour-blind-safe choices, explicit explanation of shading and missing data,
-and clearer in-figure legends/annotations.
+Repeated enforced conventions include Arial, units in parentheses, semantic RCP
+and temperature/precipitation palettes, short indicative titles, spelled-out
+acronyms, reduced visual clutter, explicit legends and colour-bar units, and
+clear separation of missing data from uncertainty textures.
 
 ### Uncertainty and robustness
 
 - AR6 WGI Atlas chapter:
   https://www.ipcc.ch/report/ar6/wg1/chapter/atlas/
 
-The Atlas framework is the primary source for map robustness principles:
-uncertainty categories must be interpretable, mutually exclusive where defined,
-and must not visually suppress the robust signal.
+The Atlas framework is the main source for map robustness principles:
+uncertainty categories must remain interpretable and should not suppress the
+robust central signal.
 
-## Two style profiles
+## Style profiles
 
-The repository intentionally distinguishes:
+- `ar6-report` — reproduce final-report-era semantics and contemporaneous code.
+- `wgi-guide-2022` — use the June-2022 updated WGI visual-style tokens.
 
-- `ar6-report` — reproduce final-report-era semantics when matching an AR6 figure.
-- `wgi-guide-2022` — apply the June-2022 updated WGI visual-style tokens.
+The profile is part of provenance and must never be inferred silently.
 
-Do not silently mix the two. Some SSP colours changed between report-era helper
-code and the 2022 guide update.
+## Evidence matrix
+
+See `evidence_matrix.md` for a rule-by-rule record of source strength and scope.
 
 ## Copyright and redistribution
 

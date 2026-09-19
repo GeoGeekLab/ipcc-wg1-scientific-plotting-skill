@@ -22,6 +22,10 @@ def ensemble_summary(
 ) -> xr.Dataset:
     """Summarize an ensemble and classify sign agreement.
 
+    Defaults are convenience values for generic calculations, not IPCC-wide
+    methodological or visual-style rules. A faithful reproduction must pass the
+    parameters used by the target analysis/reference figure.
+
     Zero values count as valid observations but support neither sign. A positive
     zero_tolerance treats values in [-tol, tol] as zero.
     """
@@ -88,8 +92,8 @@ def ensemble_summary(
 def fdr_bh_mask(pvalues: xr.DataArray, *, alpha: float = 0.05) -> xr.DataArray:
     """Benjamini-Hochberg false-discovery-rate rejection mask.
 
-    NaNs are ignored. This controls FDR under the usual BH assumptions; it does
-    not itself account for spatial or temporal dependence.
+    This is a statistical helper, not an IPCC visual-style rule. NaNs are
+    ignored. Standard BH does not itself account for spatial/temporal dependence.
     """
     if not 0 < alpha < 1:
         raise ValueError("alpha must be between 0 and 1")

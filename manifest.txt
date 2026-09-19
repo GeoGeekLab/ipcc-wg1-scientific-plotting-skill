@@ -1,3 +1,4 @@
+.github/workflows/ci.yml
 README.md
 SKILL.md
 environment.yml
@@ -5,6 +6,7 @@ examples/quickstart.py
 manifest.txt
 pyproject.toml
 references/SOURCES.md
+references/evidence_matrix.md
 references/figure_archetypes.md
 references/fidelity_checklist.md
 references/ipcc_visual_grammar.md

@@ -20,11 +20,11 @@ class FigureRecipe:
     fidelity: str = "strict"
     archetype: str | None = None
     baseline: str | None = None
-    center: str = "median"
-    lower_quantile: float = 0.17
-    upper_quantile: float = 0.83
-    sign_agreement: float = 0.80
-    min_valid_count: int = 5
+    center: str | None = None
+    lower_quantile: float | None = None
+    upper_quantile: float | None = None
+    sign_agreement: float | None = None
+    min_valid_count: int | None = None
     colormap: str | None = None
     projection: str | None = None
     output_stem: str = "outputs/figure"
@@ -39,12 +39,22 @@ class FigureRecipe:
             raise ValueError("unsupported style_profile")
         if self.fidelity not in {"strict", "adapted"}:
             raise ValueError("fidelity must be 'strict' or 'adapted'")
-        if not 0 <= self.lower_quantile < self.upper_quantile <= 1:
+
+        quantiles = (self.lower_quantile, self.upper_quantile)
+        if (quantiles[0] is None) != (quantiles[1] is None):
+            raise ValueError("lower_quantile and upper_quantile must be set together")
+        if (
+            quantiles[0] is not None
+            and quantiles[1] is not None
+            and not 0 <= quantiles[0] < quantiles[1] <= 1
+        ):
             raise ValueError("invalid quantile interval")
-        if not 0.5 <= self.sign_agreement <= 1:
+
+        if self.sign_agreement is not None and not 0.5 <= self.sign_agreement <= 1:
             raise ValueError("sign_agreement must be in [0.5, 1]")
-        if self.min_valid_count < 1:
+        if self.min_valid_count is not None and self.min_valid_count < 1:
             raise ValueError("min_valid_count must be >= 1")
+
         if self.plot_type == "map" and self.fidelity == "strict":
             if not self.colormap:
                 raise ValueError("strict map recipes require an official IPCC colormap name")
