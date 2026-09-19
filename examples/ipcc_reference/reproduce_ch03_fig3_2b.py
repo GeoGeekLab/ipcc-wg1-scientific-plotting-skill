@@ -131,11 +131,9 @@ def main():
         )
 
         legend = ax.legend(
-            loc="upper left",
-            bbox_to_anchor=(1.01, 1.0),
             frameon=False,
             markerfirst=False,
-            borderaxespad=0,
+            fontsize=7.5,
         )
         for text in legend.get_texts():
             text.set_fontsize(7.5)
