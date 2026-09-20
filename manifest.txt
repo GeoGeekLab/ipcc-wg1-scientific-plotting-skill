@@ -1,4 +1,5 @@
 .github/workflows/ci.yml
+.github/workflows/publish-pypi.yml
 LICENSE
 README.md
 SKILL.md
