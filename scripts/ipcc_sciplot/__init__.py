@@ -33,14 +33,17 @@ except PackageNotFoundError:
     __version__ = "0+unknown"
 
 __all__ = [
-    "AR6_REPORT_RCP",\n    "AuditCheck",\n    "AuditReport",
+    "AR6_REPORT_RCP",
     "AR6_REPORT_SSP",
+    "AuditCheck",
+    "AuditReport",
     "FigureRecipe",
     "GENERIC_LINE_COLORS",
     "GENERIC_SHADE_COLORS",
     "WGI_GUIDE_2022_SSP",
     "__version__",
-    "audit_figure",\n    "audit_figure_report",
+    "audit_figure",
+    "audit_figure_report",
     "audit_text_conventions",
     "axis_label",
     "build_provenance",
