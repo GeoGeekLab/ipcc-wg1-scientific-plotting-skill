@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import runpy
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -16,11 +16,11 @@ def _load_figure(script: Path, factory_name: str) -> mpl.figure.Figure:
     if not script.is_file():
         raise ValueError(f"figure script does not exist: {script}")
 
-    namespace = runpy.run_path(str(script))
+    mpl.use("Agg")\n    namespace = runpy.run_path(str(script))
     factory: Any = namespace.get(factory_name)
     if factory is None:
         raise ValueError(f"{script} does not define {factory_name}()")
-    if not isinstance(factory, Callable):
+    if not callable(factory):
         raise ValueError(f"{factory_name} in {script} is not callable")
 
     figure = factory()
@@ -57,7 +57,7 @@ def _audit_command(args: argparse.Namespace) -> int:
             require_ipcc_colormap=args.require_ipcc_colormap,
             dimension_tolerance_mm=args.dimension_tolerance_mm,
         )
-    except (OSError, RuntimeError, ValueError) as exc:
+    except Exception as exc:
         print(f"ERROR: {exc}")
         return 2
 
