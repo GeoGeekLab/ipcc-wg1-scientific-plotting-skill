@@ -343,8 +343,7 @@ def render_svg(years: list[int], rows: list[dict[str, str]]) -> str:
             '<text x="900" y="1055" text-anchor="middle" font-size="13" fill="#666">'
             "World · Emissions|CH4 · official AR6 source data; no synthetic trajectories."
             "</text>",
-            "</g>",
-            "</svg>",
+            "</g></svg>",
         ]
     )
     return "\n".join(parts) + "\n"
