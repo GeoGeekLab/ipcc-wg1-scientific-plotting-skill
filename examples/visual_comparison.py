@@ -178,11 +178,19 @@ def render_svg(years: list[int], rows: list[dict[str, str]]) -> str:
         plot_x, plot_y = panel_x + 78, panel_y + 92
         plot_w, plot_h = panel_w - 108, 230
 
-        def sx(value: float) -> float:
-            return plot_x + (value - 1850) / 250 * plot_w
+        def sx(
+            value: float,
+            panel_x: float = plot_x,
+            panel_width: float = plot_w,
+        ) -> float:
+            return panel_x + (value - 1850) / 250 * panel_width
 
-        def sy(value: float) -> float:
-            return plot_y + plot_h - value / 950 * plot_h
+        def sy(
+            value: float,
+            panel_y: float = plot_y,
+            panel_height: float = plot_h,
+        ) -> float:
+            return panel_y + panel_height - value / 950 * panel_height
 
         for value in (0, 200, 400, 600, 800):
             yy = sy(value)
