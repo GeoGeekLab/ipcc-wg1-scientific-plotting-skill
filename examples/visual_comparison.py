@@ -165,7 +165,7 @@ def main() -> None:
     fig = make_comparison()
     png = OUT / "default-to-fidelity.png"
     svg = OUT / "default-to-fidelity.svg"
-    fig.savefig(png, dpi=180, bbox_inches="tight", facecolor="white")
+    fig.savefig(png, dpi=135, bbox_inches="tight", facecolor="white")
     fig.savefig(svg, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(png)
