@@ -1,6 +1,8 @@
 .github/workflows/ci.yml
+LICENSE
 README.md
 SKILL.md
+THIRD_PARTY_NOTICES.md
 environment.yml
 examples/quickstart.py
 manifest.txt
