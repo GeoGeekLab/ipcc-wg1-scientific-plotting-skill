@@ -6,10 +6,11 @@ RELEASING.md
 SKILL.md
 THIRD_PARTY_NOTICES.md
 environment.yml
+examples/audit_demo.py
 examples/quickstart.py
-examples/visual_comparison/default-to-fidelity.svg
-examples/visual_comparison/README.md
 examples/visual_comparison.py
+examples/visual_comparison/README.md
+examples/visual_comparison/default-to-fidelity.svg
 manifest.txt
 pyproject.toml
 references/SOURCES.md
@@ -23,6 +24,7 @@ references/visual_encoding.md
 scripts/check_figure.py
 scripts/ipcc_sciplot/__init__.py
 scripts/ipcc_sciplot/archetypes.py
+scripts/ipcc_sciplot/cli.py
 scripts/ipcc_sciplot/colormaps.py
 scripts/ipcc_sciplot/fidelity.py
 scripts/ipcc_sciplot/maps.py
@@ -32,10 +34,10 @@ scripts/ipcc_sciplot/style.py
 scripts/ipcc_sciplot/tokens.py
 scripts/ipcc_sciplot/uncertainty.py
 templates/figure_recipe.yaml
+tests/test_cli.py
 tests/test_colormaps.py
 tests/test_fidelity.py
 tests/test_recipe.py
 tests/test_style.py
 tests/test_tokens.py
 tests/test_uncertainty.py
-\nexamples/audit_demo.py\nscripts/ipcc_sciplot/cli.py\ntests/test_cli.py\n
