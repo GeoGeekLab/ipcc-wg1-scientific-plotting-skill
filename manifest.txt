@@ -38,3 +38,4 @@ tests/test_recipe.py
 tests/test_style.py
 tests/test_tokens.py
 tests/test_uncertainty.py
+\nexamples/audit_demo.py\nscripts/ipcc_sciplot/cli.py\ntests/test_cli.py\n
