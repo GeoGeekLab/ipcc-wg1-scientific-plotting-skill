@@ -68,7 +68,10 @@ workflow = [
   "conda-lock>=2.5",
 ]
 
-[project.scripts]\nar6plot = "ipcc_sciplot.cli:main"\n\n[project.urls]
+[project.scripts]
+ar6plot = "ipcc_sciplot.cli:main"
+
+[project.urls]
 Homepage = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill"
 Repository = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill"
 Issues = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/issues"
