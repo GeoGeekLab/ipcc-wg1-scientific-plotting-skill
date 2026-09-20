@@ -122,7 +122,16 @@ See `evidence_matrix.md` for a rule-by-rule record of source strength and scope.
 
 ## Copyright and redistribution
 
-IPCC figures and upstream assets have their own copyright and licensing terms.
+Original project code and documentation are licensed under the repository's
+[MIT License](../LICENSE), except where a file states otherwise.
+
+The MIT License does **not** relicense IPCC figures, source data, colour assets,
+chapter code, fonts, or other third-party material. Those upstream materials
+retain their own copyright, licensing, attribution, and reuse terms.
+
 This repository stores original helper code, source references, semantic tokens
-needed for interoperability, and filenames for upstream colour assets. Consult
-each upstream source before redistributing its code, data or graphics.
+needed for interoperability, and filenames for upstream colour assets. It does
+not vendor the official WGI RGB tables. Consult each upstream source before
+redistributing its code, data or graphics, and see
+[THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) for the project-wide
+boundary.
