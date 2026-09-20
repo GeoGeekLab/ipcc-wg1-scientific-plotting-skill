@@ -48,8 +48,14 @@ def test_structured_report_exposes_pass_fail_skip_and_schema():
 
     assert isinstance(report, AuditReport)
     assert report.passed
-    assert any(check.code == "delivery.width" and check.status == "pass" for check in report.checks)
-    assert any(check.code == "typography.arial" and check.status == "skip" for check in report.checks)
+    assert any(
+        check.code == "delivery.width" and check.status == "pass"
+        for check in report.checks
+    )
+    assert any(
+        check.code == "typography.arial" and check.status == "skip"
+        for check in report.checks
+    )
     payload = report.to_dict()
     assert payload["schema"] == "ar6-sciplot.audit/v1"
     assert payload["passed"] is True
