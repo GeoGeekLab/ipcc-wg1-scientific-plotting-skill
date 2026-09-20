@@ -221,11 +221,11 @@ def render_svg(years: list[int], rows: list[dict[str, str]]) -> str:
                 f'stroke="#222" stroke-width="{axis_width}"/>',
                 f'<line x1="{plot_x}" y1="{plot_y}" x2="{plot_x}" '
                 f'y2="{plot_y + plot_h}" stroke="#222" stroke-width="{axis_width}"/>',
-                f'<text x="{plot_x + plot_w / 2}" y="{plot_y + plot_h + 44}" '
+                f'<text x="{plot_x + plot_w / 2:g}" y="{plot_y + plot_h + 44}" '
                 'text-anchor="middle" font-size="13">Year</text>',
-                f'<text x="{plot_x - 54}" y="{plot_y + plot_h / 2}" '
+                f'<text x="{plot_x - 54}" y="{plot_y + plot_h / 2:g}" '
                 'text-anchor="middle" font-size="13" '
-                f'transform="rotate(-90 {plot_x - 54} {plot_y + plot_h / 2})">'
+                f'transform="rotate(-90 {plot_x - 54} {plot_y + plot_h / 2:g})">'
                 "CH₄ emissions (Tg CH₄ yr⁻¹)</text>",
             ]
         )
