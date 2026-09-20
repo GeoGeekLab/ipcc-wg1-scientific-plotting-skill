@@ -10,7 +10,7 @@ examples/audit_demo.py
 examples/quickstart.py
 examples/visual_comparison.py
 examples/visual_comparison/README.md
-examples/visual_comparison/default-to-fidelity.svg
+examples/visual_comparison/ar6-source-fidelity.svg
 manifest.txt
 pyproject.toml
 references/SOURCES.md

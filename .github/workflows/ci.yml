@@ -31,9 +31,16 @@ jobs:
         run: pytest -q
       - name: End-to-end example
         run: python examples/quickstart.py
-      - name: Visual comparison smoke test
+      - name: AR6 source visual comparison regression
         if: matrix.python-version == '3.12'
-        run: python examples/visual_comparison.py
+        run: python examples/visual_comparison.py --check
+      - name: Upload README visual proof
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-visual-proof
+          path: examples/visual_comparison/ar6-source-fidelity.svg
+          if-no-files-found: error
       - name: Fidelity audit CLI smoke test
         if: matrix.python-version == '3.12'
         run: ar6plot audit examples/audit_demo.py --strict-dimensions
