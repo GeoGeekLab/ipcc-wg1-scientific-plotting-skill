@@ -116,7 +116,15 @@ def render_svg(years: list[int], rows: list[dict[str, str]]) -> str:
         (60, 150, 810, 390, "A  Raw plotting", "No semantic colour contract", "raw"),
         (930, 150, 810, 390, 'B  “IPCC-ish”', "Appearance first; evidence absent", "guess"),
         (60, 590, 810, 390, "C  Adapted / IPCC-inspired", "Explicit WGI 2022 profile", "adapt"),
-        (930, 590, 810, 390, "D  Reference-grounded AR6", "Report-era semantics + audit gate", "strict"),
+        (
+            930,
+            590,
+            810,
+            390,
+            "D  Reference-grounded AR6",
+            "Report-era semantics + audit gate",
+            "strict",
+        ),
     ]
 
     def path_for(points, sx, sy):
