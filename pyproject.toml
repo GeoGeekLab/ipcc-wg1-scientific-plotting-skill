@@ -1,12 +1,36 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=69", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ipcc-wg1-scientific-plotting-skill"
-version = "0.2.0"
-description = "High-fidelity plotting helpers distilled from IPCC AR6 WGI visual practice"
+dynamic = ["version"]
+description = "Evidence-backed plotting helpers and fidelity checks distilled from IPCC AR6 WGI visual practice"
+readme = "README.md"
 requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "GeoGeekLab" },
+]
+keywords = [
+  "ar6",
+  "climate-science",
+  "data-visualization",
+  "ipcc",
+  "matplotlib",
+  "scientific-plotting",
+  "scientific-visualization",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Visualization",
+]
 dependencies = [
   "numpy>=1.26",
   "pandas>=2.1",
@@ -42,11 +66,20 @@ workflow = [
   "conda-lock>=2.5",
 ]
 
+[project.urls]
+Homepage = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill"
+Repository = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill"
+Issues = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/issues"
+Releases = "https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/releases"
+
 [tool.setuptools]
 package-dir = {"" = "scripts"}
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
+
+[tool.setuptools_scm]
+fallback_version = "0+unknown"
 
 [tool.pytest.ini_options]
 addopts = "-q"
