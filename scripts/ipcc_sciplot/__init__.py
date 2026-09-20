@@ -28,7 +28,7 @@ from .tokens import (
 from .uncertainty import ensemble_summary, fdr_bh_mask
 
 try:
-    __version__ = version("ipcc-wg1-scientific-plotting-skill")
+    __version__ = version("ar6-sciplot")
 except PackageNotFoundError:
     __version__ = "0+unknown"
 
