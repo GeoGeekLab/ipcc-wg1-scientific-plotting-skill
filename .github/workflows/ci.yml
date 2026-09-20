@@ -31,6 +31,9 @@ jobs:
         run: pytest -q
       - name: End-to-end example
         run: python examples/quickstart.py
+      - name: Visual comparison smoke test
+        if: matrix.python-version == '3.12'
+        run: python examples/visual_comparison.py
       - name: Artifact preflight
         run: python scripts/check_figure.py outputs/quickstart.pdf --metadata outputs/quickstart.provenance.json
 
