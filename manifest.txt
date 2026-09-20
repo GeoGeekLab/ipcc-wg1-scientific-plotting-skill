@@ -2,6 +2,7 @@
 .github/workflows/publish-pypi.yml
 LICENSE
 README.md
+RELEASING.md
 SKILL.md
 THIRD_PARTY_NOTICES.md
 environment.yml
