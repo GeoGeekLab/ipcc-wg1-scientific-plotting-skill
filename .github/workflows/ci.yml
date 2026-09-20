@@ -31,9 +31,9 @@ jobs:
         run: pytest -q
       - name: End-to-end example
         run: python examples/quickstart.py
-      - name: Visual comparison smoke test
+      - name: AR6 source visual comparison regression
         if: matrix.python-version == '3.12'
-        run: python examples/visual_comparison.py
+        run: python examples/visual_comparison.py --check
       - name: Fidelity audit CLI smoke test
         if: matrix.python-version == '3.12'
         run: ar6plot audit examples/audit_demo.py --strict-dimensions
