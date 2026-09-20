@@ -81,12 +81,11 @@ The goal is not to make a plot look vaguely IPCC-ish. The goal is to make the
 Requires Python 3.11+.
 
 ~~~bash
-git clone https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill.git
-cd ipcc-wg1-scientific-plotting-skill
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[qa]"
+python -m pip install ar6-sciplot
 ~~~
+
+The PyPI distribution is named `ar6-sciplot`; the Python import remains
+`ipcc_sciplot`.
 
 Run a minimal, copy-pasteable example:
 
@@ -125,7 +124,7 @@ including Arial where required.
 For map/climate workflows:
 
 ~~~bash
-python -m pip install -e ".[climate,qa]"
+python -m pip install "ar6-sciplot[climate]"
 git clone https://github.com/IPCC-WG1/colormaps.git
 export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
 ~~~
