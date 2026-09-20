@@ -16,7 +16,8 @@ def _load_figure(script: Path, factory_name: str) -> mpl.figure.Figure:
     if not script.is_file():
         raise ValueError(f"figure script does not exist: {script}")
 
-    mpl.use("Agg")\n    namespace = runpy.run_path(str(script))
+    mpl.use("Agg")
+    namespace = runpy.run_path(str(script))
     factory: Any = namespace.get(factory_name)
     if factory is None:
         raise ValueError(f"{script} does not define {factory_name}()")
