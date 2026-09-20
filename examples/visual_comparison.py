@@ -362,7 +362,18 @@ def main() -> None:
     years, rows = load_rows()
     rendered = render_svg(years, rows)
     if args.check:
-        if OUTPUT.read_text(encoding="utf-8") != rendered:
+        committed = OUTPUT.read_text(encoding="utf-8")
+        if committed != rendered:
+            committed_lines = committed.splitlines()
+            rendered_lines = rendered.splitlines()
+            for index in range(max(len(committed_lines), len(rendered_lines))):
+                left = committed_lines[index] if index < len(committed_lines) else "<missing>"
+                right = rendered_lines[index] if index < len(rendered_lines) else "<missing>"
+                if left != right:
+                    print(f"first drift at line {index + 1}")
+                    print(f"committed: {left}")
+                    print(f"rendered:  {right}")
+                    break
             raise SystemExit(
                 "visual comparison drifted from the pinned AR6 source; "
                 "run python examples/visual_comparison.py"
