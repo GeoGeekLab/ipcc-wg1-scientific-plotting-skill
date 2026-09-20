@@ -22,7 +22,7 @@ official colour assets, uncertainty grammar, provenance, and machine-checkable f
 
 ## From styling to fidelity
 
-<img src="examples/visual_comparison/default-to-fidelity.png" alt="Four-panel comparison from Matplotlib defaults and IPCC-ish styling to adapted and strict-contract AR6 visual grammar">
+<img src="examples/visual_comparison/default-to-fidelity.svg" alt="Four-panel comparison from Matplotlib defaults and IPCC-ish styling to adapted and strict-contract AR6 visual grammar">
 
 The same **synthetic** SSP trajectories are shown four ways: Matplotlib defaults,
 appearance-only “IPCC-ish” styling, an explicit adapted profile, and the stricter
