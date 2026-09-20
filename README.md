@@ -2,9 +2,9 @@
 
 # ipcc-wg1-scientific-plotting-skill
 
-**IPCC visual grammar, distilled into code.**
+**Evidence-backed visual grammar and fidelity checks for IPCC AR6 WGI scientific figures.**
 
-`evidence → tokens → archetypes → render → audit → reference`
+<code>source → profile → render → audit → reproduce</code>
 
 [![CI](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/ci.yml)
 [![Reference reproductions](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/reference-reproductions.yml/badge.svg)](https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/workflows/reference-reproductions.yml)
@@ -12,92 +12,36 @@
 [![AR6 WGI](https://img.shields.io/badge/IPCC-AR6%20WGI-111111?style=flat-square)](references/SOURCES.md)
 [![Fidelity](https://img.shields.io/badge/fidelity-strict%20%7C%20adapted-2ea44f?style=flat-square)](references/fidelity_checklist.md)
 
-High-fidelity scientific plotting reconstructed from the visual language of **IPCC AR6 Working Group I**.
+**Not a Matplotlib theme.** The project encodes AR6/WGI visual semantics, delivery geometry,
+official colour assets, uncertainty grammar, provenance, and machine-checkable fidelity.
 
 </div>
 
 > [!IMPORTANT]
 > Independent project. Not an official IPCC product and does not imply IPCC endorsement.
 
-## Why this exists
+## From styling to fidelity
 
-A lot of “IPCC-style” plotting stops at a diverging palette, a sans-serif font, and some hatching.
+<img src="examples/visual_comparison/default-to-fidelity.svg" alt="Four-panel comparison from Matplotlib defaults and IPCC-ish styling to adapted and strict-contract AR6 visual grammar">
 
-This repository treats AR6 WGI as a **visual system**, not a theme.
+The same **synthetic** SSP trajectories are shown four ways: Matplotlib defaults,
+appearance-only “IPCC-ish” styling, an explicit adapted profile, and the stricter
+`ar6-report` contract. The point is not that the fourth mini-panel is itself an
+official IPCC figure; it is that a fidelity claim needs **semantic tokens, an
+explicit profile, audit gates, and disclosed requirements** rather than visual
+resemblance alone.
 
-- **evidence over vibes** — rules trace back to WGI guides, TSU review comments, official colormaps, chapter code, or Atlas guidance;
-- **semantics over decoration** — SSP/RCP colours, uncertainty textures, missing data, and significance have distinct meanings;
-- **fail closed in strict mode** — no silent fallback to `viridis`, `RdBu`, cmocean, or a random font;
-- **method ≠ style** — median, 17–83%, 80% agreement, FDR, weighting, and projection are analysis choices unless the reference figure says otherwise;
-- **reference before abstraction** — figure-specific geometry wins over a generic helper when reproducing a published AR6 panel.
+The comparison is reproducible with
+[`examples/visual_comparison.py`](examples/visual_comparison.py); PNG and SVG
+outputs plus the interpretation boundary live in
+[`examples/visual_comparison/`](examples/visual_comparison/).
 
-The goal is not to make plots that look vaguely IPCC-ish.
+## See the reference reproductions first
 
-The goal is to make the fidelity claim **inspectable**.
-
-## Fidelity model
-
-| Mode | Contract |
-| --- | --- |
-| **strict / IPCC-faithful** | Correct profile, Arial, IPCC delivery geometry, semantic scenario colours, official WGI colormap assets, explicit map projection, separated uncertainty semantics, fidelity audit. |
-| **adapted / IPCC-inspired** | Substitutions are allowed, but the result must be labelled as adapted rather than exact. |
-
-Two style profiles are explicit:
-
-```text
-ar6-report       → final-report-era AR6 semantics
-wgi-guide-2022   → June-2022 WGI guide update
-```
-
-They are not silently mixed.
-
-## Execution model
-
-```text
-SOURCE → PROFILE → FIGURE CONTRACT → RENDER → AUDIT → REFERENCE
-```
-
-| Stage | Question |
-| --- | --- |
-| **Source** | Which WGI evidence or published figure defines the rule? |
-| **Profile** | Are we reproducing final-report AR6 or using the 2022 guide? |
-| **Figure contract** | What quantity, geometry, uncertainty method, palette, projection, and output size are required? |
-| **Render** | Which archetype and semantic tokens apply? |
-| **Audit** | What can be machine-checked, and what still needs visual comparison? |
-| **Reference** | Can the output be regenerated from pinned source data and verified by SHA256? |
-
-## What is encoded
-
-```text
-delivery
-  ├── 90 / 180 mm print widths
-  ├── ≤ 250 mm height
-  ├── 9 / 11 pt WGI typography
-  ├── 0.5 pt axis grammar
-  └── 350 ppi raster master
-
-semantics
-  ├── SSP / RCP colours
-  ├── WGI generic line colours
-  ├── variable-specific official colormaps
-  └── report-era vs 2022 profiles
-
-uncertainty
-  ├── model agreement
-  ├── insufficient data
-  └── statistical significance
-
-qa
-  ├── text + unit conventions
-  ├── semantic colour audit
-  ├── physical-size audit
-  ├── official-colormap audit
-  └── source-data regression gallery
-```
-
-## Reference gallery
-
-These are generated from **pinned official IPCC AR6 WGI source repositories**, not synthetic demo data.
+These figures are regenerated from **pinned official IPCC AR6 WGI source repositories**,
+not synthetic demo data. Source commits, physical dimensions, and SHA256 checksums are
+recorded in the [reference gallery](examples/ipcc_reference/README.md) and
+[manifest](examples/ipcc_reference/outputs/manifest.json).
 
 <table>
 <tr>
@@ -126,58 +70,195 @@ Historical + scenario CH₄ emissions.<br><br>
 </tr>
 </table>
 
-Source commits, output dimensions, and SHA256 checksums live in [the reference gallery](examples/ipcc_reference/README.md) and [its manifest](examples/ipcc_reference/outputs/manifest.json).
+## Why this is different
+
+A lot of “IPCC-style” plotting stops at a diverging palette, a sans-serif font,
+and some hatching. This repository treats AR6 WGI as a **visual system with evidence
+and failure conditions**, not a theme.
+
+- **Evidence-backed rules** — WGI guides, TSU review comments, official colormaps,
+  chapter code, Atlas guidance, and published reference figures are kept distinct.
+- **Semantic colour** — SSP/RCP colours and variable-specific map palettes carry
+  meaning; they are not a decorative colour cycle.
+- **Explicit fidelity modes** — strict/IPCC-faithful and adapted/IPCC-inspired are
+  separate claims.
+- **Fail-closed strict mode** — no silent fallback to <code>viridis</code>, <code>RdBu</code>,
+  cmocean, or an arbitrary font while still claiming fidelity.
+- **Method ≠ style** — median, 17–83%, 80% agreement, FDR, weighting, and projection
+  remain analysis/reference choices unless evidence says otherwise.
+- **Auditable outputs** — physical dimensions, typography, semantic colours,
+  official-colormap use, provenance, and reference regressions can be checked.
+
+The goal is not to make a plot look vaguely IPCC-ish. The goal is to make the
+**fidelity claim inspectable**.
+
+## Audit the fidelity claim
+
+The audit layer is designed for both humans and CI. Existing code can keep using
+`audit_figure(fig)`; new integrations can use the structured
+`audit_figure_report(fig)` API or the `ar6plot` CLI.
+
+A figure script exposes a zero-argument factory returning a Matplotlib
+`Figure`:
+
+~~~python
+def make_figure():
+    ...
+    return fig
+~~~
+
+Run the machine-checkable contract:
+
+~~~bash
+ar6plot audit examples/audit_demo.py --strict-dimensions
+~~~
+
+Example report:
+
+~~~text
+AR6 fidelity audit — PASS
+Profile: ar6-report
+
+PASS  text.unit-convention         axis and annotation unit syntax passed
+SKIP  typography.arial             strict font check not requested
+PASS  delivery.width               figure width matches an IPCC delivery width
+PASS  delivery.height              figure height is within the delivery maximum
+PASS  scenario.color.0.0           scenario 'SSP1-2.6' uses the ar6-report semantic colour
+PASS  scenario.color.0.1           scenario 'SSP2-4.5' uses the ar6-report semantic colour
+PASS  scenario.color.0.2           scenario 'SSP5-8.5' uses the ar6-report semantic colour
+SKIP  map.official-colormap        official map-colormap check not requested
+SKIP  reference.manual-review      projection, panel geometry, annotation, and scientific method require reference-specific review
+
+Summary: 6 passed, 0 failed, 3 skipped
+~~~
+
+For CI and other tooling:
+
+~~~bash
+ar6plot audit examples/audit_demo.py \
+  --strict-dimensions \
+  --format json \
+  --output outputs/audit.json
+~~~
+
+Exit codes are deliberate: **0** = all requested machine checks pass, **1** = one
+or more checks fail, **2** = the audit could not run. Exact reproduction still
+requires the explicitly reported manual/reference-specific checks.
 
 ## Quick start
 
 Requires Python 3.11+.
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[qa]"
-```
+~~~bash
+python -m pip install ar6-sciplot
+~~~
 
-For map/climate workflows:
+The PyPI distribution is named `ar6-sciplot`; the Python import remains
+`ipcc_sciplot`.
 
-```bash
-python -m pip install -e ".[climate,qa]"
-```
+Run a minimal, copy-pasteable example:
 
-Strict maps use the official WGI colormap repository directly:
+~~~python
+import matplotlib.pyplot as plt
+import numpy as np
 
-```bash
-git clone https://github.com/IPCC-WG1/colormaps.git
-export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
-```
+from ipcc_sciplot import audit_figure, axis_label, publication_context, scenario_style
 
-```python
-from ipcc_sciplot import (
-    audit_figure,
-    axis_label,
-    load_ipcc_colormap,
-    publication_context,
-    scenario_style,
-)
+year = np.arange(2015, 2101)
+warming = np.linspace(1.1, 2.7, year.size)
+style = scenario_style("SSP2-4.5", profile="ar6-report")
 
-with publication_context(width="double", strict_font=True):
-    style = scenario_style("SSP2-4.5", profile="ar6-report")
-    cmap = load_ipcc_colormap("temp_div")
-
-    ax.plot(year, value, color=style.color)
+with publication_context(width="double", strict_font=False):
+    fig, ax = plt.subplots()
+    ax.plot(year, warming, color=style.color, label="SSP2-4.5")
+    ax.set_xlabel("Year")
     ax.set_ylabel(axis_label("Temperature change", "°C"))
+    ax.legend()
 
 issues = audit_figure(
     fig,
     profile="ar6-report",
-    strict_font=True,
+    strict_font=False,
     strict_dimensions=True,
 )
-if issues:
-    raise RuntimeError("\n".join(issues))
-```
 
-Strict mode intentionally has **no generic palette fallback**.
+print("fidelity audit:", issues or "passed")
+plt.show()
+~~~
+
+This first run deliberately allows a font substitution. A figure should only be
+called **strictly IPCC-faithful** when all strict requirements are satisfied,
+including Arial where required.
+
+For map/climate workflows:
+
+~~~bash
+python -m pip install "ar6-sciplot[climate]"
+git clone https://github.com/IPCC-WG1/colormaps.git
+export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
+~~~
+
+Strict maps load the official WGI colormap assets directly and intentionally have
+**no generic palette fallback**.
+
+## Choose the fidelity contract
+
+| Goal | Profile / mode | Contract |
+| --- | --- | --- |
+| Reproduce a published AR6 figure | <code>ar6-report</code> + strict | Match the published figure first, then contemporaneous AR6 guidance and source code. |
+| Create a new figure using the updated WGI guidance | <code>wgi-guide-2022</code> + strict | Use the June-2022 guide explicitly rather than silently rewriting final-report semantics. |
+| Use the visual language with documented substitutions | adapted / IPCC-inspired | Substitutions are allowed, but the result must not be labelled exact or faithful. |
+
+Two style profiles are explicit and are never silently mixed:
+
+~~~text
+ar6-report       → final-report-era AR6 semantics
+wgi-guide-2022   → June-2022 WGI guide update
+~~~
+
+## Execution model
+
+~~~text
+SOURCE → PROFILE → FIGURE CONTRACT → RENDER → AUDIT → REFERENCE
+~~~
+
+| Stage | Question |
+| --- | --- |
+| **Source** | Which WGI evidence or published figure defines the rule? |
+| **Profile** | Are we reproducing final-report AR6 or using the 2022 guide? |
+| **Figure contract** | What quantity, geometry, uncertainty method, palette, projection, and output size are required? |
+| **Render** | Which archetype and semantic tokens apply? |
+| **Audit** | What can be machine-checked, and what still needs visual comparison? |
+| **Reference** | Can the output be regenerated from pinned source data and verified by SHA256? |
+
+## What is encoded
+
+~~~text
+delivery
+  ├── 90 / 180 mm print widths
+  ├── ≤ 250 mm height
+  ├── 9 / 11 pt WGI typography
+  ├── 0.5 pt axis grammar
+  └── 350 ppi raster master
+
+semantics
+  ├── SSP / RCP colours
+  ├── WGI generic line colours
+  ├── variable-specific official colormaps
+  └── report-era vs 2022 profiles
+
+uncertainty
+  ├── model agreement
+  ├── insufficient data
+  └── statistical significance
+
+qa
+  ├── text + unit conventions
+  ├── semantic colour audit
+  ├── physical-size audit
+  ├── official-colormap audit
+  └── source-data regression gallery
+~~~
 
 ## Repository map
 
@@ -270,6 +351,19 @@ Robinson           ≠ universal IPCC projection
 ```
 
 Those choices belong to the analysis or the published reference figure.
+
+## License and third-party material
+
+Original project code and documentation are licensed under the [MIT License](LICENSE).
+
+That license does **not** relicense IPCC figures, source data, colour assets,
+chapter code, fonts, or other third-party material referenced or fetched by the
+reproducibility workflows. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+and [the source corpus](references/SOURCES.md) before redistributing upstream
+material.
+
+This is an independent project. It is not an official IPCC product and does not
+imply IPCC endorsement.
 
 ---
 

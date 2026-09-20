@@ -17,6 +17,8 @@ jobs:
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -29,5 +31,57 @@ jobs:
         run: pytest -q
       - name: End-to-end example
         run: python examples/quickstart.py
+      - name: Visual comparison smoke test
+        if: matrix.python-version == '3.12'
+        run: python examples/visual_comparison.py
+      - name: Fidelity audit CLI smoke test
+        if: matrix.python-version == '3.12'
+        run: ar6plot audit examples/audit_demo.py --strict-dimensions
+      - name: Fidelity audit JSON smoke test
+        if: matrix.python-version == '3.12'
+        run: ar6plot audit examples/audit_demo.py --strict-dimensions --format json --output outputs/audit.json
       - name: Artifact preflight
         run: python scripts/check_figure.py outputs/quickstart.pdf --metadata outputs/quickstart.provenance.json
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install build tooling
+        run: python -m pip install --upgrade build twine
+      - name: Build wheel and source distribution
+        run: python -m build
+      - name: Check distribution metadata
+        run: python -m twine check dist/*
+      - name: Verify wheel contents and version metadata
+        shell: bash
+        run: |
+          python - <<'PY'
+          from importlib.metadata import metadata
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheels = list(Path("dist").glob("*.whl"))
+          assert len(wheels) == 1, wheels
+          with ZipFile(wheels[0]) as wheel:
+              names = set(wheel.namelist())
+          assert any(name.endswith("ipcc_sciplot/__init__.py") for name in names)
+          assert any(".dist-info/licenses/LICENSE" in name for name in names)
+          assert any(".dist-info/licenses/THIRD_PARTY_NOTICES.md" in name for name in names)
+          entry_points = [name for name in names if name.endswith(".dist-info/entry_points.txt")]
+          assert len(entry_points) == 1, entry_points
+          with ZipFile(wheels[0]) as wheel:
+              entry_point_text = wheel.read(entry_points[0]).decode("utf-8")
+          assert "ar6plot = ipcc_sciplot.cli:main" in entry_point_text
+          print(wheels[0].name)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
