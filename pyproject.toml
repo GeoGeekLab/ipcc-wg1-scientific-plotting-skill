@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=69", "setuptools-scm>=8", "wheel"]
+requires = ["setuptools>=77", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ipcc-wg1-scientific-plotting-skill"
+name = "ar6-sciplot"
 dynamic = ["version"]
 description = "Evidence-backed plotting helpers and fidelity checks distilled from IPCC AR6 WGI visual practice"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 authors = [
   { name = "GeoGeekLab" },
 ]
@@ -24,7 +25,6 @@ keywords = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -60,6 +60,8 @@ qa = [
   "ruff>=0.6",
   "mypy>=1.11",
   "pre-commit>=3.8",
+  "build>=1.2",
+  "twine>=6",
 ]
 workflow = [
   "snakemake>=8",
