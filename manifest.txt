@@ -7,6 +7,10 @@ SKILL.md
 THIRD_PARTY_NOTICES.md
 environment.yml
 examples/quickstart.py
+examples/visual_comparison/default-to-fidelity.svg
+examples/visual_comparison/default-to-fidelity.png
+examples/visual_comparison/README.md
+examples/visual_comparison.py
 manifest.txt
 pyproject.toml
 references/SOURCES.md
