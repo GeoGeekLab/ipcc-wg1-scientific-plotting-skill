@@ -34,6 +34,12 @@ jobs:
       - name: Visual comparison smoke test
         if: matrix.python-version == '3.12'
         run: python examples/visual_comparison.py
+      - name: Fidelity audit CLI smoke test
+        if: matrix.python-version == '3.12'
+        run: ar6plot audit examples/audit_demo.py --strict-dimensions
+      - name: Fidelity audit JSON smoke test
+        if: matrix.python-version == '3.12'
+        run: ar6plot audit examples/audit_demo.py --strict-dimensions --format json --output outputs/audit.json
       - name: Artifact preflight
         run: python scripts/check_figure.py outputs/quickstart.pdf --metadata outputs/quickstart.provenance.json
 
@@ -68,6 +74,11 @@ jobs:
           assert any(name.endswith("ipcc_sciplot/__init__.py") for name in names)
           assert any(".dist-info/licenses/LICENSE" in name for name in names)
           assert any(".dist-info/licenses/THIRD_PARTY_NOTICES.md" in name for name in names)
+          entry_points = [name for name in names if name.endswith(".dist-info/entry_points.txt")]
+          assert len(entry_points) == 1, entry_points
+          with ZipFile(wheels[0]) as wheel:
+              entry_point_text = wheel.read(entry_points[0]).decode("utf-8")
+          assert "ar6plot = ipcc_sciplot.cli:main" in entry_point_text
           print(wheels[0].name)
           PY
       - uses: actions/upload-artifact@v4
