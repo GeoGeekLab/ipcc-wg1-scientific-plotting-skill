@@ -182,7 +182,7 @@ def render_svg(years: list[int], rows: list[dict[str, str]]) -> str:
             return plot_x + (value - 1850) / 250 * plot_w
 
         def sy(value: float) -> float:
-            return plot_y + plot_h - value / 850 * plot_h
+            return plot_y + plot_h - value / 950 * plot_h
 
         for value in (0, 200, 400, 600, 800):
             yy = sy(value)
