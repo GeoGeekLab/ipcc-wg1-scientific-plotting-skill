@@ -22,8 +22,8 @@ python examples/visual_comparison.py
 
 Outputs:
 
-- `default-to-fidelity.png` — README/social sharing raster.
-- `default-to-fidelity.svg` — scalable source for talks, posts, and docs.
+- `default-to-fidelity.svg` — version-controlled README/core communication asset.
+- `default-to-fidelity.png` — generated locally for social sharing; intentionally not version-controlled.
 
 The fourth panel should not be interpreted as proof that the composite graphic
 itself is an exact reproduction of an IPCC figure. Exact reproduction remains
