@@ -102,9 +102,10 @@ style = scenario_style("SSP2-4.5", profile="ar6-report")
 
 with publication_context(width="double", strict_font=False):
     fig, ax = plt.subplots()
-    ax.plot(year, warming, color=style.color)
+    ax.plot(year, warming, color=style.color, label="SSP2-4.5")
     ax.set_xlabel("Year")
     ax.set_ylabel(axis_label("Temperature change", "°C"))
+    ax.legend()
 
 issues = audit_figure(
     fig,
