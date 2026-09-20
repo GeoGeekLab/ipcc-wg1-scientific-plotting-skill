@@ -271,6 +271,19 @@ Robinson           ≠ universal IPCC projection
 
 Those choices belong to the analysis or the published reference figure.
 
+## License and third-party material
+
+Original project code and documentation are licensed under the [MIT License](LICENSE).
+
+That license does **not** relicense IPCC figures, source data, colour assets,
+chapter code, fonts, or other third-party material referenced or fetched by the
+reproducibility workflows. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+and [the source corpus](references/SOURCES.md) before redistributing upstream
+material.
+
+This is an independent project. It is not an official IPCC product and does not
+imply IPCC endorsement.
+
 ---
 
 <div align="center">
