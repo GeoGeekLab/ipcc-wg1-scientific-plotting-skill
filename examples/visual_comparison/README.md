@@ -1,30 +1,33 @@
-# Visual comparison: style vs fidelity
+# Visual comparison: source data vs fidelity claim
 
-This example is a communication asset for the repository. It uses the same
-synthetic SSP trajectories in four panels to separate four different claims:
+This communication asset uses **official IPCC AR6 WGI Chapter 6 Figure 6.18 source
+data**, pinned to commit `09d9b43fe935fc81d828147f91b717396a84fca3`.
 
-1. **Matplotlib default** — no IPCC fidelity claim.
-2. **“IPCC-ish”** — manually guessed colours and decorative hatching; this is
-   intentionally an example of appearance without an evidence contract.
-3. **Adapted / IPCC-inspired** — explicit `wgi-guide-2022` profile, semantic SSP
-   colours, and disclosed substitutions.
-4. **Strict contract / fidelity-aware** — `ar6-report` semantic colours and the
-   project’s stricter visual grammar, while explicitly retaining the local Arial
-   gate required for a truly IPCC-faithful typography claim.
+The same CH₄ source rows are rendered under four different contracts:
 
-The trajectories are synthetic and are **not IPCC data**.
+1. **Raw plotting** — generic plotting with no fidelity claim.
+2. **“IPCC-ish”** — guessed colours and decorative hatching; visual resemblance
+   without an evidence contract.
+3. **Adapted / IPCC-inspired** — explicit `wgi-guide-2022` semantic SSP colours
+   with substitutions disclosed.
+4. **Reference-grounded AR6** — `ar6-report` scenario semantics, report-style
+   history treatment, source-derived RCP/ECLIPSE ranges, and an audit gate.
 
-Regenerate the assets with:
+There are **no synthetic trajectories** in this comparison.
+
+Regenerate:
 
 ```bash
 python examples/visual_comparison.py
 ```
 
-Outputs:
+Verify the committed asset against the pinned upstream source:
 
-- `default-to-fidelity.svg` — version-controlled README/core communication asset.
-- `default-to-fidelity.png` — generated locally for social sharing; intentionally not version-controlled.
+```bash
+python examples/visual_comparison.py --check
+```
 
-The fourth panel should not be interpreted as proof that the composite graphic
-itself is an exact reproduction of an IPCC figure. Exact reproduction remains
-reference-specific and must satisfy the full fidelity checklist.
+The comparison demonstrates increasingly strong fidelity claims; it does not
+replace reference-specific scientific review. Exact reproduction still requires
+the full fidelity checklist and local Arial availability where strict typography
+is claimed.
