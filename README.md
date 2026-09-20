@@ -92,6 +92,59 @@ and failure conditions**, not a theme.
 The goal is not to make a plot look vaguely IPCC-ish. The goal is to make the
 **fidelity claim inspectable**.
 
+## Audit the fidelity claim
+
+The audit layer is designed for both humans and CI. Existing code can keep using
+`audit_figure(fig)`; new integrations can use the structured
+`audit_figure_report(fig)` API or the `ar6plot` CLI.
+
+A figure script exposes a zero-argument factory returning a Matplotlib
+`Figure`:
+
+~~~python
+def make_figure():
+    ...
+    return fig
+~~~
+
+Run the machine-checkable contract:
+
+~~~bash
+ar6plot audit examples/audit_demo.py --strict-dimensions
+~~~
+
+Example report:
+
+~~~text
+AR6 fidelity audit — PASS
+Profile: ar6-report
+
+PASS  text.unit-convention         axis and annotation unit syntax passed
+SKIP  typography.arial             strict font check not requested
+PASS  delivery.width               figure width matches an IPCC delivery width
+PASS  delivery.height              figure height is within the delivery maximum
+PASS  scenario.color.0.0           scenario 'SSP1-2.6' uses the ar6-report semantic colour
+PASS  scenario.color.0.1           scenario 'SSP2-4.5' uses the ar6-report semantic colour
+PASS  scenario.color.0.2           scenario 'SSP5-8.5' uses the ar6-report semantic colour
+SKIP  map.official-colormap        official map-colormap check not requested
+SKIP  reference.manual-review      projection, panel geometry, annotation, and scientific method require reference-specific review
+
+Summary: 6 passed, 0 failed, 3 skipped
+~~~
+
+For CI and other tooling:
+
+~~~bash
+ar6plot audit examples/audit_demo.py \
+  --strict-dimensions \
+  --format json \
+  --output outputs/audit.json
+~~~
+
+Exit codes are deliberate: **0** = all requested machine checks pass, **1** = one
+or more checks fail, **2** = the audit could not run. Exact reproduction still
+requires the explicitly reported manual/reference-specific checks.
+
 ## Quick start
 
 Requires Python 3.11+.
