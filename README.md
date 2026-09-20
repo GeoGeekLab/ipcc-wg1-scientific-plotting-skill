@@ -20,6 +20,22 @@ official colour assets, uncertainty grammar, provenance, and machine-checkable f
 > [!IMPORTANT]
 > Independent project. Not an official IPCC product and does not imply IPCC endorsement.
 
+## From styling to fidelity
+
+<img src="examples/visual_comparison/default-to-fidelity.png" alt="Four-panel comparison from Matplotlib defaults and IPCC-ish styling to adapted and strict-contract AR6 visual grammar">
+
+The same **synthetic** SSP trajectories are shown four ways: Matplotlib defaults,
+appearance-only “IPCC-ish” styling, an explicit adapted profile, and the stricter
+`ar6-report` contract. The point is not that the fourth mini-panel is itself an
+official IPCC figure; it is that a fidelity claim needs **semantic tokens, an
+explicit profile, audit gates, and disclosed requirements** rather than visual
+resemblance alone.
+
+The comparison is reproducible with
+[`examples/visual_comparison.py`](examples/visual_comparison.py); PNG and SVG
+outputs plus the interpretation boundary live in
+[`examples/visual_comparison/`](examples/visual_comparison/).
+
 ## See the reference reproductions first
 
 These figures are regenerated from **pinned official IPCC AR6 WGI source repositories**,
