@@ -20,55 +20,89 @@ official colour assets, uncertainty grammar, provenance, and machine-checkable f
 > [!IMPORTANT]
 > Independent project. Not an official IPCC product and does not imply IPCC endorsement.
 
-## From styling to fidelity
+## Same AR6 source data, four fidelity claims
 
-<img src="examples/visual_comparison/default-to-fidelity.svg" alt="Four-panel comparison from Matplotlib defaults and IPCC-ish styling to adapted and strict-contract AR6 visual grammar">
+<img src="examples/visual_comparison/ar6-source-fidelity.svg" alt="Official AR6 Chapter 6 methane-emissions source data rendered under raw, IPCC-ish, adapted, and reference-grounded fidelity contracts">
 
-The same **synthetic** SSP trajectories are shown four ways: Matplotlib defaults,
-appearance-only “IPCC-ish” styling, an explicit adapted profile, and the stricter
-`ar6-report` contract. The point is not that the fourth mini-panel is itself an
-official IPCC figure; it is that a fidelity claim needs **semantic tokens, an
-explicit profile, audit gates, and disclosed requirements** rather than visual
-resemblance alone.
+This comparison uses **official IPCC AR6 WGI Chapter 6 Figure 6.18 source data**,
+pinned to commit `09d9b43fe935fc81d828147f91b717396a84fca3`. There are
+**no synthetic trajectories** in the figure.
 
-The comparison is reproducible with
-[`examples/visual_comparison.py`](examples/visual_comparison.py); PNG and SVG
-outputs plus the interpretation boundary live in
-[`examples/visual_comparison/`](examples/visual_comparison/).
+The source rows stay fixed. What changes is the claim being made about the
+rendering: generic plotting, visual imitation, an explicit adapted profile, or a
+reference-grounded AR6 contract with semantic colours and audit gates.
 
-## See the reference reproductions first
+| Evidence | What is fixed |
+| --- | --- |
+| Source | `IPCC-WG1/Chapter-6_Fig18` at a pinned commit |
+| Quantity | World · `Emissions\|CH4` |
+| Data shown | historical series, RCP range, ECLIPSE range, five core SSPs |
+| Reproducibility | the committed SVG is regenerated and checked against the pinned upstream CSV in CI |
 
-These figures are regenerated from **pinned official IPCC AR6 WGI source repositories**,
-not synthetic demo data. Source commits, physical dimensions, and SHA256 checksums are
-recorded in the [reference gallery](examples/ipcc_reference/README.md) and
-[manifest](examples/ipcc_reference/outputs/manifest.json).
+Regenerate or verify the asset:
+
+~~~bash
+python examples/visual_comparison.py
+python examples/visual_comparison.py --check
+~~~
+
+## Reference-backed proof
+
+The visual-comparison asset above explains the fidelity ladder. The figures below
+show that the same rules also survive **published-figure reproduction from pinned
+AR6 source repositories**.
+
+### Chapter 6 — Figure 6.18 source
+
+<p align="center">
+  <img width="100%" src="examples/ipcc_reference/outputs/ch06_fig6_18_ch4_emissions.png" alt="AR6 WGI Chapter 6 Figure 6.18 source reproduction using pinned official methane-emissions data">
+</p>
+
+Historical + scenario CH₄ emissions from the official Chapter 6 source CSV. This
+is the strongest first-screen proof because it exercises scenario semantics,
+historical styling, source-derived ranges, double-column delivery geometry, and
+regression provenance in one figure.
+
+~~~text
+source      IPCC-WG1/Chapter-6_Fig18 @ 09d9b43f…
+canvas      180 × 92 mm
+raster      350 ppi
+profile     ar6-report
+regression  pinned source + output SHA256 manifest
+~~~
 
 <table>
 <tr>
 <td width="50%" valign="top">
 <strong>Chapter 3 — Figure 3.2b</strong><br>
-Scatter + fitted relationship.<br><br>
-<img src="examples/ipcc_reference/outputs/ch03_fig3_2b_scatter.png" alt="Chapter 3 Figure 3.2b reproduction">
+Scatter + fitted relationship from the official Chapter 3 CSV source.<br><br>
+<img width="100%" src="examples/ipcc_reference/outputs/ch03_fig3_2b_scatter.png" alt="AR6 WGI Chapter 3 Figure 3.2b source-data reproduction">
 </td>
 <td width="50%" valign="top">
 <strong>Chapter 10 — Figure 10.20b</strong><br>
-Mediterranean station map.<br><br>
-<img src="examples/ipcc_reference/outputs/ch10_fig10_20b_stations.png" alt="Chapter 10 Figure 10.20b reproduction">
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-<strong>Chapter 2 — Figure 2.3</strong><br>
-Paleo CO₂ proxies + uncertainty.<br><br>
-<img src="examples/ipcc_reference/outputs/ch02_fig2_3_co2_proxy.png" alt="Chapter 2 Figure 2.3 reproduction">
-</td>
-<td width="50%" valign="top">
-<strong>Chapter 6 — Figure 6.18 source</strong><br>
-Historical + scenario CH₄ emissions.<br><br>
-<img src="examples/ipcc_reference/outputs/ch06_fig6_18_ch4_emissions.png" alt="Chapter 6 Figure 6.18 source reproduction">
+Mediterranean station map from the official WGI ESMValTool station files.<br><br>
+<img width="100%" src="examples/ipcc_reference/outputs/ch10_fig10_20b_stations.png" alt="AR6 WGI Chapter 10 Figure 10.20b station-map reproduction">
 </td>
 </tr>
 </table>
+
+<details>
+<summary><strong>More complex reference: Chapter 2 — Figure 2.3</strong></summary>
+
+<br>
+
+Three-panel paleo CO₂ proxy reconstruction with uncertainty bands, error bars,
+multiple proxy families, and temporal scales. It remains part of the regression
+suite, but is intentionally kept out of the compact first-screen gallery.
+
+<img width="70%" src="examples/ipcc_reference/outputs/ch02_fig2_3_co2_proxy.png" alt="AR6 WGI Chapter 2 Figure 2.3 paleo CO2 proxy reproduction">
+
+</details>
+
+Source commits, physical dimensions, expected pixels, SHA256 values, and
+regeneration commands are documented in the
+[full reference gallery](examples/ipcc_reference/README.md) and
+[manifest](examples/ipcc_reference/outputs/manifest.json).
 
 ## Why this is different
 
