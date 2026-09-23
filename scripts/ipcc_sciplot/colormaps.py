@@ -201,6 +201,10 @@ def load_ipcc_colormap(
     else:
         cmap = mcolors.LinearSegmentedColormap.from_list(cmap_name, data[:, :3])
 
+    cmap._ipcc_asset_name = name
+    cmap._ipcc_asset_blob = OFFICIAL_COLORMAP_BLOBS[relative] if verify else None
+    cmap._ipcc_source_commit = OFFICIAL_COLORMAP_COMMIT if verify else None
+
     if register:
         try:
             mpl.colormaps.register(cmap, name=cmap_name, force=True)
