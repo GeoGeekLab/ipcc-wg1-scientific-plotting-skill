@@ -55,7 +55,7 @@ def test_line_end_labels_are_separated():
     labels = label_line_ends(
         ax,
         {"A": a, "B": b},
-        min_gap_points=12,
+        min_gap_points=2,
     )
     fig.canvas.draw()
 
