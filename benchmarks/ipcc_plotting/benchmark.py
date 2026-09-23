@@ -418,7 +418,7 @@ def render_multipanel() -> dict[str, object]:
             mesh,
             ax=list(axes),
             label="Temperature change",
-            unit="degC",
+            unit="°C",
             orientation="horizontal",
             pad=0.08,
             fraction=0.08,
