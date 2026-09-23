@@ -2,10 +2,70 @@ from __future__ import annotations
 
 from typing import Any
 
+import matplotlib as mpl
 import numpy as np
 import xarray as xr
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 from .tokens import COAST_GREY, LAND_GREY, MISSING_DATA
+
+
+def add_uncertainty_legend(
+    ax: mpl.axes.Axes,
+    *,
+    low_agreement: str | None = None,
+    insufficient_data: str | None = None,
+    significance: str | None = None,
+    hatch: str = "////",
+    missing_color: str = MISSING_DATA,
+    significance_color: str = "black",
+    loc: str = "lower left",
+    ncol: int = 1,
+    frameon: bool = True,
+    **kwargs: Any,
+) -> mpl.legend.Legend:
+    """Add legend entries for uncertainty textures used on a map."""
+    handles: list[Any] = []
+    if low_agreement:
+        handles.append(
+            Patch(
+                facecolor="none",
+                edgecolor=COAST_GREY,
+                hatch=hatch,
+                linewidth=0.5,
+                label=low_agreement,
+            )
+        )
+    if insufficient_data:
+        handles.append(
+            Patch(
+                facecolor=missing_color,
+                edgecolor="none",
+                label=insufficient_data,
+            )
+        )
+    if significance:
+        handles.append(
+            Line2D(
+                [],
+                [],
+                linestyle="none",
+                marker=".",
+                color=significance_color,
+                markersize=6,
+                label=significance,
+            )
+        )
+    if not handles:
+        raise ValueError("provide at least one uncertainty legend label")
+    return ax.legend(
+        handles=handles,
+        loc=loc,
+        ncol=ncol,
+        frameon=frameon,
+        **kwargs,
+    )
 
 
 def cosine_latitude_weights(lat: xr.DataArray) -> xr.DataArray:
