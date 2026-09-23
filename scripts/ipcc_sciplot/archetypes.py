@@ -57,7 +57,7 @@ def label_line_ends(
     ax: mpl.axes.Axes,
     lines: Mapping[str, mpl.lines.Line2D],
     *,
-    min_gap_points: float = 9.0,
+    min_gap_points: float = 2.0,
     x_pad_points: float = 4.0,
     connector_threshold_points: float = 2.0,
     fontsize: float | None = None,
@@ -98,7 +98,8 @@ def label_line_ends(
 
     low = float(ax.bbox.y0)
     high = float(ax.bbox.y1)
-    requested_gap = min_gap_points * ax.figure.dpi / 72.0
+    font_points = float(fontsize if fontsize is not None else mpl.rcParams["font.size"])
+    requested_gap = (font_points + min_gap_points) * ax.figure.dpi / 72.0
     if len(ordered) > 1:
         gap = min(requested_gap, max(0.0, (high - low) / (len(ordered) - 1)))
     else:
