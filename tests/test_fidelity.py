@@ -71,3 +71,43 @@ def test_structured_report_records_actual_and_expected_colour():
     failure = next(check for check in report.failures if check.code.startswith("scenario.color."))
     assert failure.actual == "#000000"
     assert failure.expected == scenario_style("SSP2-4.5", profile="ar6-report").color.upper()
+
+
+
+def test_reference_geometry_audit_passes():
+    fig, _ = plt.subplots(1, 3, figsize=(180 / 25.4, 72 / 25.4))
+    report = audit_figure_report(
+        fig,
+        reference_size_mm=(180, 72),
+        reference_panel_count=3,
+    )
+    plt.close(fig)
+
+    assert report.passed
+    assert any(
+        check.code == "reference.width" and check.status == "pass"
+        for check in report.checks
+    )
+    assert any(
+        check.code == "reference.height" and check.status == "pass"
+        for check in report.checks
+    )
+    assert any(
+        check.code == "reference.panel-count" and check.status == "pass"
+        for check in report.checks
+    )
+    assert not any(check.code == "reference.manual-review" for check in report.checks)
+
+
+def test_reference_geometry_audit_detects_mismatch():
+    fig, _ = plt.subplots(1, 2, figsize=(180 / 25.4, 80 / 25.4))
+    report = audit_figure_report(
+        fig,
+        reference_size_mm=(180, 72),
+        reference_panel_count=3,
+    )
+    plt.close(fig)
+
+    codes = {check.code for check in report.failures}
+    assert "reference.height" in codes
+    assert "reference.panel-count" in codes
