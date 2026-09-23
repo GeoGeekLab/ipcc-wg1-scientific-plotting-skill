@@ -6,7 +6,7 @@ from typing import Literal
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 
-from .colormaps import OFFICIAL_COLORMAP_COMMIT
+from .colormaps import OFFICIAL_COLORMAP_COMMIT, official_colormap_blob
 from .style import audit_text_conventions, require_arial
 from .tokens import scenario_style
 
@@ -327,11 +327,20 @@ def audit_figure_report(
                 cmap = get_cmap()
                 if cmap is None or not str(cmap.name).startswith("ipcc_"):
                     continue
-                if (
+                asset_name = getattr(cmap, "_ipcc_asset_name", None)
+                expected_blob = None
+                if isinstance(asset_name, str):
+                    try:
+                        expected_blob = official_colormap_blob(asset_name)
+                    except KeyError:
+                        expected_blob = None
+                verified_metadata = (
                     getattr(cmap, "_ipcc_source_commit", None)
                     == OFFICIAL_COLORMAP_COMMIT
-                    and getattr(cmap, "_ipcc_asset_blob", None)
-                ):
+                    and getattr(cmap, "_ipcc_asset_blob", None) == expected_blob
+                    and expected_blob is not None
+                )
+                if verified_metadata:
                     verified_names.append(str(cmap.name))
                 else:
                     unverified_names.append(str(cmap.name))
