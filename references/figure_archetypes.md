@@ -1,79 +1,64 @@
 # Figure archetypes
 
-AR6 WGI does not use one universal plot template. Fidelity is best represented
-as a set of recurring figure families plus shared design tokens.
+AR6 WGI figures recur in several visual families. The shared tokens below are combined with figure-specific geometry and scientific method.
 
 ## A. Scenario time series
 
-Use when the primary comparison is historical/projected evolution across SSPs or RCPs.
-
-Required grammar:
+Use for historical/projected evolution across SSPs or RCPs.
 
 - scenario colours are semantic and profile-specific;
-- historical/observed series are neutral unless a source figure specifies otherwise;
+- historical/observed series are neutral unless the reference specifies otherwise;
 - uncertainty bands use a related shade of the corresponding series;
-- scenario labels/legend are close to the lines;
+- direct labels or legends stay close to the lines;
 - interval meaning is explicit;
-- unit uses parentheses;
-- short title states the quantity or comparison.
-
-Do not use Matplotlib's default colour cycle for scenarios.
+- units use parentheses;
+- titles state the quantity or comparison.
 
 ## B. Ensemble centre + interval
 
-Use for a central estimate with model/observational spread.
-
-Required grammar:
+Use for a central estimate with model or observational spread.
 
 - central estimate visually dominates the interval;
-- interval label states its statistic (e.g. 17–83% model range);
-- ensemble members are not all drawn as equally strong lines unless individual
-  trajectories are the message;
-- neutral black/grey is appropriate when the series is not scenario-semantic.
+- interval label states its statistic;
+- individual ensemble members remain secondary unless trajectories are the message;
+- neutral black/grey works for non-scenario series.
 
 ## C. Global or regional change map
 
-Required grammar:
-
-- choose an official variable-matched WGI colormap;
-- use explicit levels and a meaningful centre for diverging data;
-- declare projection/central longitude/extent;
+- use an official variable-matched WGI colormap;
+- set explicit levels and a meaningful centre for diverging data;
+- set projection, central longitude and extent;
 - keep geographic context subdued;
-- colour bar carries unit;
-- low agreement, insufficient data and significance remain separate layers;
-- explain every non-colormap texture/colour in the caption or figure.
+- colour bar carries units;
+- low agreement, insufficient data and significance use separate encodings.
 
-A reference figure may use a chapter-specific projection. Reproduce it when
-doing figure-level fidelity; do not normalize everything to Robinson.
+Projection follows the target figure or scientific context.
 
 ## D. Map matrix / small multiples
 
-Use for period × scenario, variable × warming level or comparable spatial panels.
+Use for period × scenario, variable × warming level, or comparable spatial panels.
 
-Required grammar:
-
-- identical comparable panels use identical limits and palette;
-- one shared colour bar when units/scales are the same;
+- comparable panels share limits and palette;
+- use one shared colour bar when units and scales match;
 - row/column headings carry the comparison logic;
 - panel labels stay in fixed positions;
-- maps remain large enough to read;
-- uncertainty overlays use the same semantics in every panel.
+- keep maps readable at final size;
+- apply uncertainty overlays consistently.
+
+`map_panel_grid()` provides fixed physical figure dimensions and compact panel allocation.
 
 ## E. Multi-series line comparison
 
 For non-scenario series:
 
 - use the WGI generic colour order;
-- after six colours, reuse colours with line-style variation;
-- do not invent extra bright hues simply to make every line unique;
-- direct-label lines when practical, otherwise use a semantically ordered legend.
+- after six colours, add line-style variation;
+- direct-label lines when practical;
+- otherwise use a semantically ordered legend.
 
-## F. Categorical/point comparison
+## F. Categorical / point comparison
 
-AR6 WGI uses many chapter-specific categorical figures; there is no single
-canonical bar/point template.
-
-Use the report-wide grammar:
+Use report-wide grammar with figure-specific layout:
 
 - Arial;
 - semantic or generic WGI colours;
@@ -81,32 +66,21 @@ Use the report-wide grammar:
 - direct labels where useful;
 - units in parentheses;
 - meaningful ordering;
-- uncertainty intervals identified explicitly.
+- explicitly identified uncertainty intervals.
 
-Do not claim a categorical layout itself is an exact WGI archetype unless a
-specific reference figure is supplied.
-
-## Fidelity modes
+## Profiles
 
 ### Strict
 
-Use when the user asks for "IPCC AR6 WGI style", "match IPCC", "reproduce this
-AR6 figure", or equivalent.
+Use for AR6/WGI style reproduction.
 
-Strict mode requires:
-
-- Arial present;
-- correct style profile selected;
-- official WGI palette assets for continuous/discrete maps;
-- explicit map projection for maps;
-- semantic scenario colours;
-- no silent generic fallbacks;
-- fidelity audit completed.
+- Arial
+- selected style profile
+- official WGI palette assets for maps
+- explicit map projection
+- semantic scenario colours
+- fidelity audit
 
 ### Adapted
 
-Use when the user wants an IPCC-inspired publication figure but exact assets or
-a matching archetype are unavailable.
-
-Adapted mode may substitute fonts/palettes only if the output is labelled
-"IPCC-inspired" rather than "IPCC-faithful".
+Use the same visual grammar with documented substitutions for font, palette or layout.
