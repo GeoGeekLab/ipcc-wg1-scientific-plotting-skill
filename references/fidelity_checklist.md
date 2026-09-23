@@ -1,70 +1,65 @@
 # Fidelity checklist
 
-A render may be described as **IPCC AR6 WGI-faithful** only when the applicable
-checks pass.
+Use this checklist for strict AR6 WGI reproductions.
 
 ## Profile and provenance
 
 - [ ] Correct profile selected: `ar6-report` or `wgi-guide-2022`
-- [ ] If reproducing a figure, chapter/figure/reference is identified
-- [ ] Post-report 2022 tokens have not silently replaced report-era tokens
+- [ ] Chapter / figure / reference identified for reproductions
+- [ ] Report-era and post-report tokens are kept distinct
 
 ## Delivery geometry and typography
 
-- [ ] Figure width is 90 mm or 180 mm for IPCC print delivery
+- [ ] Figure width is 90 mm or 180 mm
 - [ ] Figure height is no more than 250 mm
-- [ ] Arial resolved with no silent font fallback
-- [ ] Text remains legible at final size (about 9 pt small / 11 pt large)
-- [ ] Axes are restrained and use the 0.5 pt delivery grammar unless reference-specific
+- [ ] Arial resolved for strict output
+- [ ] Text remains legible at final size
+- [ ] Axes follow the 0.5 pt delivery grammar unless the reference differs
 - [ ] Units use parentheses
-- [ ] Short title/panel title supports first-glance reading
-- [ ] Acronyms are understandable from figure/caption
-- [ ] No unnecessary grid, frame or decorative element
-- [ ] Print raster master is exported at 350 ppi when raster output is required
+- [ ] Short title / panel title supports first-glance reading
+- [ ] Acronyms are understandable from figure or caption
+- [ ] Grid, frame and decoration are limited to useful elements
+- [ ] Raster master is 350 ppi when raster output is required
 
 ## Colour
 
 - [ ] SSP/RCP series use semantic scenario colours
-- [ ] Non-semantic lines use WGI generic colour order where appropriate
+- [ ] Non-semantic lines use WGI generic colours where appropriate
 - [ ] Map uses an official variable-matched WGI colormap
-- [ ] Diverging scale has a scientifically meaningful centre
+- [ ] Diverging scale has a meaningful centre
 - [ ] Comparable panels share scale where appropriate
-- [ ] No rainbow/jet
-- [ ] No unlabelled colour outside the colour bar/legend
+- [ ] Extra colours are identified in the legend or caption
 
 ## Legends and annotations
 
 - [ ] Direct labels used where clearer than a legend
 - [ ] Legend order follows scientific semantics
-- [ ] Legend/colour bar is close to data
-- [ ] Separate legend/colour bar uses restrained black 0.5 pt boundary where applicable
+- [ ] Legend / colour bar stays close to data
 - [ ] Colour bar includes units
-- [ ] Shaded areas/texture meaning is visible in figure or caption
+- [ ] Shading, hatch and stipple meanings are visible
 
 ## Maps
 
-- [ ] Projection is explicit and justified/reference-matched
+- [ ] Projection is explicit and reference-matched where applicable
 - [ ] Geographic context is subordinate to data
-- [ ] Missing data is not encoded as model disagreement
-- [ ] Low agreement is not encoded as statistical significance
-- [ ] Significance stippling is used only for an explicit significance test
-- [ ] Robust signal remains visually readable beneath uncertainty layers
+- [ ] Missing data, agreement and significance use separate encodings
+- [ ] Robust signal remains readable beneath uncertainty layers
 
 ## Uncertainty
 
 - [ ] Interval type is named
-- [ ] Valid sample/model count policy is defined
-- [ ] Agreement threshold is defined if used
-- [ ] Threshold/interval values come from the scientific method or reference figure, not "IPCC style"
-- [ ] Categories are non-overlapping where the method requires them
-- [ ] Ensemble construction/weighting is documented
+- [ ] Valid sample / model-count policy is defined
+- [ ] Agreement threshold is defined when used
+- [ ] Thresholds and intervals match the analysis method or source figure
+- [ ] Ensemble construction and weighting are documented
 
-## Reproduction-specific
+## Reproduction geometry
 
-- [ ] Projection, extent, line weights, labels and panel geometry compared
-- [ ] Colour levels and normalization compared
-- [ ] Annotation/legend placement compared
-- [ ] No chapter-specific convention generalized beyond this reproduction
+- [ ] Width and height match the target figure
+- [ ] Panel count matches
+- [ ] Projection matches
+- [ ] Extent, line weights and panel geometry have been compared
+- [ ] Colour levels and normalization match
+- [ ] Annotation and legend placement match
 
-If any strict item fails, describe the result as **IPCC-inspired/adapted**, not
-IPCC-faithful.
+The machine audit can check size, panel count and projection when reference values are supplied.
