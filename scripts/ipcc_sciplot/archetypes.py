@@ -53,6 +53,114 @@ def map_panel_grid(
     return fig, tuple(axes[:n_panels])
 
 
+def label_line_ends(
+    ax: mpl.axes.Axes,
+    lines: Mapping[str, mpl.lines.Line2D],
+    *,
+    min_gap_points: float = 9.0,
+    x_pad_points: float = 4.0,
+    connector_threshold_points: float = 2.0,
+    fontsize: float | None = None,
+) -> dict[str, mpl.text.Annotation]:
+    """Label line endpoints while separating labels that would overlap."""
+    if min_gap_points < 0:
+        raise ValueError("min_gap_points must be >= 0")
+
+    endpoints: list[tuple[str, mpl.lines.Line2D, float, float]] = []
+    for label, line in lines.items():
+        x = list(line.get_xdata())
+        y = list(line.get_ydata())
+        finite = [
+            index
+            for index, (x_value, y_value) in enumerate(zip(x, y, strict=False))
+            if math.isfinite(float(x_value)) and math.isfinite(float(y_value))
+        ]
+        if not finite:
+            continue
+        index = finite[-1]
+        endpoints.append((label, line, float(x[index]), float(y[index])))
+
+    if not endpoints:
+        return {}
+
+    ax.relim()
+    ax.autoscale_view()
+    ax.figure.canvas.draw()
+
+    y_pixels = [
+        float(ax.transData.transform((x_value, y_value))[1])
+        for _, _, x_value, y_value in endpoints
+    ]
+    ordered = sorted(
+        zip(endpoints, y_pixels, strict=True),
+        key=lambda item: item[1],
+    )
+
+    low = float(ax.bbox.y0)
+    high = float(ax.bbox.y1)
+    requested_gap = min_gap_points * ax.figure.dpi / 72.0
+    if len(ordered) > 1:
+        available_gap = max(0.0, (high - low) / (len(ordered) - 1))
+        gap = min(requested_gap, available_gap)
+    else:
+        gap = 0.0
+
+    adjusted: list[float] = []
+    for _, original_y in ordered:
+        candidate = max(original_y, low)
+        if adjusted:
+            candidate = max(candidate, adjusted[-1] + gap)
+        adjusted.append(candidate)
+
+    overflow = adjusted[-1] - high
+    if overflow > 0:
+        adjusted = [value - overflow for value in adjusted]
+    if adjusted[0] < low:
+        adjusted = [low + index * gap for index in range(len(adjusted))]
+
+    annotations: dict[str, mpl.text.Annotation] = {}
+    threshold_px = connector_threshold_points * ax.figure.dpi / 72.0
+    for ((label, line, x_value, y_value), original_y), target_y in zip(
+        ordered,
+        adjusted,
+        strict=True,
+    ):
+        target_data_y = float(
+            ax.transData.inverted().transform(
+                ax.transData.transform((x_value, y_value)) * [1.0, 0.0]
+                + [0.0, target_y]
+            )[1]
+        )
+        arrowprops = None
+        if abs(target_y - original_y) > threshold_px:
+            arrowprops = {
+                "arrowstyle": "-",
+                "color": line.get_color(),
+                "linewidth": 0.5,
+                "shrinkA": 0,
+                "shrinkB": 0,
+            }
+        annotation = ax.annotate(
+            label,
+            xy=(x_value, y_value),
+            xytext=(x_pad_points, 0),
+            textcoords="offset points",
+            xycoords="data",
+            ha="left",
+            va="center",
+            color=line.get_color(),
+            fontsize=fontsize,
+            annotation_clip=False,
+            arrowprops=arrowprops,
+        )
+        if target_data_y != y_value:
+            annotation.xyann = (x_pad_points, target_data_y - y_value)
+            annotation.set_transform(ax.transData)
+        annotations[label] = annotation
+
+    return annotations
+
+
 def plot_scenario_timeseries(
     ax: mpl.axes.Axes,
     x: Sequence[float],
