@@ -57,6 +57,13 @@ def _audit_command(args: argparse.Namespace) -> int:
             strict_dimensions=args.strict_dimensions,
             require_ipcc_colormap=args.require_ipcc_colormap,
             dimension_tolerance_mm=args.dimension_tolerance_mm,
+            reference_size_mm=(
+                tuple(args.reference_size_mm)
+                if args.reference_size_mm is not None
+                else None
+            ),
+            reference_panel_count=args.reference_panel_count,
+            reference_projection=args.reference_projection,
         )
     except Exception as exc:
         print(f"ERROR: {exc}")
@@ -92,6 +99,22 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--strict-dimensions", action="store_true")
     audit.add_argument("--require-ipcc-colormap", action="store_true")
     audit.add_argument("--dimension-tolerance-mm", type=float, default=0.5)
+    audit.add_argument(
+        "--reference-size-mm",
+        type=float,
+        nargs=2,
+        metavar=("WIDTH", "HEIGHT"),
+        help="target figure width and height in millimetres",
+    )
+    audit.add_argument(
+        "--reference-panel-count",
+        type=int,
+        help="expected number of figure panels",
+    )
+    audit.add_argument(
+        "--reference-projection",
+        help="expected Cartopy projection class name, for example Robinson",
+    )
     audit.add_argument("--format", choices=("text", "json"), default="text")
     audit.add_argument("--output", type=Path)
     audit.set_defaults(func=_audit_command)
