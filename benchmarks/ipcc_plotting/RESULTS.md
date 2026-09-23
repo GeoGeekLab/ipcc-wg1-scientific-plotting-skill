@@ -1,9 +1,9 @@
 # Cross-library benchmark — CI result
 
-Run: https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/runs/35822060746
+Run: https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/runs/35822439173
 
 Artifact: `ipcc-plotting-benchmark`  
-Artifact digest: `sha256:0ffa6bf3883277f5b2f830e8417362e0ca2c3f30db0299b902ceb1e126fe997e`
+Artifact digest: `sha256:cc44fac2584589c7f46cbf7ab6d4bcb8def1614299b36b4bd1fa0f02d61d993d`
 
 Environment:
 
@@ -11,7 +11,7 @@ Environment:
 - Matplotlib 3.11.2
 - Xarray 2026.7.0
 - Figanos 0.7.0
-- ar6-sciplot commit under test: `73272f5df9f25303d5f1bdcfdcca2cc452d1ea4f`
+- ar6-sciplot commit under test: `432b4a2d0e521d9664e5ff6303abfda0576b728b`
 
 The native benchmark completed successfully. Seven PNG renders plus machine-readable results were uploaded by CI.
 
