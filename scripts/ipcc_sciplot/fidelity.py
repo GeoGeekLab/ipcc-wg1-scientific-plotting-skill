@@ -156,17 +156,6 @@ def audit_figure_report(
                     expected="Arial available",
                 )
             )
-    else:
-        checks.append(
-            AuditCheck(
-                code="typography.arial",
-                status="skip",
-                category="typography",
-                message="strict font check not requested",
-                expected="Arial available for strict fidelity",
-            )
-        )
-
     width_mm, height_mm = (float(value) for value in fig.get_size_inches() * 25.4)
     if strict_dimensions:
         width_matches = any(
@@ -202,28 +191,6 @@ def audit_figure_report(
                 expected="<= 250 mm",
             )
         )
-    else:
-        checks.extend(
-            [
-                AuditCheck(
-                    code="delivery.width",
-                    status="skip",
-                    category="delivery",
-                    message="strict delivery-width check not requested",
-                    actual=round(width_mm, 2),
-                    expected="90 or 180 mm for strict fidelity",
-                ),
-                AuditCheck(
-                    code="delivery.height",
-                    status="skip",
-                    category="delivery",
-                    message="strict delivery-height check not requested",
-                    actual=round(height_mm, 2),
-                    expected="<= 250 mm for strict fidelity",
-                ),
-            ]
-        )
-
     if reference_size_mm is not None:
         invalid_size = len(reference_size_mm) != 2 or any(
             value <= 0 for value in reference_size_mm
@@ -354,17 +321,6 @@ def audit_figure_report(
                 )
             )
 
-    if semantic_lines == 0:
-        checks.append(
-            AuditCheck(
-                code="scenario.colors",
-                status="skip",
-                category="semantics",
-                message="no registered SSP/RCP line labels found",
-                expected=f"semantic scenario colours for {profile} when applicable",
-            )
-        )
-
     if require_ipcc_colormap:
         found_names: list[str] = []
         for ax in fig.axes:
@@ -390,17 +346,6 @@ def audit_figure_report(
                 expected="at least one official ipcc_* colormap artist",
             )
         )
-    else:
-        checks.append(
-            AuditCheck(
-                code="map.official-colormap",
-                status="skip",
-                category="semantics",
-                message="official map-colormap check not requested",
-                expected="official ipcc_* colormap for strict map fidelity",
-            )
-        )
-
     return AuditReport(profile=profile, checks=tuple(checks))
 
 
