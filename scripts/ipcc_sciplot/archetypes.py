@@ -68,8 +68,8 @@ def label_line_ends(
 
     endpoints: list[tuple[str, mpl.lines.Line2D, float, float]] = []
     for label, line in lines.items():
-        x = list(line.get_xdata())
-        y = list(line.get_ydata())
+        x = line.get_xdata(orig=False)
+        y = line.get_ydata(orig=False)
         finite = [
             index
             for index, (x_value, y_value) in enumerate(zip(x, y, strict=False))
@@ -87,12 +87,12 @@ def label_line_ends(
     ax.autoscale_view()
     ax.figure.canvas.draw()
 
-    y_pixels = [
+    endpoint_y_px = [
         float(ax.transData.transform((x_value, y_value))[1])
         for _, _, x_value, y_value in endpoints
     ]
     ordered = sorted(
-        zip(endpoints, y_pixels, strict=True),
+        zip(endpoints, endpoint_y_px, strict=True),
         key=lambda item: item[1],
     )
 
@@ -100,39 +100,39 @@ def label_line_ends(
     high = float(ax.bbox.y1)
     requested_gap = min_gap_points * ax.figure.dpi / 72.0
     if len(ordered) > 1:
-        available_gap = max(0.0, (high - low) / (len(ordered) - 1))
-        gap = min(requested_gap, available_gap)
+        gap = min(requested_gap, max(0.0, (high - low) / (len(ordered) - 1)))
     else:
         gap = 0.0
 
-    adjusted: list[float] = []
-    for _, original_y in ordered:
-        candidate = max(original_y, low)
-        if adjusted:
-            candidate = max(candidate, adjusted[-1] + gap)
-        adjusted.append(candidate)
+    adjusted_y_px: list[float] = []
+    for _, original_y_px in ordered:
+        candidate = max(original_y_px, low)
+        if adjusted_y_px:
+            candidate = max(candidate, adjusted_y_px[-1] + gap)
+        adjusted_y_px.append(candidate)
 
-    overflow = adjusted[-1] - high
+    overflow = adjusted_y_px[-1] - high
     if overflow > 0:
-        adjusted = [value - overflow for value in adjusted]
-    if adjusted[0] < low:
-        adjusted = [low + index * gap for index in range(len(adjusted))]
+        adjusted_y_px = [value - overflow for value in adjusted_y_px]
+    if adjusted_y_px[0] < low:
+        adjusted_y_px = [low + index * gap for index in range(len(adjusted_y_px))]
+
+    x_pad_px = x_pad_points * ax.figure.dpi / 72.0
+    x_axes = 1.0 + x_pad_px / float(ax.bbox.width)
+    label_transform = mpl.transforms.blended_transform_factory(ax.transAxes, ax.transData)
+    threshold_px = connector_threshold_points * ax.figure.dpi / 72.0
 
     annotations: dict[str, mpl.text.Annotation] = {}
-    threshold_px = connector_threshold_points * ax.figure.dpi / 72.0
-    for ((label, line, x_value, y_value), original_y), target_y in zip(
+    for ((label, line, x_value, y_value), original_y_px), target_y_px in zip(
         ordered,
-        adjusted,
+        adjusted_y_px,
         strict=True,
     ):
         target_data_y = float(
-            ax.transData.inverted().transform(
-                ax.transData.transform((x_value, y_value)) * [1.0, 0.0]
-                + [0.0, target_y]
-            )[1]
+            ax.transData.inverted().transform((float(ax.bbox.x1), target_y_px))[1]
         )
         arrowprops = None
-        if abs(target_y - original_y) > threshold_px:
+        if abs(target_y_px - original_y_px) > threshold_px:
             arrowprops = {
                 "arrowstyle": "-",
                 "color": line.get_color(),
@@ -140,12 +140,13 @@ def label_line_ends(
                 "shrinkA": 0,
                 "shrinkB": 0,
             }
-        annotation = ax.annotate(
+
+        annotations[label] = ax.annotate(
             label,
             xy=(x_value, y_value),
-            xytext=(x_pad_points, 0),
-            textcoords="offset points",
             xycoords="data",
+            xytext=(x_axes, target_data_y),
+            textcoords=label_transform,
             ha="left",
             va="center",
             color=line.get_color(),
@@ -153,13 +154,8 @@ def label_line_ends(
             annotation_clip=False,
             arrowprops=arrowprops,
         )
-        if target_data_y != y_value:
-            annotation.xyann = (x_pad_points, target_data_y - y_value)
-            annotation.set_transform(ax.transData)
-        annotations[label] = annotation
 
     return annotations
-
 
 def plot_scenario_timeseries(
     ax: mpl.axes.Axes,
