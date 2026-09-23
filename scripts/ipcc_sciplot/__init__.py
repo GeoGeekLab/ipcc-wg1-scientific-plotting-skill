@@ -2,7 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .archetypes import map_panel_grid
+from .archetypes import label_line_ends, map_panel_grid
 from .colormaps import load_ipcc_colormap, official_colormap_root
 from .fidelity import AuditCheck, AuditReport, audit_figure, audit_figure_report
 from .maps import add_uncertainty_legend
@@ -56,6 +56,7 @@ __all__ = [
     "figure_width_inches",
     "ipcc_legend",
     "load_ipcc_colormap",
+    "label_line_ends",
     "load_recipe",
     "map_panel_grid",
     "official_colormap_root",
