@@ -165,7 +165,7 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
             profile="ar6-report",
             legend=False,
         )
-        label_line_ends(ax, report_lines_map, min_gap_points=11)
+        label_line_ends(ax, report_lines_map, min_gap_points=2)
         ax.set_title("Global methane emissions", loc="left")
         ax.set_xlabel("Year")
         ax.set_ylabel(axis_label("CH4 emissions", "Tg CH4 yr-1"))
