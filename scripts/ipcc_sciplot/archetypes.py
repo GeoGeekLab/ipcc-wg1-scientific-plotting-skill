@@ -1,12 +1,56 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 
-from .style import axis_label, ipcc_legend
+from .style import axis_label, figure_size_inches, ipcc_legend
 from .tokens import DEFAULT_DATA_LINEWIDTH_PT, GENERIC_LINE_COLORS, scenario_style
+
+
+def map_panel_grid(
+    n_panels: int,
+    *,
+    projection: Any = None,
+    ncols: int | None = None,
+    width: str | float = "double",
+    height_mm: float | None = None,
+    panel_aspect: float = 0.55,
+    wspace: float = 0.03,
+    hspace: float = 0.08,
+) -> tuple[mpl.figure.Figure, tuple[mpl.axes.Axes, ...]]:
+    """Create a compact fixed-size panel grid for map or spatial figures."""
+    if n_panels < 1:
+        raise ValueError("n_panels must be >= 1")
+    if ncols is None:
+        ncols = min(3, n_panels)
+    if ncols < 1:
+        raise ValueError("ncols must be >= 1")
+    if panel_aspect <= 0:
+        raise ValueError("panel_aspect must be positive")
+
+    nrows = math.ceil(n_panels / ncols)
+    if height_mm is None:
+        width_in, _ = figure_size_inches(width)
+        panel_width_in = width_in / ncols
+        height_mm = panel_width_in * panel_aspect * nrows * 25.4
+
+    subplot_kw = {} if projection is None else {"projection": projection}
+    fig, grid = plt.subplots(
+        nrows,
+        ncols,
+        squeeze=False,
+        figsize=figure_size_inches(width, height_mm=height_mm),
+        subplot_kw=subplot_kw,
+        gridspec_kw={"wspace": wspace, "hspace": hspace},
+    )
+    axes = list(grid.flat)
+    for extra_ax in axes[n_panels:]:
+        extra_ax.remove()
+    return fig, tuple(axes[:n_panels])
 
 
 def plot_scenario_timeseries(
