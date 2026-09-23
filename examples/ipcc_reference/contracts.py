@@ -11,7 +11,10 @@ REFERENCE_CONTRACTS: dict[str, dict[str, object]] = {
                 "ylim": [-15.0, 25.0],
                 "xlabel": "Temperature change over sea (°C)",
                 "ylabel": "Temperature change over land (°C)",
-                "title": "b) Global temperature change over\nland and ocean for a range of climates",
+                "title": (
+                    "b) Global temperature change over\n"
+                    "land and ocean for a range of climates"
+                ),
                 "bbox": [0.23, 0.12, 0.73, 0.78],
                 "bbox_tolerance": 0.005,
                 "legend_contains": [
