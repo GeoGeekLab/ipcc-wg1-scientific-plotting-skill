@@ -78,25 +78,17 @@ python examples/visual_comparison.py --check
 
 ## Cross-library benchmark
 
-Figanos is a stronger general-purpose climate plotting library than this project today:
-it has broader plot coverage, deeper Xarray integration, native faceting, automatic
-scenario-colour recognition, bundled IPCC colormaps, and a more complete map/hatching
-workflow.
+Figanos 0.7.0 is the stronger general-purpose climate plotting package: broader plot
+coverage, deeper Xarray integration, native faceting, automatic scenario colours, and
+bundled IPCC colormaps.
 
-This project does not try to hide that difference. Its narrower goal is AR6/WGI
-fidelity bookkeeping: explicit report-era versus 2022 profiles, physical delivery
-constraints, provenance, and machine-checkable figure checks.
-
-A reproducible benchmark runs Figanos 0.7.0 and ar6-sciplot against the same scenario
-data and controlled map inputs:
+ar6-sciplot focuses on AR6/WGI profile versioning, print geometry, provenance,
+uncertainty semantics, and figure checks. The benchmark runs both packages on the same
+scenario data and controlled map inputs.
 
 - [benchmark methodology](benchmarks/ipcc_plotting/README.md)
 - [latest recorded results](benchmarks/ipcc_plotting/RESULTS.md)
 - [benchmark workflow](.github/workflows/plotting-benchmark.yml)
-
-Use Figanos when the main need is a mature, flexible climate plotting API. Use this
-project when the additional requirement is explicit AR6/WGI profile provenance and
-fidelity validation.
 
 
 ## Reference reproductions
@@ -174,7 +166,7 @@ PASS  scenario.color.0.0
 PASS  scenario.color.0.1
 PASS  scenario.color.0.2
 
-Summary: 6 passed, 0 failed, 3 skipped
+Summary: 6 passed, 0 failed, 2 skipped
 ~~~
 
 JSON output is available for CI:
@@ -216,8 +208,9 @@ The package includes:
 - 350 ppi raster output
 - axis-label and unit helpers
 - uncertainty and significance layers
+- uncertainty legends and fixed-size panel grids
 - provenance helpers
-- figure audits
+- delivery and reference-geometry audits
 - pinned source-data regression examples
 
 Detailed rules live in:
