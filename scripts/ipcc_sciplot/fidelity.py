@@ -101,13 +101,11 @@ def audit_figure_report(
     require_ipcc_colormap: bool = False,
     strict_dimensions: bool = False,
     dimension_tolerance_mm: float = 0.5,
+    reference_size_mm: tuple[float, float] | None = None,
+    reference_panel_count: int | None = None,
+    reference_projection: str | None = None,
 ) -> AuditReport:
-    """Audit machine-checkable parts of the AR6 WGI visual contract.
-
-    The report is intentionally explicit about skipped checks. Machine auditing
-    cannot determine reference-specific projection, panel geometry, annotations,
-    or scientific-method correctness; those still require reference comparison.
-    """
+    """Audit requested AR6/WGI delivery, semantic, and reference geometry checks."""
 
     checks: list[AuditCheck] = []
 
@@ -226,6 +224,78 @@ def audit_figure_report(
             ]
         )
 
+    if reference_size_mm is not None:
+        if len(reference_size_mm) != 2 or any(value <= 0 for value in reference_size_mm):
+            raise ValueError("reference_size_mm must contain positive (width, height) values")
+        reference_width, reference_height = (float(value) for value in reference_size_mm)
+        width_matches = abs(width_mm - reference_width) <= dimension_tolerance_mm
+        height_matches = abs(height_mm - reference_height) <= dimension_tolerance_mm
+        checks.extend(
+            [
+                AuditCheck(
+                    code="reference.width",
+                    status="pass" if width_matches else "fail",
+                    category="reference",
+                    message="figure width matches reference" if width_matches else "figure width differs from reference",
+                    actual=round(width_mm, 2),
+                    expected=round(reference_width, 2),
+                ),
+                AuditCheck(
+                    code="reference.height",
+                    status="pass" if height_matches else "fail",
+                    category="reference",
+                    message="figure height matches reference" if height_matches else "figure height differs from reference",
+                    actual=round(height_mm, 2),
+                    expected=round(reference_height, 2),
+                ),
+            ]
+        )
+
+    panel_axes = tuple(
+        ax
+        for ax in fig.axes
+        if ax.get_label() != "<colorbar>" and getattr(ax, "_colorbar", None) is None
+    )
+    if reference_panel_count is not None:
+        if reference_panel_count < 1:
+            raise ValueError("reference_panel_count must be >= 1")
+        panel_count = len(panel_axes)
+        panels_match = panel_count == reference_panel_count
+        checks.append(
+            AuditCheck(
+                code="reference.panel-count",
+                status="pass" if panels_match else "fail",
+                category="reference",
+                message="panel count matches reference" if panels_match else "panel count differs from reference",
+                actual=float(panel_count),
+                expected=float(reference_panel_count),
+            )
+        )
+
+    if reference_projection is not None:
+        projection_names = [
+            ax.projection.__class__.__name__
+            for ax in panel_axes
+            if getattr(ax, "projection", None) is not None
+        ]
+        projections_match = bool(projection_names) and all(
+            name.casefold() == reference_projection.casefold() for name in projection_names
+        )
+        checks.append(
+            AuditCheck(
+                code="reference.projection",
+                status="pass" if projections_match else "fail",
+                category="reference",
+                message=(
+                    "map projection matches reference"
+                    if projections_match
+                    else "map projection differs from reference"
+                ),
+                actual=", ".join(sorted(set(projection_names))) if projection_names else "none",
+                expected=reference_projection,
+            )
+        )
+
     semantic_lines = 0
     for ax_index, ax in enumerate(fig.axes):
         for line_index, line in enumerate(ax.lines):
@@ -314,19 +384,6 @@ def audit_figure_report(
             )
         )
 
-    checks.append(
-        AuditCheck(
-            code="reference.manual-review",
-            status="skip",
-            category="reference",
-            message=(
-                "projection, panel geometry, annotation, and scientific method "
-                "require reference-specific review"
-            ),
-            expected="manual comparison for exact reproduction",
-        )
-    )
-
     return AuditReport(profile=profile, checks=tuple(checks))
 
 
@@ -338,6 +395,9 @@ def audit_figure(
     require_ipcc_colormap: bool = False,
     strict_dimensions: bool = False,
     dimension_tolerance_mm: float = 0.5,
+    reference_size_mm: tuple[float, float] | None = None,
+    reference_panel_count: int | None = None,
+    reference_projection: str | None = None,
 ) -> list[str]:
     """Return failure messages for compatibility with the original API."""
 
@@ -348,5 +408,8 @@ def audit_figure(
         require_ipcc_colormap=require_ipcc_colormap,
         strict_dimensions=strict_dimensions,
         dimension_tolerance_mm=dimension_tolerance_mm,
+        reference_size_mm=reference_size_mm,
+        reference_panel_count=reference_panel_count,
+        reference_projection=reference_projection,
     )
     return [check.message for check in report.failures]
