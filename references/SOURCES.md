@@ -57,8 +57,10 @@ The official repository includes continuous, discrete and categorical colour
 tables, including semantic families for temperature, precipitation, cryosphere,
 chemistry, sea level and wind.
 
-This project does **not** vendor the upstream RGB tables. Faithful mode loads an
-authorized local checkout through `IPCC_WG1_COLORMAPS_DIR`.
+The asset manifest is pinned to commit
+`b7d3849d4fa521d2583b91360e875e38f191d209` (2021-06-17). The RGB tables stay
+upstream; `load_ipcc_colormap()` validates the requested local asset against its
+Git blob before loading it.
 
 ### WGI plotting implementations
 
