@@ -66,8 +66,8 @@ REFERENCE_CONTRACTS: dict[str, dict[str, object]] = {
         "axes": [
             {
                 "projection": "LambertConformal",
-                "extent": [-10.0, 40.0, 25.0, 50.0],
-                "extent_tolerance": 0.15,
+                "geographic_extent": [-10.0, 40.0, 25.0, 50.0],
+                "projected_extent_tolerance": 1.0,
                 "title": "Station locations",
                 "title_loc": "left",
                 "legend_labels": ["E-OBS", "Donat et al. 2014"],

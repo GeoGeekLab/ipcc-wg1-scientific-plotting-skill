@@ -123,18 +123,35 @@ def assert_reference_contract(
                     f"axes[{index}].projection: expected {expected}, got {got}"
                 )
 
-        if "extent" in spec:
+        if "geographic_extent" in spec:
             try:
                 import cartopy.crs as ccrs
+                from shapely.geometry import box
             except ImportError as exc:
-                raise RuntimeError("extent contract requires cartopy") from exc
-            got = [float(value) for value in ax.get_extent(crs=ccrs.PlateCarree())]
-            expected = [float(value) for value in spec["extent"]]
-            tol = float(spec.get("extent_tolerance", 0.15))
-            observed["extent"] = [round(value, 6) for value in got]
+                raise RuntimeError("geographic extent contract requires cartopy") from exc
+
+            west, east, south, north = (
+                float(value) for value in spec["geographic_extent"]
+            )
+            source_crs = ccrs.PlateCarree()
+            domain = box(west, south, east, north)
+            projected = ax.projection.project_geometry(domain, source_crs)
+            xmin, ymin, xmax, ymax = projected.bounds
+            expected = [xmin, xmax, ymin, ymax]
+            got = [
+                float(ax.get_xlim()[0]),
+                float(ax.get_xlim()[1]),
+                float(ax.get_ylim()[0]),
+                float(ax.get_ylim()[1]),
+            ]
+            tol = float(spec.get("projected_extent_tolerance", 1.0))
+            observed["geographic_extent"] = [west, east, south, north]
+            observed["projected_view_bounds"] = [round(value, 3) for value in got]
             if not np.allclose(got, expected, atol=tol, rtol=0):
                 failures.append(
-                    f"axes[{index}].extent: expected {expected} ± {tol}, got {got}"
+                    f"axes[{index}].projected extent: "
+                    f"expected {[round(value, 3) for value in expected]} ± {tol}, "
+                    f"got {[round(value, 3) for value in got]}"
                 )
 
         legend = ax.get_legend()
