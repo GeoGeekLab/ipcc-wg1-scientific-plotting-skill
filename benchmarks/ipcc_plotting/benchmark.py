@@ -478,6 +478,10 @@ def write_markdown(results: dict[str, object]) -> None:
         "Figanos uses the updated WGI scenario palette automatically. The ar6-report "
         "profile keeps final-report-era scenario colours for source-faithful reproduction.",
         "",
+        "Figanos' edge labels save plotting space, but the SSP1-1.9 and SSP1-2.6 labels "
+        "overlap at the 2100 endpoint in this dataset. The ar6-report render uses a "
+        "boxed legend instead.",
+        "",
         "## 2. Controlled change map + agreement",
         "",
         f"- Projection: {mp['figanos_projection']} for both renderers.",
@@ -494,9 +498,9 @@ def write_markdown(results: dict[str, object]) -> None:
         f"- Figanos native Xarray faceting: {multi['figanos_native_faceting']}.",
         f"- ar6-sciplot panel-grid helper: {multi['ar6_panel_grid_helper']}.",
         "",
-        "Figanos remains ahead on Xarray-native faceting. ar6-sciplot now handles physical "
-        "panel geometry and subplot allocation in one helper, reducing the previous manual "
-        "Cartopy setup.",
+        "At the same 180 x 72 mm size, the rendered panel layout is now comparable. "
+        "Figanos still has the simpler data-to-facet path because it maps the Xarray "
+        "dimension directly to panels.",
         "",
         "The PNG outputs in the artifact show the rendered comparison.",
         "",
