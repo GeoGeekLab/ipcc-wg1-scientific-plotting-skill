@@ -221,7 +221,7 @@ def benchmark_field() -> tuple[xr.DataArray, xr.DataArray]:
         attrs={
             "description": "Synthetic temperature change",
             "long_name": "Temperature change",
-            "units": "degC",
+            "units": "°C",
         },
     )
     mask = xr.DataArray(
@@ -301,7 +301,7 @@ def render_map() -> dict[str, object]:
             mesh,
             ax=ax,
             label="Temperature change",
-            unit="degC",
+            unit="°C",
             orientation="horizontal",
             pad=0.07,
             fraction=0.06,
@@ -398,7 +398,7 @@ def render_multipanel() -> dict[str, object]:
                 rasterized=True,
             )
             ax.set_global()
-            panel_label(ax, chr(ord("a") + idx), title=f"At {value:g} C global warming")
+            panel_label(ax, chr(ord("a") + idx), title=f"{value:g} °C")
         if mesh is None:
             raise RuntimeError("No multipanel mesh rendered.")
         add_ipcc_colorbar(
