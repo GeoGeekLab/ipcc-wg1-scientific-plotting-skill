@@ -18,11 +18,12 @@ def add_uncertainty_legend(
     insufficient_data: str | None = None,
     significance: str | None = None,
     hatch: str = "////",
+    hatch_color: str = "black",
     missing_color: str = MISSING_DATA,
     significance_color: str = "black",
     loc: str = "lower left",
     ncol: int = 1,
-    frameon: bool = True,
+    frameon: bool = False,
     **kwargs: Any,
 ) -> mpl.legend.Legend:
     """Add legend entries for uncertainty textures used on a map."""
@@ -31,7 +32,7 @@ def add_uncertainty_legend(
         handles.append(
             Patch(
                 facecolor="none",
-                edgecolor=COAST_GREY,
+                edgecolor=hatch_color,
                 hatch=hatch,
                 linewidth=0.5,
                 label=low_agreement,
