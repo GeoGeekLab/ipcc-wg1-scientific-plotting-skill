@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import ListedColormap
 
 from ipcc_sciplot.fidelity import AuditReport, audit_figure, audit_figure_report
 from ipcc_sciplot.style import publication_context
@@ -108,3 +110,17 @@ def test_reference_geometry_audit_detects_mismatch():
     codes = {check.code for check in report.failures}
     assert "reference.height" in codes
     assert "reference.panel-count" in codes
+
+
+
+def test_official_colormap_audit_rejects_name_only():
+    fig, ax = plt.subplots()
+    cmap = ListedColormap(["#000000", "#FFFFFF"], name="ipcc_temp_div")
+    ax.imshow(np.array([[0.0, 1.0]]), cmap=cmap)
+    report = audit_figure_report(fig, require_ipcc_colormap=True)
+    plt.close(fig)
+
+    failure = next(
+        check for check in report.failures if check.code == "map.official-colormap"
+    )
+    assert "unverified: ipcc_temp_div" in str(failure.actual)
