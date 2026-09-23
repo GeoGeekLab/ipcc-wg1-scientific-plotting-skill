@@ -127,6 +127,7 @@ Strict map 从官方 `IPCC-WG1/colormaps` 加载：
 - `misc_*` 用于没有专用 variable family 的情况
 
 ```bash
+git -C /path/to/IPCC-WG1/colormaps checkout b7d3849d4fa521d2583b91360e875e38f191d209
 export IPCC_WG1_COLORMAPS_DIR=/path/to/IPCC-WG1/colormaps
 ```
 
@@ -166,6 +167,7 @@ fig, axes = map_panel_grid(
 ## 7. Legend / colour bar / annotation
 
 - 优先 direct label，必要时使用 legend
+- 多条线端点接近时用 `label_line_ends()` 做垂直避让
 - legend / colour bar 靠近数据
 - colour bar 标注单位
 - legend 顺序按科学语义
