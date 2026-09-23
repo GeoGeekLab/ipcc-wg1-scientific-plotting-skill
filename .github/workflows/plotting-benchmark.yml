@@ -42,6 +42,20 @@ jobs:
           print("figanos", version("figanos"))
           PY
 
+      - name: Verify pinned IPCC colormap assets
+        run: |
+          git init /tmp/ipcc-wg1-colormaps
+          git -C /tmp/ipcc-wg1-colormaps remote add origin https://github.com/IPCC-WG1/colormaps.git
+          git -C /tmp/ipcc-wg1-colormaps fetch --depth 1 origin b7d3849d4fa521d2583b91360e875e38f191d209
+          git -C /tmp/ipcc-wg1-colormaps checkout --detach FETCH_HEAD
+          python - <<'PY'
+          from ipcc_sciplot import OFFICIAL_COLORMAP_COMMIT, verify_official_colormap_checkout
+
+          verified = verify_official_colormap_checkout(root="/tmp/ipcc-wg1-colormaps")
+          print(OFFICIAL_COLORMAP_COMMIT, len(verified), "assets")
+          assert len(verified) == 43
+          PY
+
       - name: Run cross-library benchmark
         env:
           MPLBACKEND: Agg
