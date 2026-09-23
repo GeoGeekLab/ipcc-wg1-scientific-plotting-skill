@@ -1,33 +1,22 @@
-# Cross-library benchmark — CI result
+# Cross-library benchmark result
 
-Run: https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/runs/35822439173
+CI run: https://github.com/GeoGeekLab/ipcc-wg1-scientific-plotting-skill/actions/runs/35830722862  
+Benchmark commit: `2b2e2d2a0a839f22a7060633cd93d12df004d8f9`  
+Artifact digest: `sha256:877920f323472faa1a5c345ffb9a2a4e9a376883b7d199a8bbfeb0ba99f4f4b0`
 
-Artifact: `ipcc-plotting-benchmark`  
-Artifact digest: `sha256:cc44fac2584589c7f46cbf7ab6d4bcb8def1614299b36b4bd1fa0f02d61d993d`
+Environment: Python 3.12.14, Matplotlib 3.11.2, Xarray 2026.7.0, Figanos 0.7.0.
 
-Environment:
+## Summary
 
-- Python 3.12.14
-- Matplotlib 3.11.2
-- Xarray 2026.7.0
-- Figanos 0.7.0
-- ar6-sciplot commit under test: `432b4a2d0e521d9664e5ff6303abfda0576b728b`
+Figanos remains the stronger general-purpose climate plotting library: broader plot coverage, deeper Xarray integration, native faceting, automatic scenario colours, and bundled IPCC colormaps.
 
-The native benchmark completed successfully. Seven PNG renders plus machine-readable results were uploaded by CI.
+ar6-sciplot focuses on AR6/WGI profile versioning, print geometry, provenance, uncertainty semantics, and figure checks. This iteration adds fixed-size panel grids, uncertainty legends, and reference geometry checks.
 
-## Result that should be stated plainly
+## Scenario time series
 
-**Figanos is currently the stronger general-purpose climate plotting library.**
+The benchmark uses the common populated years in the pinned AR6 Chapter 6 source rows:
 
-That is visible both in its API and in this benchmark. It has broader plot coverage, deeper Xarray integration, native facet construction, automatic scenario-colour recognition, automatically registered IPCC colormaps, and a more complete map/hatching workflow. ar6-sciplot should not claim to beat Figanos on plotting breadth or convenience.
-
-The defensible distinction for ar6-sciplot is narrower: explicit AR6 report-era versus WGI-2022 profiles, physical IPCC delivery geometry, evidence/provenance, separation of uncertainty semantics, and machine-checkable fidelity diagnostics.
-
-## 1. Scenario time series
-
-The benchmark uses official AR6 WGI Chapter 6 Figure 6.18 methane-emission source data pinned to commit `09d9b43fe935fc81d828147f91b717396a84fca3`.
-
-Figanos 0.7.0 automatically produced these SSP colours:
+`2015, 2020, 2030, 2040, 2050, 2060, 2070, 2080, 2090, 2100`.
 
 | Scenario | Figanos 0.7.0 | ar6-sciplot WGI-2022 | ar6-sciplot report-era |
 | --- | --- | --- | --- |
@@ -37,44 +26,24 @@ Figanos 0.7.0 automatically produced these SSP colours:
 | SSP3-7.0 | `#E71D25` | `#E71D25` | `#F21111` |
 | SSP5-8.5 | `#951B1E` | `#951B1E` | `#840B22` |
 
-So Figanos matches the updated WGI-2022 profile exactly in this test. Its mismatch with the report-era palette is **not a defect**; it reflects a different target profile.
+Figanos matches the WGI-2022 scenario palette exactly. The report-era profile keeps the colours used by final-report-era material.
 
-The native Figanos figure was 162.56 × 121.92 mm. The ar6-sciplot report render was explicitly constrained to 180 × 100 mm.
+Figanos' edge labels save plotting space, but SSP1-1.9 and SSP1-2.6 overlap at the 2100 endpoint in this dataset. The ar6-report render uses a boxed legend.
 
-Visual inspection also shows a practical Figanos advantage: its edge/direct scenario labels use plotting space efficiently, whereas the current ar6-sciplot example uses a conventional boxed legend.
+## Controlled change map + agreement
 
-## 2. Controlled change map + low agreement
+Both renders use the same 65 x 144 field, low-agreement mask, Robinson projection, `temp_div` colormap, -4 to +4 level boundaries, and 180 x 100 mm canvas.
 
-To avoid a biased comparison, both renderers were forced to use:
+Figanos still has the shorter `gridmap() + hatchmap()` path. ar6-sciplot now provides the agreement hatch and matching legend through dedicated helpers. The reference audit passes width, height, panel count, and Robinson projection for the controlled render.
 
-- the same deterministic 65 × 144 field;
-- the same low-agreement mask;
-- the same Robinson projection;
-- the same `temp_div` colormap object registered by Figanos;
-- the same level boundaries from -4 to +4;
-- the same 180 × 100 mm figure size.
+## Warming-level multipanel
 
-Under those controls, Figanos' `gridmap() + hatchmap()` route is materially more concise and more turnkey. It also creates the hatching legend directly.
+Both renders use three Robinson panels on a 180 x 72 mm canvas.
 
-The current ar6-sciplot route needs explicit Matplotlib/Cartopy construction and does not yet provide an equally convenient legend abstraction for the uncertainty texture. Its advantage is semantic separation: low agreement, insufficient data, and statistical significance are different helpers rather than interchangeable pattern layers.
+The panel layouts are now comparable at final size. Figanos remains simpler at the data-to-layout step because it facets directly from the Xarray `warming` dimension. ar6-sciplot now handles the physical panel grid with `map_panel_grid()` and checks the resulting size, panel count, and projection.
 
-The benchmark deliberately uses Figanos' registered IPCC colormap for both sides. This gives Figanos full credit for a real usability advantage: official colour assets are bundled and registered automatically.
+## Current split
 
-## 3. Three warming-level panels
+Use Figanos for broad climate-plotting coverage and Xarray-native plotting workflows.
 
-Both outputs were constrained to 180 × 72 mm and three Robinson panels.
-
-Figanos creates the panels directly from the Xarray `warming` dimension. This is a **clear Figanos advantage**.
-
-ar6-sciplot currently has no equivalent native facet abstraction; the benchmark has to construct three Cartopy axes manually. In the first benchmark render, the longer manual panel labels are visibly tighter than Figanos' automatically managed facet headings. That exposes a real layout/API gap rather than something that should be hidden by the comparison.
-
-## What this benchmark does not prove
-
-It does not establish a universal winner and it does not test scientific correctness. It also does not claim that passing the ar6-sciplot audit proves exact reproduction: projection, panel geometry, annotations and scientific method still require reference-specific review.
-
-The practical conclusion is narrower:
-
-- choose **Figanos** when the main requirement is a mature, flexible climate plotting library with strong Xarray ergonomics;
-- use **ar6-sciplot** when the additional requirement is explicit AR6/WGI profile provenance, report-era semantics, delivery constraints, and auditable fidelity rules.
-
-The benchmark should be maintained as evidence for that distinction rather than as marketing intended to make ar6-sciplot win.
+ar6-sciplot adds AR6/WGI profile selection, report-era semantics, fixed print geometry, uncertainty-specific encodings, provenance, and reference-aware checks.
