@@ -35,6 +35,8 @@ def test_uncertainty_legend_builds_requested_entries():
     )
     labels = [text.get_text() for text in legend.get_texts()]
     assert labels == ["Low agreement", "Insufficient data", "Significant"]
+    assert legend.get_frame().get_facecolor()[-1] == pytest.approx(1)
+    assert legend.get_frame().get_linewidth() == pytest.approx(0)
     plt.close(fig)
 
 
