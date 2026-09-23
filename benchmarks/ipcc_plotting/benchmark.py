@@ -24,6 +24,7 @@ from figanos import matplotlib as fg
 from ipcc_sciplot import (
     add_uncertainty_legend,
     audit_figure_report,
+    label_line_ends,
     map_panel_grid,
     publication_context,
     scenario_style,
@@ -157,7 +158,14 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
         fig, ax = plt.subplots()
         x = next(iter(data.values())).time.dt.year.values
         series = {key: value.values for key, value in data.items()}
-        plot_scenario_timeseries(ax, x, series, profile="ar6-report", legend_loc="upper left")
+        report_lines_map = plot_scenario_timeseries(
+            ax,
+            x,
+            series,
+            profile="ar6-report",
+            legend=False,
+        )
+        label_line_ends(ax, report_lines_map, min_gap_points=11)
         ax.set_title("Global methane emissions", loc="left")
         ax.set_xlabel("Year")
         ax.set_ylabel(axis_label("CH4 emissions", "Tg CH4 yr-1"))
@@ -479,8 +487,8 @@ def write_markdown(results: dict[str, object]) -> None:
         "profile keeps final-report-era scenario colours for source-faithful reproduction.",
         "",
         "Figanos' edge labels save plotting space, but the SSP1-1.9 and SSP1-2.6 labels "
-        "overlap at the 2100 endpoint in this dataset. The ar6-report render uses a "
-        "boxed legend instead.",
+        "overlap at the 2100 endpoint in this dataset. ar6-sciplot uses the same "
+        "line-end approach with vertical collision avoidance.",
         "",
         "## 2. Controlled change map + agreement",
         "",
