@@ -5,49 +5,50 @@ description: 高保真蒸馏 IPCC AR6 Working Group I 的科学图形语言。�
 
 # IPCC AR6 WGI Scientific Plotting Skill
 
-本 Skill 的首要目标是保真复现 IPCC AR6 WGI 的 visual grammar，而不是把一般“出版级科研绘图”包装成 IPCC 风格。
+目标是复现 IPCC AR6 WGI 的 visual grammar，并把常用规则落实为可复用的绘图与检查接口。
 
-科研统计、FAIR、provenance 和现代 Python 工作流仍然重要，但属于第二层；视觉保真必须有独立证据和独立 QA。
-
-## 1. 先确定 fidelity mode
+## 1. Profile
 
 ### Strict / IPCC-faithful
 
-用户明确要求 IPCC/AR6/WGI 风格时默认使用。
+用于明确的 IPCC/AR6/WGI 风格或具体图复刻。
 
-必须满足：
+- 选择 `ar6-report` 或 `wgi-guide-2022`
+- Arial
+- 90 mm / 180 mm print width，最大高度 250 mm
+- SSP/RCP 语义颜色
+- 地图使用官方 WGI colormap asset
+- 地图投影显式指定
+- 单位使用圆括号
+- agreement / significance / missing-data 分开编码
+- 输出前运行 fidelity audit
 
-- 选定 `ar6-report` 或 `wgi-guide-2022` profile；
-- Arial 可用；
-- IPCC print geometry 使用 90 mm / 180 mm 宽度，最大高度 250 mm；
-- SSP/RCP 使用语义颜色；
-- 地图使用官方 WGI colormap asset；
-- 地图投影显式指定；
-- 单位使用圆括号；
-- uncertainty/agreement/significance/missing-data 语义分离；
-- 不允许静默 fallback 到 Matplotlib/cmocean palette；
-- 输出前执行 fidelity checklist。
-
-关键项无法满足时，不能把结果称为 IPCC-faithful。
+缺少 strict 所需资产时直接报错，或切换到 adapted profile。
 
 ### Adapted / IPCC-inspired
 
-只有在用户接受近似，或缺少必要资产/参考图时使用。允许字体、palette 或布局替代，但必须明确称为 IPCC-inspired/adapted。
+用于保留 IPCC 视觉语法、但允许字体、palette 或布局替代的图。
 
-## 2. 证据优先，不靠“感觉像”
+## 2. Evidence
 
-如果复刻具体 AR6 figure，**published reference figure 本身优先**。其次使用该时期的 WGI visual guide、TSU 审图证据、官方 colour assets、chapter code 和 Atlas uncertainty guidance。
+具体 AR6 figure 的优先顺序：
 
-如果创建新图并明确采用更新版规范，使用 `wgi-guide-2022`。
+1. published reference figure
+2. 同时期 WGI visual guide 与 TSU review evidence
+3. 官方 colour assets 与 chapter plotting code
+4. Atlas uncertainty guidance
+5. 一般 scientific visualization practice
 
-不要用 2022 更新后的 SSP 色值去“纠正”2021 final-report figure。完整 evidence hierarchy 与逐规则强度见：
+新图若明确采用 2022 更新规范，使用 `wgi-guide-2022`。2021 final-report figure 使用对应时期的 report-era tokens。
+
+详细来源：
 
 - `references/SOURCES.md`
 - `references/evidence_matrix.md`
 
-## 3. 建立 figure contract
+## 3. Figure contract
 
-绘图前至少明确：
+绘图前记录核心参数：
 
 ```yaml
 figure_id: figure_01
@@ -69,13 +70,11 @@ uncertainty: method-defined
 robustness: method-defined
 ```
 
-示例里的 interval/agreement 值只是占位，不能因为“IPCC style”就自动采用 17–83% 或 80%。
+具体复刻同时记录 chapter / figure number、projection、extent、panel geometry、levels、annotation、legend 和 scientific method。
 
-复刻具体图时还要记录 chapter / figure number，并匹配 projection、extent、panel geometry、levels、annotation、legend 和 scientific method。
+## 4. Delivery geometry / typography
 
-## 4. IPCC delivery geometry / typography
-
-AR6 WGI visual guide 的 print delivery grammar：
+AR6 WGI print grammar：
 
 - single column: **9 cm**
 - double column: **18 cm**
@@ -84,10 +83,8 @@ AR6 WGI visual guide 的 print delivery grammar：
 - larger figure text: about **11 pt**
 - black axes: **0.5 pt**
 - print raster: **350 ppi**
-- strict font: **Arial**
-- units: `Variable (unit)`，不用 `Variable [unit]`
-
-避免不必要的 bold/italic/underline、grid、frame 和装饰。
+- font: **Arial**
+- units: `Variable (unit)`
 
 ```python
 from ipcc_sciplot import axis_label, panel_label, publication_context
@@ -97,7 +94,9 @@ with publication_context(width="double", strict_font=True):
     panel_label(ax, "a", title="Global mean")
 ```
 
-## 5. Colour 是语义，不是 decoration
+避免多余的 bold、italic、grid、frame 和装饰。
+
+## 5. Colour
 
 ### Scenario colours
 
@@ -108,14 +107,12 @@ scenario_style("SSP2-4.5", profile="ar6-report")
 scenario_style("SSP2-4.5", profile="wgi-guide-2022")
 ```
 
-- `ar6-report`：匹配 final-report-era figure/code。
-- `wgi-guide-2022`：使用 June-2022 updated palette。
-
-禁止静默混合。
+- `ar6-report`: final-report-era figure/code
+- `wgi-guide-2022`: June-2022 updated palette
 
 ### Generic lines
 
-非 scenario 多线图使用 WGI generic line colour order。超过 6 条后复用颜色并用 linestyle 形成第二编码。数据线粗不是全报告统一 token；应匹配 reference/archetype，并保持不低于可读 delivery requirement。
+非 scenario 多线图使用 WGI generic line colour order。超过 6 条后以 linestyle 形成第二编码。
 
 ### Continuous / discrete fields
 
@@ -127,7 +124,7 @@ Strict map 从官方 `IPCC-WG1/colormaps` 加载：
 - `chem_seq`, `chem_div`
 - `slev_seq`, `slev_div`
 - `wind_seq`, `wind_div`
-- `misc_*` 仅在没有物理量专用 family 时使用
+- `misc_*` 用于没有专用 variable family 的情况
 
 ```bash
 export IPCC_WG1_COLORMAPS_DIR=/path/to/IPCC-WG1/colormaps
@@ -138,11 +135,9 @@ from ipcc_sciplot import load_ipcc_colormap
 cmap = load_ipcc_colormap("temp_div")
 ```
 
-缺少官方 asset 时 strict mode 必须失败。禁止自动换成 `RdBu_r` / `viridis` / cmocean 后仍声称 IPCC fidelity。
+## 6. Figure archetypes and layout
 
-## 6. Figure archetypes，而不是一个“theme”
-
-详见 `references/figure_archetypes.md`：
+见 `references/figure_archetypes.md`：
 
 - scenario time series
 - ensemble centre + interval
@@ -151,59 +146,76 @@ cmap = load_ipcc_colormap("temp_div")
 - non-scenario multi-series line comparison
 - categorical/point comparison
 
-没有一个全局默认的 “IPCC projection”。复刻具体图时，projection/central longitude/extent 以 reference 为准。
+地图 projection、central longitude 和 extent 由 reference 或 scientific context 决定。
+
+多面板可用固定物理尺寸 grid：
+
+```python
+from ipcc_sciplot import map_panel_grid
+
+fig, axes = map_panel_grid(
+    3,
+    projection=projection,
+    width="double",
+    height_mm=72,
+)
+```
+
+可比较 panel 使用一致 scale；单位和尺度相同时共享 colour bar。
 
 ## 7. Legend / colour bar / annotation
 
-- 能直接标注时优先 direct label。
-- separate legend / colour bar 靠近数据，优先放在 plot 内可用 white space。
-- 独立 legend / colour bar 使用克制的 black 0.5 pt boundary。
-- colour bar 必须给单位。
-- 所有额外颜色、shading、hatch、stipple 都必须解释。
-- legend 顺序按科学语义，不按代码调用顺序。
+- 优先 direct label，必要时使用 legend
+- legend / colour bar 靠近数据
+- colour bar 标注单位
+- legend 顺序按科学语义
+- hatch、stipple、shading 在图或 caption 中给出含义
 
-## 8. Uncertainty：视觉语义与统计方法分离
+地图 uncertainty legend：
 
-必须分开：
+```python
+from ipcc_sciplot import add_uncertainty_legend
 
-1. high/low ensemble agreement
+add_uncertainty_legend(
+    ax,
+    low_agreement="Low agreement",
+    insufficient_data="Insufficient data",
+    significance="Statistically significant",
+)
+```
+
+## 8. Uncertainty
+
+三类信息分别处理：
+
+1. ensemble agreement
 2. insufficient valid models/samples
 3. statistical significance
 
-可用的视觉语法：
+常用编码：
 
-- robust/high agreement：主数据层保持干净；
-- low agreement：方法允许时用 hatch；
-- insufficient data：独立 blank/neutral mask；
-- significance：只有真正对应显著性检验时才用 stipple。
+- high agreement：保留主数据层
+- low agreement：hatch
+- insufficient data：blank / neutral mask
+- significance：stipple
 
-**80% sign agreement、17–83% range、median、equal-model weighting 都不是 IPCC-wide visual defaults。** 它们必须来自 target method / reference figure。详见 `references/statistical_rules.md`。
+阈值和统计量来自 target method / reference figure。80% sign agreement、17–83% range、median、equal-model weighting 不是通用 style token。
 
-## 9. Multi-panel
+详见 `references/statistical_rules.md`。
 
-- panel 排列编码科学逻辑，不按 loop 顺序；
-- 可比较 panel 使用一致 scale；
-- 只有单位/尺度真正相同时共享 colour bar；
-- panel label/title 位置一致；
-- 不要为了塞进版面把 map 缩到不可读。
+## 9. Reproducibility and audit
 
-## 10. Reproducibility 是第二层
-
-视觉映射确定后，再应用：
+绘图 workflow 可加入：
 
 - xarray / CF / units validation
 - model/member policy
 - plotted-data
 - provenance
 - deterministic seed
-- PDF/SVG + 350 ppi print raster
+- PDF/SVG + 350 ppi raster
 - tests
 
-这些增强可审计性，但不能替代 style fidelity。
-
-## 11. Fidelity gate
-
-输出前调用 machine-checkable audit，并执行人工 checklist。
+Machine audit：
 
 ```python
 from ipcc_sciplot import audit_figure
@@ -213,25 +225,24 @@ issues = audit_figure(
     profile="ar6-report",
     strict_font=True,
     strict_dimensions=True,
-    require_ipcc_colormap=True,  # map only
+    require_ipcc_colormap=True,
+    reference_size_mm=(180, 92),
+    reference_panel_count=3,
+    reference_projection="Robinson",
 )
 if issues:
     raise RuntimeError("\n".join(issues))
 ```
 
-机器 audit 不能判断 reference-specific projection、panel geometry、annotation 和 scientific method。复刻具体 AR6 figure 时仍必须视觉对照。
+## 10. Common failure modes
 
-## 禁止
-
-- 把 IPCC-inspired 写成 IPCC-faithful；
-- strict mode 用默认 Matplotlib cycle 表示 SSP/RCP；
-- strict map fallback 到 generic colormap；
-- 所有 map 默认 Robinson；
-- 单位使用 `[ ]`；
-- 把 80%、17–83%、median 等 analysis choice 冒充 IPCC style；
-- 用 FAIR/provenance/350 dpi 单独证明“IPCC 风格”；
-- 把单个 chapter helper 的局部实现冒充 report-wide rule；
-- 复制旧图中的错误、硬编码路径或无依据 scale。
+- SSP/RCP 使用默认 Matplotlib cycle
+- strict map 使用 generic colormap fallback
+- 把所有地图固定为 Robinson
+- 单位写成 `[unit]`
+- 把 analysis threshold 当作 style token
+- 把 chapter-specific helper 泛化成 report-wide rule
+- 复刻旧代码中的无关硬编码路径或 scale
 
 ## Resource index
 
@@ -239,8 +250,8 @@ if issues:
 - `references/evidence_matrix.md` — rule-by-rule evidence/scope/confidence
 - `references/ipcc_visual_grammar.md` — canonical visual grammar
 - `references/figure_archetypes.md` — figure-family rules
-- `references/fidelity_checklist.md` — strict fidelity gate
-- `references/statistical_rules.md` — scientific-method separation
+- `references/fidelity_checklist.md` — fidelity checklist
+- `references/statistical_rules.md` — scientific-method rules
 - `scripts/ipcc_sciplot/tokens.py` — semantic visual tokens
 - `scripts/ipcc_sciplot/colormaps.py` — official palette loader
 - `scripts/ipcc_sciplot/archetypes.py` — figure-family helpers
