@@ -1,0 +1,96 @@
+schema: ipcc-plotting-competitors/v1
+updated: 2026-09-23
+projects:
+  figanos:
+    repository: Ouranosinc/figanos
+    version: "0.7.0"
+    native_runtime: true
+    direct_comparator: true
+    scope:
+      - timeseries
+      - gridmap
+      - scattermap
+      - gdfmap
+      - hatchmap
+      - facets
+      - stripes
+      - violin
+      - heatmap
+      - taylor_diagram
+    strengths:
+      - broad general-purpose climate plotting surface
+      - strong Xarray integration and automatic faceting
+      - automatic SSP/RCP/CMIP colour recognition
+      - bundled and automatically registered IPCC colormaps
+      - ensemble-aware time-series rendering
+      - convenient map and hatching APIs
+    benchmark_note: >
+      Strongest direct Python comparator. It should be described as stronger
+      than ar6-sciplot for general-purpose climate plotting breadth and UX.
+  cavaanalytics:
+    repository: un-fao/CAVAanalytics
+    native_runtime: false
+    direct_comparator: partial
+    language: R
+    scope:
+      - climate_data_access
+      - ensemble_processing
+      - climate_change_signal
+      - ipcc_palette
+      - model_agreement_stippling
+    strengths:
+      - end-to-end climate assessment workflow
+      - CORDEX/ERA5 integration
+      - analysis-to-map convenience
+    benchmark_note: >
+      Source and repository-native outputs may be reviewed, but this Python
+      benchmark does not execute the R package and must not claim runtime parity.
+  acs_plotting_maps:
+    repository: AusClimateService/plotting_maps
+    native_runtime: false
+    direct_comparator: partial
+    scope:
+      - operational_hazard_maps
+      - multi_panel_maps
+      - stations
+      - ocean_data
+      - stippling
+      - report_annotations
+    strengths:
+      - production-oriented report maps
+      - rich multi-panel and annotation workflows
+      - practical hazard-specific presets
+    benchmark_note: >
+      Strong application workflow, but its visual target mixes ACS guidance
+      with IPCC principles rather than reproducing AR6 WGI as a single profile.
+  giswlh_ipcc_figure:
+    repository: GISWLH/IPCC_figure
+    native_runtime: false
+    direct_comparator: partial
+    scope:
+      - bespoke_ar6_figure_reconstruction
+    strengths:
+      - figure-specific reproduction can be closer than a generic library
+    benchmark_note: >
+      Best treated as a reference-reconstruction stress test rather than a
+      general plotting-library comparator.
+  giswlh_plot_function:
+    repository: GISWLH/plot-function
+    native_runtime: false
+    direct_comparator: partial
+    scope:
+      - climate_maps
+      - warming_level_panels
+      - hatching
+    strengths:
+      - lightweight climate-map helpers
+  pyam:
+    repository: IAMconsortium/pyam
+    native_runtime: false
+    direct_comparator: partial
+    scope:
+      - scenario_timeseries
+      - iam_analysis
+    strengths:
+      - mature scenario-analysis ecosystem
+      - established AR6 scenario colour handling
