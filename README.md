@@ -75,6 +75,30 @@ python examples/visual_comparison.py
 python examples/visual_comparison.py --check
 ~~~
 
+
+## Cross-library benchmark
+
+Figanos is a stronger general-purpose climate plotting library than this project today:
+it has broader plot coverage, deeper Xarray integration, native faceting, automatic
+scenario-colour recognition, bundled IPCC colormaps, and a more complete map/hatching
+workflow.
+
+This project does not try to hide that difference. Its narrower goal is AR6/WGI
+fidelity bookkeeping: explicit report-era versus 2022 profiles, physical delivery
+constraints, provenance, and machine-checkable figure checks.
+
+A reproducible benchmark runs Figanos 0.7.0 and ar6-sciplot against the same scenario
+data and controlled map inputs:
+
+- [benchmark methodology](benchmarks/ipcc_plotting/README.md)
+- [latest recorded results](benchmarks/ipcc_plotting/RESULTS.md)
+- [benchmark workflow](.github/workflows/plotting-benchmark.yml)
+
+Use Figanos when the main need is a mature, flexible climate plotting API. Use this
+project when the additional requirement is explicit AR6/WGI profile provenance and
+fidelity validation.
+
+
 ## Reference reproductions
 
 ### Chapter 6 — Figure 6.18 source
