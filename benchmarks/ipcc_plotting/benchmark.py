@@ -98,15 +98,26 @@ def load_ar6_ch4() -> tuple[dict[str, xr.DataArray], dict[str, object]]:
     if not rows:
         raise RuntimeError("Pinned AR6 CH4 rows were not found.")
 
-    years = list(range(2015, 2101))
+    scenario_rows = {
+        scenario: next(
+            row for row in rows if row["Scenario"].startswith(scenario)
+        )
+        for scenario in CORE_SSPS
+    }
+    fieldnames = reader.fieldnames or []
+    years = [
+        int(name)
+        for name in fieldnames
+        if name.isdigit()
+        and all(scenario_rows[scenario].get(name, "") for scenario in CORE_SSPS)
+    ]
+    if len(years) < 2:
+        raise RuntimeError("Pinned AR6 scenario rows have insufficient common time points.")
+
     times = pd.to_datetime([f"{year}-01-01" for year in years])
     arrays: dict[str, xr.DataArray] = {}
-    for scenario in CORE_SSPS:
-        row = next(row for row in rows if row["Scenario"].startswith(scenario))
-        values = [
-            float(row[str(year)]) if row.get(str(year), "") else np.nan
-            for year in years
-        ]
+    for scenario, row in scenario_rows.items():
+        values = [float(row[str(year)]) for year in years]
         arrays[scenario] = xr.DataArray(
             values,
             coords={"time": times},
@@ -125,6 +136,7 @@ def load_ar6_ch4() -> tuple[dict[str, xr.DataArray], dict[str, object]]:
         "blob": AR6_BLOB,
         "file": AR6_FILE,
         "download_sha256": sha256(raw).hexdigest(),
+        "common_scenario_years": years,
     }
 
 
