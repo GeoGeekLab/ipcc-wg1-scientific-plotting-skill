@@ -166,7 +166,7 @@ PASS  scenario.color.0.0
 PASS  scenario.color.0.1
 PASS  scenario.color.0.2
 
-Summary: 6 passed, 0 failed, 0 skipped
+Summary: 6 passed, 0 failed
 ~~~
 
 JSON output is available for CI:
