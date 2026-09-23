@@ -6,6 +6,7 @@ from typing import Literal
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 
+from .colormaps import OFFICIAL_COLORMAP_COMMIT, official_colormap_blob
 from .style import audit_text_conventions, require_arial
 from .tokens import scenario_style
 
@@ -79,17 +80,10 @@ class AuditReport:
                 details.append(f"expected={check.expected}")
             if details:
                 lines.append(f"      {'; '.join(details)}")
-        lines.extend(
-            [
-                "",
-                (
-                    "Summary: "
-                    f"{len(self.passes)} passed, "
-                    f"{len(self.failures)} failed, "
-                    f"{len(self.skipped)} skipped"
-                ),
-            ]
-        )
+        summary = f"Summary: {len(self.passes)} passed, {len(self.failures)} failed"
+        if self.skipped:
+            summary += f", {len(self.skipped)} skipped"
+        lines.extend(["", summary])
         return "\n".join(lines)
 
 
@@ -101,13 +95,11 @@ def audit_figure_report(
     require_ipcc_colormap: bool = False,
     strict_dimensions: bool = False,
     dimension_tolerance_mm: float = 0.5,
+    reference_size_mm: tuple[float, float] | None = None,
+    reference_panel_count: int | None = None,
+    reference_projection: str | None = None,
 ) -> AuditReport:
-    """Audit machine-checkable parts of the AR6 WGI visual contract.
-
-    The report is intentionally explicit about skipped checks. Machine auditing
-    cannot determine reference-specific projection, panel geometry, annotations,
-    or scientific-method correctness; those still require reference comparison.
-    """
+    """Audit requested AR6/WGI delivery, semantic, and reference geometry checks."""
 
     checks: list[AuditCheck] = []
 
@@ -158,17 +150,6 @@ def audit_figure_report(
                     expected="Arial available",
                 )
             )
-    else:
-        checks.append(
-            AuditCheck(
-                code="typography.arial",
-                status="skip",
-                category="typography",
-                message="strict font check not requested",
-                expected="Arial available for strict fidelity",
-            )
-        )
-
     width_mm, height_mm = (float(value) for value in fig.get_size_inches() * 25.4)
     if strict_dimensions:
         width_matches = any(
@@ -204,26 +185,93 @@ def audit_figure_report(
                 expected="<= 250 mm",
             )
         )
-    else:
+    if reference_size_mm is not None:
+        invalid_size = len(reference_size_mm) != 2 or any(
+            value <= 0 for value in reference_size_mm
+        )
+        if invalid_size:
+            raise ValueError(
+                "reference_size_mm must contain positive (width, height) values"
+            )
+        reference_width, reference_height = (float(value) for value in reference_size_mm)
+        width_matches = abs(width_mm - reference_width) <= dimension_tolerance_mm
+        height_matches = abs(height_mm - reference_height) <= dimension_tolerance_mm
         checks.extend(
             [
                 AuditCheck(
-                    code="delivery.width",
-                    status="skip",
-                    category="delivery",
-                    message="strict delivery-width check not requested",
+                    code="reference.width",
+                    status="pass" if width_matches else "fail",
+                    category="reference",
+                    message=(
+                        "figure width matches reference"
+                        if width_matches
+                        else "figure width differs from reference"
+                    ),
                     actual=round(width_mm, 2),
-                    expected="90 or 180 mm for strict fidelity",
+                    expected=round(reference_width, 2),
                 ),
                 AuditCheck(
-                    code="delivery.height",
-                    status="skip",
-                    category="delivery",
-                    message="strict delivery-height check not requested",
+                    code="reference.height",
+                    status="pass" if height_matches else "fail",
+                    category="reference",
+                    message=(
+                        "figure height matches reference"
+                        if height_matches
+                        else "figure height differs from reference"
+                    ),
                     actual=round(height_mm, 2),
-                    expected="<= 250 mm for strict fidelity",
+                    expected=round(reference_height, 2),
                 ),
             ]
+        )
+
+    panel_axes = tuple(
+        ax
+        for ax in fig.axes
+        if ax.get_label() != "<colorbar>" and getattr(ax, "_colorbar", None) is None
+    )
+    if reference_panel_count is not None:
+        if reference_panel_count < 1:
+            raise ValueError("reference_panel_count must be >= 1")
+        panel_count = len(panel_axes)
+        panels_match = panel_count == reference_panel_count
+        checks.append(
+            AuditCheck(
+                code="reference.panel-count",
+                status="pass" if panels_match else "fail",
+                category="reference",
+                message=(
+                    "panel count matches reference"
+                    if panels_match
+                    else "panel count differs from reference"
+                ),
+                actual=float(panel_count),
+                expected=float(reference_panel_count),
+            )
+        )
+
+    if reference_projection is not None:
+        projection_names = [
+            ax.projection.__class__.__name__
+            for ax in panel_axes
+            if getattr(ax, "projection", None) is not None
+        ]
+        projections_match = bool(projection_names) and all(
+            name.casefold() == reference_projection.casefold() for name in projection_names
+        )
+        checks.append(
+            AuditCheck(
+                code="reference.projection",
+                status="pass" if projections_match else "fail",
+                category="reference",
+                message=(
+                    "map projection matches reference"
+                    if projections_match
+                    else "map projection differs from reference"
+                ),
+                actual=", ".join(sorted(set(projection_names))) if projection_names else "none",
+                expected=reference_projection,
+            )
         )
 
     semantic_lines = 0
@@ -267,19 +315,9 @@ def audit_figure_report(
                 )
             )
 
-    if semantic_lines == 0:
-        checks.append(
-            AuditCheck(
-                code="scenario.colors",
-                status="skip",
-                category="semantics",
-                message="no registered SSP/RCP line labels found",
-                expected=f"semantic scenario colours for {profile} when applicable",
-            )
-        )
-
     if require_ipcc_colormap:
-        found_names: list[str] = []
+        verified_names: list[str] = []
+        unverified_names: list[str] = []
         for ax in fig.axes:
             artists = list(ax.collections) + list(ax.images)
             for artist in artists:
@@ -287,46 +325,48 @@ def audit_figure_report(
                 if get_cmap is None:
                     continue
                 cmap = get_cmap()
-                if cmap is not None and str(cmap.name).startswith("ipcc_"):
-                    found_names.append(str(cmap.name))
+                if cmap is None or not str(cmap.name).startswith("ipcc_"):
+                    continue
+                asset_name = getattr(cmap, "_ipcc_asset_name", None)
+                expected_blob = None
+                if isinstance(asset_name, str):
+                    try:
+                        expected_blob = official_colormap_blob(asset_name)
+                    except KeyError:
+                        expected_blob = None
+                verified_metadata = (
+                    getattr(cmap, "_ipcc_source_commit", None)
+                    == OFFICIAL_COLORMAP_COMMIT
+                    and getattr(cmap, "_ipcc_asset_blob", None) == expected_blob
+                    and expected_blob is not None
+                )
+                if verified_metadata:
+                    verified_names.append(str(cmap.name))
+                else:
+                    unverified_names.append(str(cmap.name))
+
+        verified = bool(verified_names)
+        actual_parts: list[str] = []
+        if verified_names:
+            actual_parts.append("verified: " + ", ".join(sorted(set(verified_names))))
+        if unverified_names:
+            actual_parts.append(
+                "unverified: " + ", ".join(sorted(set(unverified_names)))
+            )
         checks.append(
             AuditCheck(
                 code="map.official-colormap",
-                status="pass" if found_names else "fail",
+                status="pass" if verified else "fail",
                 category="semantics",
                 message=(
-                    "official IPCC colormap artist found"
-                    if found_names
-                    else "strict map audit found no official ipcc_* colormap artist"
+                    "verified official IPCC colormap artist found"
+                    if verified
+                    else "no verified official IPCC colormap artist found"
                 ),
-                actual=", ".join(sorted(set(found_names))) if found_names else "none",
-                expected="at least one official ipcc_* colormap artist",
+                actual="; ".join(actual_parts) if actual_parts else "none",
+                expected=f"asset verified against {OFFICIAL_COLORMAP_COMMIT}",
             )
         )
-    else:
-        checks.append(
-            AuditCheck(
-                code="map.official-colormap",
-                status="skip",
-                category="semantics",
-                message="official map-colormap check not requested",
-                expected="official ipcc_* colormap for strict map fidelity",
-            )
-        )
-
-    checks.append(
-        AuditCheck(
-            code="reference.manual-review",
-            status="skip",
-            category="reference",
-            message=(
-                "projection, panel geometry, annotation, and scientific method "
-                "require reference-specific review"
-            ),
-            expected="manual comparison for exact reproduction",
-        )
-    )
-
     return AuditReport(profile=profile, checks=tuple(checks))
 
 
@@ -338,6 +378,9 @@ def audit_figure(
     require_ipcc_colormap: bool = False,
     strict_dimensions: bool = False,
     dimension_tolerance_mm: float = 0.5,
+    reference_size_mm: tuple[float, float] | None = None,
+    reference_panel_count: int | None = None,
+    reference_projection: str | None = None,
 ) -> list[str]:
     """Return failure messages for compatibility with the original API."""
 
@@ -348,5 +391,8 @@ def audit_figure(
         require_ipcc_colormap=require_ipcc_colormap,
         strict_dimensions=strict_dimensions,
         dimension_tolerance_mm=dimension_tolerance_mm,
+        reference_size_mm=reference_size_mm,
+        reference_panel_count=reference_panel_count,
+        reference_projection=reference_projection,
     )
     return [check.message for check in report.failures]

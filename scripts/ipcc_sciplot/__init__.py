@@ -2,8 +2,16 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .colormaps import load_ipcc_colormap, official_colormap_root
+from .archetypes import label_line_ends, map_panel_grid
+from .colormaps import (
+    OFFICIAL_COLORMAP_COMMIT,
+    load_ipcc_colormap,
+    official_colormap_root,
+    verify_official_colormap_asset,
+    verify_official_colormap_checkout,
+)
 from .fidelity import AuditCheck, AuditReport, audit_figure, audit_figure_report
+from .maps import add_uncertainty_legend
 from .provenance import build_provenance, sha256_file, write_provenance
 from .recipe import FigureRecipe, load_recipe
 from .style import (
@@ -44,6 +52,7 @@ __all__ = [
     "__version__",
     "audit_figure",
     "audit_figure_report",
+    "add_uncertainty_legend",
     "audit_text_conventions",
     "axis_label",
     "build_provenance",
@@ -52,9 +61,14 @@ __all__ = [
     "figure_size_inches",
     "figure_width_inches",
     "ipcc_legend",
+    "OFFICIAL_COLORMAP_COMMIT",
     "load_ipcc_colormap",
+    "label_line_ends",
     "load_recipe",
+    "map_panel_grid",
     "official_colormap_root",
+    "verify_official_colormap_asset",
+    "verify_official_colormap_checkout",
     "panel_label",
     "publication_context",
     "require_arial",

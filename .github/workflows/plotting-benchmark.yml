@@ -1,0 +1,73 @@
+name: Cross-library plotting benchmark
+
+on:
+  push:
+    branches:
+      - benchmark/figanos-cross-library
+    paths:
+      - "benchmarks/ipcc_plotting/**"
+      - ".github/workflows/plotting-benchmark.yml"
+      - "scripts/ipcc_sciplot/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+          python -m pip install "figanos==0.7.0"
+
+      - name: Show pinned versions
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          print("ar6-sciplot", version("ar6-sciplot"))
+          print("figanos", version("figanos"))
+          PY
+
+      - name: Verify pinned IPCC colormap assets
+        run: |
+          git init /tmp/ipcc-wg1-colormaps
+          git -C /tmp/ipcc-wg1-colormaps remote add origin https://github.com/IPCC-WG1/colormaps.git
+          git -C /tmp/ipcc-wg1-colormaps fetch --depth 1 origin b7d3849d4fa521d2583b91360e875e38f191d209
+          git -C /tmp/ipcc-wg1-colormaps checkout --detach FETCH_HEAD
+          python - <<'PY'
+          from ipcc_sciplot import OFFICIAL_COLORMAP_COMMIT, verify_official_colormap_checkout
+
+          verified = verify_official_colormap_checkout(root="/tmp/ipcc-wg1-colormaps")
+          print(OFFICIAL_COLORMAP_COMMIT, len(verified), "assets")
+          assert len(verified) == 43
+          PY
+
+      - name: Run cross-library benchmark
+        env:
+          MPLBACKEND: Agg
+        run: python benchmarks/ipcc_plotting/benchmark.py
+
+      - name: Print benchmark summary
+        run: cat benchmarks/ipcc_plotting/out/RESULTS.md
+
+      - name: Upload benchmark renders
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipcc-plotting-benchmark
+          path: benchmarks/ipcc_plotting/out/
+          if-no-files-found: error
+          retention-days: 30

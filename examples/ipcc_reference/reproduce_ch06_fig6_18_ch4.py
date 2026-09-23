@@ -3,7 +3,8 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from common import clean_axes, finalize
+from common import assert_reference_contract, clean_axes, finalize
+from contracts import REFERENCE_CONTRACTS
 from sources import CH6_REPO, CH6_SHA, raw_url
 
 from ipcc_sciplot import publication_context, scenario_style
@@ -151,6 +152,10 @@ def main():
         legend.get_frame().set_edgecolor("black")
         legend.get_frame().set_linewidth(0.5)
 
+        assert_reference_contract(
+            fig,
+            REFERENCE_CONTRACTS["ch06_fig6_18_ch4_emissions"],
+        )
         return finalize(
             fig,
             "ch06_fig6_18_ch4_emissions",

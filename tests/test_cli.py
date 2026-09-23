@@ -68,3 +68,27 @@ def test_cli_json_report_is_machine_readable(tmp_path, capsys):
     assert payload["schema"] == "ar6-sciplot.audit/v1"
     assert payload["passed"] is True
     assert payload["summary"]["failed"] == 0
+
+
+
+def test_cli_reference_geometry_checks(tmp_path, capsys):
+    script = tmp_path / "figure.py"
+    _write_factory(script, semantic_color=True)
+
+    code = main(
+        [
+            "audit",
+            str(script),
+            "--reference-size-mm",
+            "180",
+            str(180 * 0.62),
+            "--reference-panel-count",
+            "1",
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert code == 0
+    assert "reference.width" in output
+    assert "reference.height" in output
+    assert "reference.panel-count" in output

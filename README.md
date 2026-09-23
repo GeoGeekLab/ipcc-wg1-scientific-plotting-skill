@@ -19,11 +19,15 @@ python -m pip install ar6-sciplot
 
 The distribution is `ar6-sciplot`; the Python package is `ipcc_sciplot`.
 
+Official colormap assets are checked against `IPCC-WG1/colormaps` commit
+`b7d3849d4fa521d2583b91360e875e38f191d209`.
+
 For map and climate workflows:
 
 ~~~bash
 python -m pip install "ar6-sciplot[climate]"
 git clone https://github.com/IPCC-WG1/colormaps.git
+git -C colormaps checkout b7d3849d4fa521d2583b91360e875e38f191d209
 export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
 ~~~
 
@@ -74,6 +78,22 @@ core SSPs. Rebuild or verify it with:
 python examples/visual_comparison.py
 python examples/visual_comparison.py --check
 ~~~
+
+
+## Cross-library benchmark
+
+Figanos 0.7.0 is the stronger general-purpose climate plotting package: broader plot
+coverage, deeper Xarray integration, native faceting, automatic scenario colours, and
+bundled IPCC colormaps.
+
+ar6-sciplot focuses on AR6/WGI profile versioning, print geometry, provenance,
+uncertainty semantics, and figure checks. The benchmark runs both packages on the same
+scenario data and controlled map inputs.
+
+- [benchmark methodology](benchmarks/ipcc_plotting/README.md)
+- [latest recorded results](benchmarks/ipcc_plotting/RESULTS.md)
+- [benchmark workflow](.github/workflows/plotting-benchmark.yml)
+
 
 ## Reference reproductions
 
@@ -150,7 +170,7 @@ PASS  scenario.color.0.0
 PASS  scenario.color.0.1
 PASS  scenario.color.0.2
 
-Summary: 6 passed, 0 failed, 3 skipped
+Summary: 6 passed, 0 failed
 ~~~
 
 JSON output is available for CI:
@@ -160,6 +180,15 @@ ar6plot audit examples/audit_demo.py \
   --strict-dimensions \
   --format json \
   --output outputs/audit.json
+~~~
+
+Reference geometry can be checked from the same command:
+
+~~~bash
+ar6plot audit figure.py \
+  --reference-size-mm 180 92 \
+  --reference-panel-count 3 \
+  --reference-projection Robinson
 ~~~
 
 Exit codes: `0` pass, `1` failed checks, `2` audit error.
@@ -192,8 +221,10 @@ The package includes:
 - 350 ppi raster output
 - axis-label and unit helpers
 - uncertainty and significance layers
+- collision-aware line-end labels
+- uncertainty legends and fixed-size panel grids
 - provenance helpers
-- figure audits
+- delivery and reference-geometry audits
 - pinned source-data regression examples
 
 Detailed rules live in:

@@ -1,26 +1,24 @@
 # Distillation architecture
 
-Version 0.2 separates visual fidelity from scientific-method and reproducibility concerns.
+The project separates source evidence, visual tokens, figure layout, scientific method, and reproducibility.
 
 ## Layer 1 — source evidence
 
-Use `SOURCES.md` and `evidence_matrix.md` to classify every rule by source, scope and confidence.
+`SOURCES.md` and `evidence_matrix.md` classify rules by source, scope and confidence.
 
-For exact AR6 reproduction, the published figure and contemporaneous AR6 guidance take precedence over later guide updates. For new figures using the June-2022 guide, select the `wgi-guide-2022` profile explicitly.
+For AR6 reproductions, the published figure and contemporaneous guidance take precedence. New figures can select the June-2022 `wgi-guide-2022` profile.
 
 ## Layer 2 — delivery grammar
 
-Machine-readable delivery tokens cover:
+Machine-readable tokens cover:
 
 - 90 mm / 180 mm figure widths;
 - 250 mm maximum height;
 - 9 pt / 11 pt text conventions;
 - 0.5 pt axes and legend/colour-bar boundaries;
-- 350 ppi print-raster output;
-- Arial-preferred sans serif typography;
+- 350 ppi print raster;
+- Arial-preferred typography;
 - units in parentheses.
-
-These rules are grounded in the AR6 WGI Visual Style Guide rather than generic journal defaults.
 
 ## Layer 3 — semantic colour tokens
 
@@ -32,24 +30,24 @@ These rules are grounded in the AR6 WGI Visual Style Guide rather than generic j
 - June-2022 SSP semantics;
 - restrained map-context colours.
 
-Official continuous/discrete/categorical RGB tables remain upstream and are loaded by semantic filename through `colormaps.py`.
+Official continuous/discrete RGB tables remain upstream and are loaded through `colormaps.py`.
 
 ## Layer 4 — visual grammar
 
-`ipcc_visual_grammar.md` defines the report-wide rules that can legitimately be called IPCC visual style.
+`ipcc_visual_grammar.md` contains report-wide visual rules.
 
 ## Layer 5 — figure archetypes
 
-`figure_archetypes.md` captures recurring families rather than pretending one universal theme exists.
+`figure_archetypes.md` covers recurring figure families and multi-panel layout.
 
 ## Layer 6 — scientific method
 
-`statistical_rules.md` intentionally separates analysis choices from visual style. Median vs mean, interval quantiles, sign-agreement thresholds, weighting, FDR and projection are not promoted into IPCC-wide defaults.
+`statistical_rules.md` records analysis choices such as center statistic, interval quantiles, agreement thresholds, weighting and FDR.
 
 ## Layer 7 — fidelity QA
 
-`fidelity.py` checks what can be automated. `fidelity_checklist.md` covers reference-specific geometry, projection, colour normalization, annotations and method choices that still require human comparison.
+`fidelity.py` checks delivery, semantic colours, official colormap use, and supplied reference geometry. `fidelity_checklist.md` covers the remaining visual comparison.
 
 ## Layer 8 — reproducibility
 
-Plotted-data, provenance, environment capture and tests remain important, but they cannot substitute for visual fidelity.
+Plotted data, provenance, environment capture and regression tests support repeatable figure production.

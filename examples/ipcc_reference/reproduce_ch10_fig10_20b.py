@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from common import finalize
+from common import assert_reference_contract, finalize
+from contracts import REFERENCE_CONTRACTS
 from sources import CH10_REPO, CH10_SHA, raw_url
 
 from ipcc_sciplot import publication_context
@@ -137,6 +138,10 @@ def main():
         legend.get_frame().set_linewidth(0.5)
         legend.get_frame().set_edgecolor("black")
 
+        assert_reference_contract(
+            fig,
+            REFERENCE_CONTRACTS["ch10_fig10_20b_stations"],
+        )
         return finalize(
             fig,
             "ch10_fig10_20b_stations",
