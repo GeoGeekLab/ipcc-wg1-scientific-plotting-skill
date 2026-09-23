@@ -3,7 +3,8 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from common import clean_axes, finalize
+from common import assert_reference_contract, clean_axes, finalize
+from contracts import REFERENCE_CONTRACTS
 from sources import CH3_REPO, CH3_SHA, raw_url
 
 from ipcc_sciplot import publication_context
@@ -139,6 +140,10 @@ def main():
         for text in legend.get_texts():
             text.set_fontsize(7.5)
 
+        assert_reference_contract(
+            fig,
+            REFERENCE_CONTRACTS["ch03_fig3_2b_scatter"],
+        )
         return finalize(
             fig,
             "ch03_fig3_2b_scatter",

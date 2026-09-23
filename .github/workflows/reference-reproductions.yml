@@ -34,11 +34,24 @@ jobs:
       - name: Lint
         run: ruff check examples/ipcc_reference scripts/ipcc_sciplot
 
-      - name: Generate reference reproductions
+      - name: Preserve committed image baseline
+        run: cp -R examples/ipcc_reference/outputs /tmp/ipcc-reference-baseline
+
+      - name: Generate reference reproductions and check figure contracts
         run: python examples/ipcc_reference/generate_all.py
 
+      - name: Report image regression metrics
+        run: |
+          python examples/ipcc_reference/compare_regressions.py \
+            --baseline /tmp/ipcc-reference-baseline \
+            --candidate examples/ipcc_reference/outputs \
+            --output examples/ipcc_reference/outputs/regression_report.json
+
       - name: Verify committed reference gallery
-        run: git diff --exit-code -- examples/ipcc_reference/outputs
+        run: |
+          git diff --exit-code -- \
+            examples/ipcc_reference/outputs/*.png \
+            examples/ipcc_reference/outputs/manifest.json
 
       - name: List outputs
         run: ls -lh examples/ipcc_reference/outputs
