@@ -65,6 +65,27 @@ def line_colors(ax: mpl.axes.Axes) -> dict[str, str]:
     return out
 
 
+def line_diagnostics(ax: mpl.axes.Axes) -> dict[str, dict[str, object]]:
+    out: dict[str, dict[str, object]] = {}
+    for line in ax.lines:
+        label = str(line.get_label())
+        if label not in CORE_SSPS:
+            continue
+        y = np.asarray(line.get_ydata(), dtype=float)
+        finite = np.isfinite(y)
+        out[label] = {
+            "visible": bool(line.get_visible()),
+            "linewidth": float(line.get_linewidth()),
+            "linestyle": str(line.get_linestyle()),
+            "alpha": line.get_alpha(),
+            "points": int(y.size),
+            "finite_points": int(finite.sum()),
+            "y_min": float(np.nanmin(y)),
+            "y_max": float(np.nanmax(y)),
+        }
+    return out
+
+
 def load_ar6_ch4() -> tuple[dict[str, xr.DataArray], dict[str, object]]:
     with urlopen(AR6_URL, timeout=60) as response:
         raw = response.read()
@@ -116,6 +137,7 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
     fig = ax.figure
     figanos_size = mm_size(fig)
     figanos_colors = line_colors(ax)
+    figanos_lines = line_diagnostics(ax)
     save(fig, "01_timeseries_figanos_native.png")
 
     mpl.rcdefaults()
@@ -130,6 +152,7 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
         ax.spines[["top", "right"]].set_visible(False)
         report_size = mm_size(fig)
         report_colors = line_colors(ax)
+        report_lines = line_diagnostics(ax)
         report_audit = audit_figure_report(
             fig, profile="ar6-report", strict_dimensions=True
         ).to_dict()
@@ -164,7 +187,9 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
         "ar6_report_size_mm": report_size,
         "ar6_wgi2022_size_mm": guide_size,
         "figanos_colors": figanos_colors,
+        "figanos_lines": figanos_lines,
         "ar6_report_colors": report_colors,
+        "ar6_report_lines": report_lines,
         "ar6_wgi2022_colors": guide_colors,
         "expected_report_colors": expected_report,
         "expected_2022_colors": expected_2022,
