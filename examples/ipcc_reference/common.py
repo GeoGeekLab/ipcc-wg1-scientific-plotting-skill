@@ -81,7 +81,6 @@ def assert_reference_contract(
         for field, getter in (
             ("xlabel", ax.get_xlabel),
             ("ylabel", ax.get_ylabel),
-            ("title", ax.get_title),
         ):
             if field in spec:
                 got = getter()
@@ -91,6 +90,18 @@ def assert_reference_contract(
                     failures.append(
                         f"axes[{index}].{field}: expected {expected!r}, got {got!r}"
                     )
+
+        if "title" in spec:
+            title_loc = str(spec.get("title_loc", "center"))
+            got = ax.get_title(loc=title_loc)
+            expected = str(spec["title"])
+            observed["title"] = got
+            observed["title_loc"] = title_loc
+            if got != expected:
+                failures.append(
+                    f"axes[{index}].title[{title_loc}]: "
+                    f"expected {expected!r}, got {got!r}"
+                )
 
         if "bbox" in spec:
             got = [float(value) for value in ax.get_position().bounds]

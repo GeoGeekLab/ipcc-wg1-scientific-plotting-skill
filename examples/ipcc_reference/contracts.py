@@ -15,6 +15,7 @@ REFERENCE_CONTRACTS: dict[str, dict[str, object]] = {
                     "b) Global temperature change over\n"
                     "land and ocean for a range of climates"
                 ),
+                "title_loc": "left",
                 "bbox": [0.23, 0.12, 0.73, 0.78],
                 "bbox_tolerance": 0.005,
                 "legend_contains": [
@@ -40,6 +41,7 @@ REFERENCE_CONTRACTS: dict[str, dict[str, object]] = {
                 "xlabel": "Year",
                 "ylabel": "CH$_4$ emissions (Tg (CH$_4$) yr$^{-1}$)",
                 "title": "CH$_4$",
+                "title_loc": "left",
                 "legend_contains": [
                     "SSP1-1.9",
                     "SSP1-2.6",
@@ -67,6 +69,7 @@ REFERENCE_CONTRACTS: dict[str, dict[str, object]] = {
                 "extent": [-10.0, 40.0, 25.0, 50.0],
                 "extent_tolerance": 0.15,
                 "title": "Station locations",
+                "title_loc": "left",
                 "legend_labels": ["E-OBS", "Donat et al. 2014"],
             }
         ],
