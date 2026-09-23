@@ -25,8 +25,8 @@ projects:
       - ensemble-aware time-series rendering
       - convenient map and hatching APIs
     benchmark_note: >
-      Strongest direct Python comparator. It should be described as stronger
-      than ar6-sciplot for general-purpose climate plotting breadth and UX.
+      Strongest direct Python comparator; broader general-purpose climate
+      plotting surface and stronger Xarray ergonomics than ar6-sciplot.
   cavaanalytics:
     repository: un-fao/CAVAanalytics
     native_runtime: false
@@ -43,8 +43,8 @@ projects:
       - CORDEX/ERA5 integration
       - analysis-to-map convenience
     benchmark_note: >
-      Source and repository-native outputs may be reviewed, but this Python
-      benchmark does not execute the R package and must not claim runtime parity.
+      Reviewed from source and repository-native outputs; not executed in the
+      Python benchmark.
   acs_plotting_maps:
     repository: AusClimateService/plotting_maps
     native_runtime: false
@@ -61,8 +61,8 @@ projects:
       - rich multi-panel and annotation workflows
       - practical hazard-specific presets
     benchmark_note: >
-      Strong application workflow, but its visual target mixes ACS guidance
-      with IPCC principles rather than reproducing AR6 WGI as a single profile.
+      Production-oriented hazard mapping combining ACS guidance with IPCC
+      design principles.
   giswlh_ipcc_figure:
     repository: GISWLH/IPCC_figure
     native_runtime: false
@@ -72,8 +72,7 @@ projects:
     strengths:
       - figure-specific reproduction can be closer than a generic library
     benchmark_note: >
-      Best treated as a reference-reconstruction stress test rather than a
-      general plotting-library comparator.
+      Figure-specific reconstruction benchmark.
   giswlh_plot_function:
     repository: GISWLH/plot-function
     native_runtime: false
