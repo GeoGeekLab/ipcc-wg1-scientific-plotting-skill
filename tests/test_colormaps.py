@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import matplotlib as mpl
 import numpy as np
 import pytest
 
@@ -54,3 +55,23 @@ def test_asset_verification_rejects_drift(tmp_path: Path):
 
     with pytest.raises(RuntimeError, match="differs from"):
         verify_official_colormap_asset("temp_div", root=tmp_path)
+
+
+
+def test_verified_loader_attaches_source_metadata(tmp_path: Path, monkeypatch):
+    target = tmp_path / "continuous_colormaps_rgb_0-255"
+    target.mkdir()
+    path = target / "temp_div.txt"
+    path.write_text("0 0 255\n255 255 255\n255 0 0\n", encoding="utf-8")
+    expected = colormaps._normalized_git_blob_sha(path)
+    monkeypatch.setitem(
+        colormaps.OFFICIAL_COLORMAP_BLOBS,
+        "continuous_colormaps_rgb_0-255/temp_div.txt",
+        expected,
+    )
+
+    cmap = load_ipcc_colormap("temp_div", root=tmp_path, register=True)
+    registered = mpl.colormaps[cmap.name]
+    assert cmap._ipcc_source_commit == colormaps.OFFICIAL_COLORMAP_COMMIT
+    assert cmap._ipcc_asset_blob == expected
+    assert registered._ipcc_asset_blob == expected
