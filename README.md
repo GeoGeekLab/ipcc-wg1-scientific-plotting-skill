@@ -19,11 +19,15 @@ python -m pip install ar6-sciplot
 
 The distribution is `ar6-sciplot`; the Python package is `ipcc_sciplot`.
 
+Official colormap assets are checked against `IPCC-WG1/colormaps` commit
+`b7d3849d4fa521d2583b91360e875e38f191d209`.
+
 For map and climate workflows:
 
 ~~~bash
 python -m pip install "ar6-sciplot[climate]"
 git clone https://github.com/IPCC-WG1/colormaps.git
+git -C colormaps checkout b7d3849d4fa521d2583b91360e875e38f191d209
 export IPCC_WG1_COLORMAPS_DIR=/path/to/colormaps
 ~~~
 
@@ -217,6 +221,7 @@ The package includes:
 - 350 ppi raster output
 - axis-label and unit helpers
 - uncertainty and significance layers
+- collision-aware line-end labels
 - uncertainty legends and fixed-size panel grids
 - provenance helpers
 - delivery and reference-geometry audits
