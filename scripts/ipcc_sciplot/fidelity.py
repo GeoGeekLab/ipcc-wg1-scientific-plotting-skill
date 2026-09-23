@@ -79,17 +79,10 @@ class AuditReport:
                 details.append(f"expected={check.expected}")
             if details:
                 lines.append(f"      {'; '.join(details)}")
-        lines.extend(
-            [
-                "",
-                (
-                    "Summary: "
-                    f"{len(self.passes)} passed, "
-                    f"{len(self.failures)} failed, "
-                    f"{len(self.skipped)} skipped"
-                ),
-            ]
-        )
+        summary = f"Summary: {len(self.passes)} passed, {len(self.failures)} failed"
+        if self.skipped:
+            summary += f", {len(self.skipped)} skipped"
+        lines.extend(["", summary])
         return "\n".join(lines)
 
 
