@@ -23,7 +23,7 @@ def add_uncertainty_legend(
     significance_color: str = "black",
     loc: str = "lower left",
     ncol: int = 1,
-    frameon: bool = False,
+    frameon: bool = True,
     **kwargs: Any,
 ) -> mpl.legend.Legend:
     """Add legend entries for uncertainty textures used on a map."""
@@ -60,13 +60,20 @@ def add_uncertainty_legend(
         )
     if not handles:
         raise ValueError("provide at least one uncertainty legend label")
-    return ax.legend(
+    legend = ax.legend(
         handles=handles,
         loc=loc,
         ncol=ncol,
         frameon=frameon,
         **kwargs,
     )
+    if frameon:
+        frame = legend.get_frame()
+        frame.set_facecolor("white")
+        frame.set_edgecolor("none")
+        frame.set_linewidth(0)
+        frame.set_alpha(1)
+    return legend
 
 
 def cosine_latitude_weights(lat: xr.DataArray) -> xr.DataArray:
