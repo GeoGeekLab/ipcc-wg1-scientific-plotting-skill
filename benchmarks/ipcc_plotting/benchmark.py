@@ -21,7 +21,13 @@ import xarray as xr
 from cartopy import crs as ccrs
 from figanos import matplotlib as fg
 
-from ipcc_sciplot import audit_figure_report, publication_context, scenario_style
+from ipcc_sciplot import (
+    add_uncertainty_legend,
+    audit_figure_report,
+    map_panel_grid,
+    publication_context,
+    scenario_style,
+)
 from ipcc_sciplot.archetypes import add_ipcc_colorbar, plot_scenario_timeseries
 from ipcc_sciplot.maps import add_low_agreement_hatching
 from ipcc_sciplot.style import axis_label, panel_label
@@ -257,6 +263,12 @@ def render_map() -> dict[str, object]:
             transform=ccrs.PlateCarree(),
             hatch="////",
         )
+        add_uncertainty_legend(
+            ax,
+            low_agreement="Low agreement",
+            hatch="////",
+            fontsize=8,
+        )
         ax.set_global()
         ax.set_title("Temperature change and model agreement", loc="left", pad=4)
         cbar = add_ipcc_colorbar(
@@ -277,6 +289,9 @@ def render_map() -> dict[str, object]:
             profile="ar6-report",
             strict_dimensions=True,
             require_ipcc_colormap=False,
+            reference_size_mm=(180, 100),
+            reference_panel_count=1,
+            reference_projection="Robinson",
         ).to_dict()
         save(fig, "02_map_ar6_controlled.png")
 
@@ -336,11 +351,13 @@ def render_multipanel() -> dict[str, object]:
 
     mpl.rcdefaults()
     with publication_context(width="double", height_mm=72, strict_font=False):
-        fig, axes = plt.subplots(
-            1,
+        fig, axes = map_panel_grid(
             3,
-            subplot_kw={"projection": ccrs.Robinson()},
-            gridspec_kw={"wspace": 0.03},
+            projection=ccrs.Robinson(),
+            ncols=3,
+            width="double",
+            height_mm=72,
+            wspace=0.03,
         )
         norm = mcolors.BoundaryNorm(levels, shared_cmap.N)
         mesh = None
@@ -375,8 +392,11 @@ def render_multipanel() -> dict[str, object]:
             fig,
             profile="ar6-report",
             strict_dimensions=True,
+            reference_size_mm=(180, 72),
+            reference_panel_count=3,
+            reference_projection="Robinson",
         ).to_dict()
-        save(fig, "03_multipanel_ar6_manual.png")
+        save(fig, "03_multipanel_ar6_panel_grid.png")
 
     return {
         "figanos_panel_axes": figanos_axes,
@@ -385,6 +405,7 @@ def render_multipanel() -> dict[str, object]:
         "ar6_size_mm": ar6_size,
         "figanos_native_faceting": True,
         "ar6_native_faceting": False,
+        "ar6_panel_grid_helper": True,
         "ar6_contract_diagnostic": ar6_audit,
     }
 
@@ -400,25 +421,15 @@ def write_markdown(results: dict[str, object]) -> None:
         f"ar6-sciplot {results['versions']['ar6_sciplot']} on Python "
         f"{results['versions']['python']}.",
         "",
-        "## What Figanos does better",
+        "## Summary",
         "",
-        "Figanos is the stronger general-purpose climate plotting library in this benchmark.",
+        "Figanos remains the stronger general-purpose climate plotting library: "
+        "broader plot coverage, deeper Xarray integration, native faceting, automatic "
+        "scenario colours, and bundled IPCC colormaps.",
         "",
-        "- It recognizes SSP labels and assigns current WGI colours automatically.",
-        "- It bundles and registers IPCC colormaps on import.",
-        "- gridmap() and hatchmap() provide a compact map workflow.",
-        "- Xarray facet construction is native, so warming-level panels do not "
-        "require hand-built axes.",
-        "- Its plotting surface is substantially broader than ar6-sciplot.",
-        "",
-        "ar6-sciplot should not claim superiority on those dimensions.",
-        "",
-        "## Where ar6-sciplot is different",
-        "",
-        "Its narrower advantage is fidelity bookkeeping: explicit ar6-report versus "
-        "wgi-guide-2022 profiles, physical delivery geometry, report-style text rules, "
-        "provenance, and machine-checkable audit fields. Those are useful for AR6 "
-        "reproduction and QA, but they do not replace Figanos' broader plotting API.",
+        "ar6-sciplot is focused on AR6/WGI profile versioning, print geometry, provenance, "
+        "uncertainty semantics, and figure checks. This benchmark iteration also adds a "
+        "fixed-size panel-grid helper and uncertainty legends.",
         "",
         "## 1. Scenario time series",
         "",
@@ -427,41 +438,33 @@ def write_markdown(results: dict[str, object]) -> None:
         f"- Native Figanos figure size: {ts['figanos_native_size_mm']} mm.",
         f"- ar6-report figure size: {ts['ar6_report_size_mm']} mm.",
         "",
-        "A mismatch with ar6-report is not a Figanos defect: Figanos tracks the updated "
-        "WGI colour registry, while the report-era profile exists to reproduce older "
-        "final-report semantics.",
+        "Figanos uses the updated WGI scenario palette automatically. The ar6-report "
+        "profile keeps final-report-era scenario colours for source-faithful reproduction.",
         "",
         "## 2. Controlled change map + agreement",
         "",
-        f"- Both renderers used projection: {mp['figanos_projection']}.",
-        "- Both renderers used the same registered IPCC colormap: "
+        f"- Projection: {mp['figanos_projection']} for both renderers.",
+        "- Shared registered IPCC colormap: "
         f"{mp['data']['shared_cmap_name']}.",
-        f"- Both used the same level boundaries: {mp['data']['levels']}.",
+        f"- Shared level boundaries: {mp['data']['levels']}.",
         "",
-        "With those confounders removed, Figanos is more concise at the map-workflow level. "
-        "ar6-sciplot is more explicit about separating low agreement, missing data, and "
-        "statistical significance.",
+        "Figanos still provides the more compact gridmap+hatchmap workflow. ar6-sciplot "
+        "now supplies the agreement hatch and its legend through dedicated helpers, while "
+        "keeping low agreement, missing data, and significance as separate encodings.",
         "",
         "## 3. Warming-level multipanel",
         "",
         f"- Figanos native Xarray faceting: {multi['figanos_native_faceting']}.",
-        f"- ar6-sciplot native faceting: {multi['ar6_native_faceting']}.",
+        f"- ar6-sciplot panel-grid helper: {multi['ar6_panel_grid_helper']}.",
         "",
-        "This is a clear Figanos advantage. ar6-sciplot currently requires manual "
-        "Matplotlib/Cartopy subplot construction for this archetype.",
+        "Figanos remains ahead on Xarray-native faceting. ar6-sciplot now handles physical "
+        "panel geometry and subplot allocation in one helper, reducing the previous manual "
+        "Cartopy setup.",
         "",
-        "## Interpretation boundary",
-        "",
-        "These results do not establish an overall winner and do not measure scientific "
-        "correctness. Figanos is currently ahead in general plotting breadth and "
-        "Xarray-native UX; ar6-sciplot's defensible niche is narrower AR6/WGI evidence, "
-        "profile separation, delivery constraints, and auditability.",
-        "",
-        "See the PNG files in this artifact for side-by-side visual inspection.",
+        "The PNG outputs in the artifact show the rendered comparison.",
         "",
     ]
     (OUT / "RESULTS.md").write_text("\n".join(lines), encoding="utf-8")
-
 
 def main() -> None:
     if version("figanos") != FIGANOS_VERSION:
@@ -488,7 +491,8 @@ def main() -> None:
             "figanos_xarray_faceting_stronger": True,
             "ar6_profile_versioning_more_explicit": True,
             "ar6_machine_fidelity_audit_available": True,
-            "overall_winner_declared": False,
+            "ar6_panel_grid_helper_available": True,
+            "ar6_uncertainty_legend_available": True,
         },
     }
     (OUT / "results.json").write_text(
