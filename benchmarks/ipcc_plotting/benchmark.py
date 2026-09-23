@@ -66,6 +66,25 @@ def line_colors(ax: mpl.axes.Axes) -> dict[str, str]:
     return out
 
 
+def scenario_label_overlaps(
+    ax: mpl.axes.Axes,
+) -> list[list[str]]:
+    ax.figure.canvas.draw()
+    renderer = ax.figure.canvas.get_renderer()
+    labels = [
+        artist
+        for artist in ax.texts
+        if artist.get_text() in CORE_SSPS and artist.get_visible()
+    ]
+    overlaps: list[list[str]] = []
+    for index, first in enumerate(labels):
+        first_box = first.get_window_extent(renderer=renderer)
+        for second in labels[index + 1 :]:
+            if first_box.overlaps(second.get_window_extent(renderer=renderer)):
+                overlaps.append([first.get_text(), second.get_text()])
+    return overlaps
+
+
 def line_diagnostics(ax: mpl.axes.Axes) -> dict[str, dict[str, object]]:
     out: dict[str, dict[str, object]] = {}
     for line in ax.lines:
@@ -151,6 +170,7 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
     figanos_size = mm_size(fig)
     figanos_colors = line_colors(ax)
     figanos_lines = line_diagnostics(ax)
+    figanos_label_overlaps = scenario_label_overlaps(ax)
     save(fig, "01_timeseries_figanos_native.png")
 
     mpl.rcdefaults()
@@ -173,6 +193,7 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
         report_size = mm_size(fig)
         report_colors = line_colors(ax)
         report_lines = line_diagnostics(ax)
+        report_label_overlaps = scenario_label_overlaps(ax)
         report_audit = audit_figure_report(
             fig, profile="ar6-report", strict_dimensions=True
         ).to_dict()
@@ -208,8 +229,10 @@ def render_timeseries(data: dict[str, xr.DataArray]) -> dict[str, object]:
         "ar6_wgi2022_size_mm": guide_size,
         "figanos_colors": figanos_colors,
         "figanos_lines": figanos_lines,
+        "figanos_label_overlaps": figanos_label_overlaps,
         "ar6_report_colors": report_colors,
         "ar6_report_lines": report_lines,
+        "ar6_report_label_overlaps": report_label_overlaps,
         "ar6_wgi2022_colors": guide_colors,
         "expected_report_colors": expected_report,
         "expected_2022_colors": expected_2022,
@@ -486,9 +509,10 @@ def write_markdown(results: dict[str, object]) -> None:
         "Figanos uses the updated WGI scenario palette automatically. The ar6-report "
         "profile keeps final-report-era scenario colours for source-faithful reproduction.",
         "",
-        "Figanos' edge labels save plotting space, but the SSP1-1.9 and SSP1-2.6 labels "
-        "overlap at the 2100 endpoint in this dataset. ar6-sciplot uses the same "
-        "line-end approach with vertical collision avoidance.",
+        f"- Figanos label overlaps: {ts['figanos_label_overlaps']}.",
+        f"- ar6-sciplot label overlaps: {ts['ar6_report_label_overlaps']}.",
+        "",
+        "Both use line-end labels; ar6-sciplot applies vertical collision avoidance.",
         "",
         "## 2. Controlled change map + agreement",
         "",
