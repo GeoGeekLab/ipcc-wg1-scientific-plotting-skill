@@ -108,6 +108,15 @@ def _official_files() -> dict[str, str]:
     }
 
 
+def official_colormap_blob(name: str) -> str:
+    """Return the pinned Git blob SHA for one official colour asset."""
+    try:
+        relative = _official_files()[name]
+    except KeyError as exc:
+        raise KeyError(f"unknown official IPCC colormap {name!r}") from exc
+    return OFFICIAL_COLORMAP_BLOBS[relative]
+
+
 def _normalized_git_blob_sha(path: Path) -> str:
     data = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
     header = f"blob {len(data)}\0".encode()
