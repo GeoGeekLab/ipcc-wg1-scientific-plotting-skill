@@ -6,6 +6,7 @@ from typing import Literal
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 
+from .colormaps import OFFICIAL_COLORMAP_COMMIT
 from .style import audit_text_conventions, require_arial
 from .tokens import scenario_style
 
@@ -315,7 +316,8 @@ def audit_figure_report(
             )
 
     if require_ipcc_colormap:
-        found_names: list[str] = []
+        verified_names: list[str] = []
+        unverified_names: list[str] = []
         for ax in fig.axes:
             artists = list(ax.collections) + list(ax.images)
             for artist in artists:
@@ -323,20 +325,37 @@ def audit_figure_report(
                 if get_cmap is None:
                     continue
                 cmap = get_cmap()
-                if cmap is not None and str(cmap.name).startswith("ipcc_"):
-                    found_names.append(str(cmap.name))
+                if cmap is None or not str(cmap.name).startswith("ipcc_"):
+                    continue
+                if (
+                    getattr(cmap, "_ipcc_source_commit", None)
+                    == OFFICIAL_COLORMAP_COMMIT
+                    and getattr(cmap, "_ipcc_asset_blob", None)
+                ):
+                    verified_names.append(str(cmap.name))
+                else:
+                    unverified_names.append(str(cmap.name))
+
+        verified = bool(verified_names)
+        actual_parts: list[str] = []
+        if verified_names:
+            actual_parts.append("verified: " + ", ".join(sorted(set(verified_names))))
+        if unverified_names:
+            actual_parts.append(
+                "unverified: " + ", ".join(sorted(set(unverified_names)))
+            )
         checks.append(
             AuditCheck(
                 code="map.official-colormap",
-                status="pass" if found_names else "fail",
+                status="pass" if verified else "fail",
                 category="semantics",
                 message=(
-                    "official IPCC colormap artist found"
-                    if found_names
-                    else "strict map audit found no official ipcc_* colormap artist"
+                    "verified official IPCC colormap artist found"
+                    if verified
+                    else "no verified official IPCC colormap artist found"
                 ),
-                actual=", ".join(sorted(set(found_names))) if found_names else "none",
-                expected="at least one official ipcc_* colormap artist",
+                actual="; ".join(actual_parts) if actual_parts else "none",
+                expected=f"asset verified against {OFFICIAL_COLORMAP_COMMIT}",
             )
         )
     return AuditReport(profile=profile, checks=tuple(checks))
