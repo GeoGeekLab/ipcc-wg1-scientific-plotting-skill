@@ -178,6 +178,15 @@ ar6plot audit examples/audit_demo.py \
   --output outputs/audit.json
 ~~~
 
+Reference geometry can be checked from the same command:
+
+~~~bash
+ar6plot audit figure.py \
+  --reference-size-mm 180 92 \
+  --reference-panel-count 3 \
+  --reference-projection Robinson
+~~~
+
 Exit codes: `0` pass, `1` failed checks, `2` audit error.
 
 The Python API exposes both the compatibility function and the structured report:
