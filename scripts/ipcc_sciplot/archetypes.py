@@ -61,7 +61,7 @@ def label_line_ends(
     x_pad_points: float = 4.0,
     connector_threshold_points: float = 2.0,
     fontsize: float | None = None,
-) -> dict[str, mpl.text.Annotation]:
+) -> dict[str, mpl.text.Text]:
     """Label line endpoints while separating labels that would overlap."""
     if min_gap_points < 0:
         raise ValueError("min_gap_points must be >= 0")
@@ -123,7 +123,7 @@ def label_line_ends(
     label_transform = mpl.transforms.blended_transform_factory(ax.transAxes, ax.transData)
     threshold_px = connector_threshold_points * ax.figure.dpi / 72.0
 
-    annotations: dict[str, mpl.text.Annotation] = {}
+    labels: dict[str, mpl.text.Text] = {}
     for ((label, line, x_value, y_value), original_y_px), target_y_px in zip(
         ordered,
         adjusted_y_px,
@@ -132,31 +132,36 @@ def label_line_ends(
         target_data_y = float(
             ax.transData.inverted().transform((float(ax.bbox.x1), target_y_px))[1]
         )
-        arrowprops = None
-        if abs(target_y_px - original_y_px) > threshold_px:
-            arrowprops = {
-                "arrowstyle": "-",
-                "color": line.get_color(),
-                "linewidth": 0.5,
-                "shrinkA": 0,
-                "shrinkB": 0,
-            }
-
-        annotations[label] = ax.annotate(
+        labels[label] = ax.text(
+            x_axes,
+            target_data_y,
             label,
-            xy=(x_value, y_value),
-            xycoords="data",
-            xytext=(x_axes, target_data_y),
-            textcoords=label_transform,
+            transform=label_transform,
             ha="left",
             va="center",
             color=line.get_color(),
             fontsize=fontsize,
-            annotation_clip=False,
-            arrowprops=arrowprops,
+            clip_on=False,
         )
 
-    return annotations
+        if abs(target_y_px - original_y_px) > threshold_px:
+            ax.annotate(
+                "",
+                xy=(x_value, y_value),
+                xycoords="data",
+                xytext=(x_axes, target_data_y),
+                textcoords=label_transform,
+                annotation_clip=False,
+                arrowprops={
+                    "arrowstyle": "-",
+                    "color": line.get_color(),
+                    "linewidth": 0.5,
+                    "shrinkA": 0,
+                    "shrinkB": 0,
+                },
+            )
+
+    return labels
 
 def plot_scenario_timeseries(
     ax: mpl.axes.Axes,
