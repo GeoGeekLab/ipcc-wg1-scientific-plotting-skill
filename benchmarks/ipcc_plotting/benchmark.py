@@ -20,6 +20,7 @@ import pandas as pd
 import xarray as xr
 from cartopy import crs as ccrs
 from figanos import matplotlib as fg
+
 from ipcc_sciplot import audit_figure_report, publication_context, scenario_style
 from ipcc_sciplot.archetypes import add_ipcc_colorbar, plot_scenario_timeseries
 from ipcc_sciplot.maps import add_low_agreement_hatching
@@ -406,7 +407,8 @@ def write_markdown(results: dict[str, object]) -> None:
         "- It recognizes SSP labels and assigns current WGI colours automatically.",
         "- It bundles and registers IPCC colormaps on import.",
         "- gridmap() and hatchmap() provide a compact map workflow.",
-        "- Xarray facet construction is native, so warming-level panels do not require hand-built axes.",
+        "- Xarray facet construction is native, so warming-level panels do not "
+        "require hand-built axes.",
         "- Its plotting surface is substantially broader than ar6-sciplot.",
         "",
         "ar6-sciplot should not claim superiority on those dimensions.",
@@ -432,7 +434,8 @@ def write_markdown(results: dict[str, object]) -> None:
         "## 2. Controlled change map + agreement",
         "",
         f"- Both renderers used projection: {mp['figanos_projection']}.",
-        f"- Both renderers used the same registered IPCC colormap: {mp['data']['shared_cmap_name']}.",
+        "- Both renderers used the same registered IPCC colormap: "
+        f"{mp['data']['shared_cmap_name']}.",
         f"- Both used the same level boundaries: {mp['data']['levels']}.",
         "",
         "With those confounders removed, Figanos is more concise at the map-workflow level. "
