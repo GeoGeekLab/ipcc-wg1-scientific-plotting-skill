@@ -225,8 +225,13 @@ def audit_figure_report(
         )
 
     if reference_size_mm is not None:
-        if len(reference_size_mm) != 2 or any(value <= 0 for value in reference_size_mm):
-            raise ValueError("reference_size_mm must contain positive (width, height) values")
+        invalid_size = len(reference_size_mm) != 2 or any(
+            value <= 0 for value in reference_size_mm
+        )
+        if invalid_size:
+            raise ValueError(
+                "reference_size_mm must contain positive (width, height) values"
+            )
         reference_width, reference_height = (float(value) for value in reference_size_mm)
         width_matches = abs(width_mm - reference_width) <= dimension_tolerance_mm
         height_matches = abs(height_mm - reference_height) <= dimension_tolerance_mm
@@ -236,7 +241,11 @@ def audit_figure_report(
                     code="reference.width",
                     status="pass" if width_matches else "fail",
                     category="reference",
-                    message="figure width matches reference" if width_matches else "figure width differs from reference",
+                    message=(
+                        "figure width matches reference"
+                        if width_matches
+                        else "figure width differs from reference"
+                    ),
                     actual=round(width_mm, 2),
                     expected=round(reference_width, 2),
                 ),
@@ -244,7 +253,11 @@ def audit_figure_report(
                     code="reference.height",
                     status="pass" if height_matches else "fail",
                     category="reference",
-                    message="figure height matches reference" if height_matches else "figure height differs from reference",
+                    message=(
+                        "figure height matches reference"
+                        if height_matches
+                        else "figure height differs from reference"
+                    ),
                     actual=round(height_mm, 2),
                     expected=round(reference_height, 2),
                 ),
@@ -266,7 +279,11 @@ def audit_figure_report(
                 code="reference.panel-count",
                 status="pass" if panels_match else "fail",
                 category="reference",
-                message="panel count matches reference" if panels_match else "panel count differs from reference",
+                message=(
+                    "panel count matches reference"
+                    if panels_match
+                    else "panel count differs from reference"
+                ),
                 actual=float(panel_count),
                 expected=float(reference_panel_count),
             )
