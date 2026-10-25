@@ -14,6 +14,13 @@ Profiles · official colour assets · publication geometry · uncertainty encodi
 
 </div>
 
+<!-- GeoGeekLab VIS: BEGIN -->
+<p align="center">
+  <a href="https://github.com/GeoGeekLab/geogeeklab-visual-identity/tree/main/logos/scientific-instruments/official-candidates-v1/ipcc-wg1-scientific-plotting-skill"><img src="https://raw.githubusercontent.com/GeoGeekLab/geogeeklab-visual-identity/main/logos/scientific-instruments/official-candidates-v1/ipcc-wg1-scientific-plotting-skill/readme-hero.svg" alt="Scientific Plotting — uncertainty and evidence visual identity" width="720"></a>
+</p>
+<!-- GeoGeekLab VIS: END -->
+
+
 ```text
 evidence → profile → tokens → render → audit → reference regression
 ```
